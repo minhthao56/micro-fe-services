@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  usermgmt:
+    image: service/usermgmt:1.0
+    build: 
+      context: .
+      dockerfile: Dockerfile.server
+    depends_on: 
+      db:
+        condition: service_healthy
+    ports:
+      - '9090:9090'
