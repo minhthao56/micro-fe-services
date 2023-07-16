@@ -2,8 +2,11 @@ module github.com/minthao56/setup-microservices
 
 go 1.20
 
+require github.com/jackc/pgtype v1.14.0
+
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/jackc/pgio v1.0.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
