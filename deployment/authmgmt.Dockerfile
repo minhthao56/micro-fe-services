@@ -1,9 +1,9 @@
-FROM rust:1.67-alpine
+FROM rust
 
-WORKDIR /app
+COPY services/authmgmt ./
 
-COPY services/authmgmt/target/release/authmgmt /app/authmgmt
+RUN cargo build --release
 
 EXPOSE 8080
 
-CMD [ "./authmgmt" ]
+CMD [ "./target/release/authmgmt" ]
