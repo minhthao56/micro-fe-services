@@ -8,9 +8,10 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
+	ordermgmt := r.Group("/ordermgmt")
+	ordermgmt.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"message": "order management service",
 		})
 	})
 	r.Run(":6060")

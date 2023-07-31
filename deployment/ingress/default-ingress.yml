@@ -8,10 +8,17 @@ spec:
   - host: api.taxi.com
     http:
       paths:
-      - path: /
+      - path: /communicatemgmt
         pathType: Prefix
         backend:
           service:
             name: communicatemgmt-service
             port:
               number: 7070
+      - path: /usermgmt
+        pathType: Prefix
+        backend:
+          service:
+            name: usermgmt-service
+            port:
+              number: 9090
