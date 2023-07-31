@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: communicatemgmt
+  labels:
+    app: communicatemgmt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: communicatemgmt
+  template:
+    metadata:
+      labels:
+        app: communicatemgmt
+    spec:
+      containers:
+      - name: communicatemgmt
+        image: taxi/communicatemgmt
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 7070
+              
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: communicatemgmt-service
+spec:
+  selector:
+    app: communicatemgmt
+  ports:
+    - protocol: TCP
+      port: 7070
+      targetPort: 7070

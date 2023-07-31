@@ -1,10 +1,10 @@
 
-build-go:
+build-usermgmt:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ./build/usermgmt ./services/usermgmt/
 
 
-docker-go:
-	docker build -f deployment/usermgmt.Dockerfile -t taxi/usermgmt:1.0 .
+docker-usermgmt:
+	docker build -f deployment/usermgmt.Dockerfile -t taxi/usermgmt .
 
 
 build-rust:
@@ -16,11 +16,13 @@ run-rust:
 
 
 docker-rust:
-	docker build -f deployment/authmgmt.Dockerfile -t taxi/authmgmt:1.0 .
+	docker build -f deployment/authmgmt.Dockerfile -t taxi/authmgmt .
 
 
-build-nest:
+build-communicatemgmt:
 	cd services/communicatemgmt/ && npm run build && cp -r dist ../../build/
+	cp -r services/communicatemgmt/package.json build/
+	cd build && npm install --omit=dev
 
-docker-node:
-	docker build -f deployment/communicatemgmt.Dockerfile -t taxi/communicatemgmt:1.0 .
+docker-communicatemgmt:
+	docker build -f deployment/communicatemgmt.Dockerfile -t taxi/communicatemgmt .

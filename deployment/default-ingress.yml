@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: default-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.taxi.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: communicatemgmt-service
+            port:
+              number: 7070

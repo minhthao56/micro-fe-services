@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY services/communicatemgmt/package.json ./
 
-RUN npm install --only=production
+COPY build/node_modules ./node_modules
 
 COPY build/dist ./dist
 
