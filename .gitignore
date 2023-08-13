@@ -1,2 +1,5 @@
 build/
 target/
+# compiled output
+/dist
+/node_modules
