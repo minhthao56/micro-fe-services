@@ -16,7 +16,7 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Hello, world!");
+    println!("authmgmt, world!");
     HttpServer::new(|| {
         App::new()
             .service(hello)

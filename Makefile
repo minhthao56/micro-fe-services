@@ -17,18 +17,18 @@ docker-ordermgmt:
 
 # authmgmt
 build-authmgmt:
-	cd services/authmgmt/ && cargo build --release && cp -r target ../../build/
+	cargo build --release --bin authmgmt
 
 
 run-authmgmt:
-	cd services/authmgmt/ && cargo run
+	cargo run --bin authmgmt
 
 docker-authmgmt:
 	docker build -f deployment/authmgmt.Dockerfile -t taxi/authmgmt .
 
 # communicatemgmt
 build-communicatemgmt:
-	cd services/communicatemgmt/ && yarn && yarn build && cp -r dist ../../build/
+	yarn && yarn workspace communicatemgmt build && cd services/communicatemgmt/ && cp -r dist ../../build/
 	cp -r services/communicatemgmt/package.json build/
 	cd build && yarn --production
 
