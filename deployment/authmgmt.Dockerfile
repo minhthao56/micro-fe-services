@@ -1,9 +1,8 @@
-FROM rust
+FROM rust:1.71
+WORKDIR /app
+COPY Cargo.lock Cargo.lock
+COPY Cargo.toml Cargo.toml
+COPY services/authmgmt services/authmgmt
+RUN cargo build --release --bin authmgmt
 
-COPY services/authmgmt ./
-
-RUN cargo build --release
-
-EXPOSE 8080
-
-CMD [ "./target/release/authmgmt" ]
+CMD ["./target/release/authmgmt "]
