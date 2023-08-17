@@ -22,3 +22,10 @@ spec:
             name: usermgmt-service
             port:
               number: 9090
+      - path: /authmgmt
+        pathType: Prefix
+        backend:
+          service:
+            name: authmgmt-service
+            port:
+              number: 8080

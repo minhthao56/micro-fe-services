@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordermgmt
+  labels:
+    app: ordermgmt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ordermgmt
+  template:
+    metadata:
+      labels:
+        app: ordermgmt
+    spec:
+      containers:
+      - name: ordermgmt
+        image: taxi/ordermgmt
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6060
+              
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordermgmt-service
+spec:
+  selector:
+    app: ordermgmt
+  ports:
+    - protocol: TCP
+      port: 6060
+      targetPort: 6060

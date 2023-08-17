@@ -37,6 +37,3 @@ docker-communicatemgmt:
 
 run-communicatemgmt:
 	cd services/communicatemgmt/ && npm start
-
-yarn-add:
-	cd services/communicatemgmt/ && yarn add $(p)
