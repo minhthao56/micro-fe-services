@@ -1,15 +1,17 @@
 #!/bin/bash
+svcname=$1
+
 eval $(minikube -p minikube docker-env)
 
-ID=$(docker images --format "{{.ID}} {{.Repository}} {{.Tag}}" | grep "taxi/communicatemgmt latest" | awk '{print $1}')
+ID=$(docker images --format "{{.ID}} {{.Repository}} {{.Tag}}" | grep "taxi/$svcname latest" | awk '{print $1}')
 
-make build-communicatemgmt
+make build-$svcname
 
-make docker-communicatemgmt
+make docker-$svcname
 
-kubectl rollout restart deployment communicatemgmt
+kubectl rollout restart deployment $svcname
 
-kubectl rollout status deployment communicatemgmt
+kubectl rollout status deployment $svcname
 
 sleep 60
 

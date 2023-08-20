@@ -29,3 +29,10 @@ spec:
             name: authmgmt-service
             port:
               number: 8080
+      - path: /ordermgmt
+        pathType: Prefix
+        backend:
+          service:
+            name: ordermgmt-service
+            port:
+              number: 6060
