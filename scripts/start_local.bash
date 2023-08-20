@@ -17,6 +17,13 @@ make docker-authmgmt
 make build-ordermgmt
 make docker-ordermgmt
 
+
+kubectl apply -f deployment/postgresql/pg-secret.yml
+
+kubectl apply -f deployment/postgresql/pg-deploy-service.yml
+
+kubectl apply -f deployment/postgresql/pg-configmap.yml
+
 kubectl apply -f deployment/communicatemgmt/commu-deploy-service.yml
 
 kubectl apply -f deployment/usermgmt/usermgmt-deploy-service.yml
@@ -26,6 +33,7 @@ kubectl apply -f deployment/authmgmt/authmgmt-deploy-service.yml
 kubectl apply -f deployment/ordermgmt/ordermgmt-deploy-service.yml
 
 kubectl apply -f deployment/ingress/default-ingress.yml
+
 
 
 

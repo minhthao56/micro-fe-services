@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 actix-web = { workspace = true}
 reqwest = { workspace = true}
+database = { path = "../../database"}
 
 [[bin]]
 name = "authmgmt"

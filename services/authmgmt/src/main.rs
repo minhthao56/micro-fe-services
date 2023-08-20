@@ -1,19 +1,27 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
-use reqwest;
+// use reqwest;
+
+use database::db::Database;
 
 #[get("/")]
 async fn hello() -> impl Responder {
-   let res=  reqwest::get("http://communicatemgmt-service:7070/communicatemgmt/").await.unwrap();
-    println!("Status: {}", res.status());
-    println!("Headers:\n{:#?}", res.headers());
+//    let res=  reqwest::get("http://communicatemgmt-service:7070/communicatemgmt/").await.unwrap();
+//     println!("Status: {}", res.status());
+//     println!("Headers:\n{:#?}", res.headers());
 
-    let body = res.text().await.unwrap();
-    println!("Body:\n{}", body);
+//     let body = res.text().await.unwrap();
+//     println!("Body:\n{}", body);
+    Database::new();
 
     let s = String::from("Hello world!");
 
-    HttpResponse::Ok().body(s + &body)
+    HttpResponse::Ok().body(s)
 }
+#[get("/login")]
+async fn login() -> impl Responder {
+    HttpResponse::Ok().body("login")
+}
+
 
 #[post("/echo")]
 async fn echo(req_body: String) -> impl Responder {

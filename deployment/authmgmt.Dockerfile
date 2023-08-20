@@ -5,6 +5,8 @@ WORKDIR /usr/src/authmgmt
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
 COPY services/authmgmt services/authmgmt
+COPY database/src database/src
+COPY database/Cargo.toml database/Cargo.toml
 
 RUN cargo install --path services/authmgmt
 

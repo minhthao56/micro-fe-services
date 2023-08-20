@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-configmap
+data:
+  url_user_service: usermgmt-service
+  url_auth_service: authmgmt-service
+  url_communicate_service: communicatemgmt-service
+  url_order_service: ordermgmt-service
