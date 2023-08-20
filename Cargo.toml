@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "services/authmgmt",
+    "services/usermgmt",
 ]
 
 [workspace.dependencies]

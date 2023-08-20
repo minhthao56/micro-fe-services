@@ -1,6 +1,7 @@
 # usermgmt
 build-usermgmt:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ./build/usermgmt ./services/usermgmt/
+	# CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ./build/usermgmt ./services/usermgmt/
+	cargo run --bin authmgmt
 
 
 docker-usermgmt:
@@ -21,7 +22,8 @@ build-authmgmt:
 
 
 run-authmgmt:
-	cargo run --bin authmgmt
+	# cargo run --bin authmgmt
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ./build/usermgmt ./services/usermgmt/
 
 docker-authmgmt:
 	docker build -f deployment/authmgmt.Dockerfile -t taxi/authmgmt .

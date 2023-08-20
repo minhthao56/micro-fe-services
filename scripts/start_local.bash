@@ -8,10 +8,10 @@ eval $(minikube -p minikube docker-env)
 make build-communicatemgmt
 make docker-communicatemgmt
 
-make build-usermgmt
+# make build-usermgmt
 make docker-usermgmt
 
-# make build-authmgmt
+make build-authmgmt
 make docker-authmgmt
 
 make build-ordermgmt
