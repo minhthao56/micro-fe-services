@@ -1,5 +1,6 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 // use reqwest;
+use serde_json::json;
 
 use database::db::Database;
 
@@ -11,32 +12,27 @@ async fn hello() -> impl Responder {
 
 //     let body = res.text().await.unwrap();
 //     println!("Body:\n{}", body);
-    Database::new();
 
     let s = String::from("Hello world!");
 
     HttpResponse::Ok().body(s)
 }
-#[get("/login")]
-async fn login() -> impl Responder {
-    HttpResponse::Ok().body("login")
+#[get("/healthchecker")]
+async fn health_checker_handler() -> impl Responder {
+    const MESSAGE: &str = "Build Simple CRUD API with Rust, SQLX, Postgres,and Actix Web";
+
+    HttpResponse::Ok().json(json!({"status": "success","message": MESSAGE}))
 }
-
-
-#[post("/echo")]
-async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
-}
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    Database::new();
     println!("Listening on http://localhost:9090/usermgmt/");
     HttpServer::new(|| {
         App::new().service(
             web::scope("/usermgmt")
                 .service(hello)
-                .service(echo),
+                .service(health_checker_handler),
         )
     })
     .bind(("0.0.0.0", 9090))?
