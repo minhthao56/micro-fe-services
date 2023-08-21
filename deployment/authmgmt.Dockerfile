@@ -2,8 +2,8 @@ FROM golang:1.20-alpine
 
 WORKDIR /app
 
-COPY build/usermgmt /app/usermgmt
+COPY build/authmgmt /app/authmgmt
 
-EXPOSE 9090
+EXPOSE 8080
 
 CMD [ "./authmgmt" ]

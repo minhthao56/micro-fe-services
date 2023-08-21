@@ -1,5 +1,5 @@
 [package]
-name = "authmgmt"
+name = "usermgmt"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,5 +11,5 @@ reqwest = { workspace = true}
 database = { path = "../../database"}
 
 [[bin]]
-name = "authmgmt"
+name = "usermgmt"
 path = "src/main.rs"

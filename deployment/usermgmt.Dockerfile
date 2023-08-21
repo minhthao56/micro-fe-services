@@ -14,6 +14,6 @@ FROM debian:bullseye-slim
 RUN apt-get update && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/local/cargo/bin/usermgmt /usr/local/bin/usermgmt
 
-EXPOSE 8080
+EXPOSE 9090
 
 CMD ["usermgmt"]

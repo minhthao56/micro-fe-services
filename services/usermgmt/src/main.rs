@@ -31,15 +31,15 @@ async fn echo(req_body: String) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Listening on http://localhost:8080/authmgmt/");
+    println!("Listening on http://localhost:9090/usermgmt/");
     HttpServer::new(|| {
         App::new().service(
-            web::scope("/authmgmt")
+            web::scope("/usermgmt")
                 .service(hello)
                 .service(echo),
         )
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind(("0.0.0.0", 9090))?
     .run()
     .await
 }
