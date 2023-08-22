@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/minhthao56/microservices-taxi/database"
+	"github.com/minhthao56/monorepo-taxi/database"
 )
 
 func main() {

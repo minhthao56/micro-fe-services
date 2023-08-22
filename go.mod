@@ -1,4 +1,4 @@
-module github.com/minhthao56/microservices-taxi
+module github.com/minhthao56/monorepo-taxi
 
 go 1.20
 
