@@ -1,11 +1,11 @@
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder, middleware::Logger};
 // use reqwest;
 use serde_json::json;
 
 use database::db::Database;
 
-#[get("/")]
-async fn hello() -> impl Responder {
+#[get("/whoami")]
+async fn whoami() -> impl Responder {
 //    let res=  reqwest::get("http://communicatemgmt-service:7070/communicatemgmt/").await.unwrap();
 //     println!("Status: {}", res.status());
 //     println!("Headers:\n{:#?}", res.headers());
@@ -13,7 +13,7 @@ async fn hello() -> impl Responder {
 //     let body = res.text().await.unwrap();
 //     println!("Body:\n{}", body);
 
-    let s = String::from("Hello world!");
+    let s = String::from("whoami");
 
     HttpResponse::Ok().body(s)
 }
@@ -26,14 +26,16 @@ async fn health_checker_handler() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    Database::new();
+    let pool = Database::new().await;
     println!("Listening on http://localhost:9090/usermgmt/");
-    HttpServer::new(|| {
-        App::new().service(
+    HttpServer::new(move|| {
+        App::new()
+        .app_data(web::Data::new(pool.clone()))
+        .service(
             web::scope("/usermgmt")
-                .service(hello)
+                .service(whoami)
                 .service(health_checker_handler),
-        )
+        ).wrap(Logger::default())
     })
     .bind(("0.0.0.0", 9090))?
     .run()
