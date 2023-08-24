@@ -23,8 +23,8 @@ docker-authmgmt:
 
 # communicatemgmt
 build-communicatemgmt:
-	yarn && yarn workspace communicatemgmt build && cd services/communicatemgmt/ && cp -r dist ../../build/
-	cp -r package.json build/
+	yarn workspace communicatemgmt build && cd services/communicatemgmt/ && cp -r dist ../../build/
+	cd services/communicatemgmt/ && cp -r package.json ../../build/
 	cd build && yarn --production
 
 docker-communicatemgmt:

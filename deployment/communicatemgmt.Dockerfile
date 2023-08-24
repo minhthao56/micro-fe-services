@@ -8,4 +8,4 @@ COPY build/dist ./dist
 
 EXPOSE 7070
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist"]
