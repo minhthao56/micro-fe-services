@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 actix-web = { workspace = true}
 reqwest = { workspace = true}
-database = { path = "../../database"}
+database = { path = "../../libs/rust/database"}
 serde_json = {workspace = true}
 
 [[bin]]

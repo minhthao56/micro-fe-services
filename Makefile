@@ -23,9 +23,7 @@ docker-authmgmt:
 
 # communicatemgmt
 build-communicatemgmt:
-	yarn workspace communicatemgmt build && cd services/communicatemgmt/ && cp -r dist ../../build/
-	cd services/communicatemgmt/ && cp -r package.json ../../build/
-	cd build && yarn --production
+	npx nx build communicatemgmt
 
 docker-communicatemgmt:
 	docker build -f deployment/communicatemgmt.Dockerfile -t taxi/communicatemgmt .
