@@ -4,3 +4,9 @@ target/
 dist/
 node_modules/
 
+ca.crt
+ca.key
+
+server.crt
+server.csr
+server.key

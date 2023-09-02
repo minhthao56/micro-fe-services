@@ -9,8 +9,9 @@ import (
 )
 
 func main() {
-	db := database.Init()
-	defer db.Close()
+	db := database.GetDatabaseInstance()
+	conn := db.GetConnection()
+	defer conn.Close()
 	r := gin.Default()
 	usermgmt := r.Group("/authmgmt")
 	usermgmt.GET("/", func(c *gin.Context) {

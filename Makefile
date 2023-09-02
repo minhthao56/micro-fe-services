@@ -23,7 +23,15 @@ docker-authmgmt:
 
 # communicatemgmt
 build-communicatemgmt:
+	pnpm install
 	npx nx build communicatemgmt
 
 docker-communicatemgmt:
 	docker build -f deployment/communicatemgmt.Dockerfile -t taxi/communicatemgmt .
+
+# migration db
+build-migration:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ./build/migration ./cmd/migration
+
+docker-migration:
+	docker build -f deployment/migration-db.Dockerfile -t taxi/migration-db .

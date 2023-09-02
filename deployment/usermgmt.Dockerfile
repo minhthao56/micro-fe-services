@@ -5,8 +5,7 @@ WORKDIR /usr/src/usermgmt
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
 COPY services/usermgmt services/usermgmt
-COPY database/src database/src
-COPY database/Cargo.toml database/Cargo.toml
+COPY libs/rust libs/rust
 
 RUN cargo install --path services/usermgmt
 
