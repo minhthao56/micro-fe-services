@@ -10,3 +10,7 @@ ca.key
 server.crt
 server.csr
 server.key
+
+.sqlx
+.env
+.vscode

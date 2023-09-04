@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      axios:
-        specifier: ^1.4.0
-        version: 1.4.0
     devDependencies:
       '@types/jest':
         specifier: ^29.5.2
@@ -93,6 +89,9 @@ importers:
 
   clients/call-center:
     dependencies:
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
       react:
         specifier: ^18.2.0
         version: 18.2.0

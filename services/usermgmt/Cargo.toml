@@ -9,7 +9,11 @@ edition = "2021"
 actix-web = { workspace = true}
 reqwest = { workspace = true}
 database = { path = "../../libs/rust/database"}
+types = { path = "../../libs/rust/types"}
 serde_json = {workspace = true}
+sqlx = { workspace = true}
+serde = { workspace = true}
+uuid ={ workspace = true}
 
 [[bin]]
 name = "usermgmt"

@@ -1,6 +1,4 @@
-use std;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
-
 
 pub struct Database {
 }

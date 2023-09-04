@@ -2,6 +2,8 @@ FROM rust:1.71 as builder
 
 WORKDIR /usr/src/usermgmt
 
+ENV SQLX_OFFLINE=true
+COPY .sqlx .sqlx
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
 COPY services/usermgmt services/usermgmt

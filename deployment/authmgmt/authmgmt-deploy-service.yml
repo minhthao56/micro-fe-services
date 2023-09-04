@@ -18,6 +18,10 @@ spec:
       - name: authmgmt
         image: taxi/authmgmt
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: firebase-config
+          mountPath: /firebase
+          readOnly: true
         ports:
         - containerPort: 8080
         env:
@@ -41,7 +45,10 @@ spec:
             secretKeyRef:
               name: postgresql-secret
               key: pg_db
-              
+      volumes:
+      - name: firebase-config
+        secret:
+          secretName: firebase-config
 ---
 apiVersion: v1
 kind: Service

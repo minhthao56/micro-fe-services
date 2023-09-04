@@ -7,12 +7,15 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
   useEffect(() => {
-    axios.get('http://api.taxi.com/usermgmt/healthchecker')
+    axios.post('http://api.taxi.com/authmgmt/firebase-user/create', {
+      email: "test@gmai.com",
+      password: "123456",
+    })
       .then((response) => {
-        console.log(response)
+        console.log({ response })
       })
       .catch((error) => {
-        console.log(error)
+        console.log({error})
       })
   }, [])
 

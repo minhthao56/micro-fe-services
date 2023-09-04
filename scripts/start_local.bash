@@ -38,6 +38,8 @@ kubectl apply -f deployment/authmgmt/authmgmt-deploy-service.yml
 
 kubectl apply -f deployment/ordermgmt/ordermgmt-deploy-service.yml
 
+kubectl apply -f deployment/common/common-configmap.yml
+
 kubectl apply -f deployment/ingress/default-ingress.yml
 
 kubectl apply -f deployment/jobs/migration-db.yaml

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -20,18 +21,18 @@ func main() {
 	dbNamePG := os.Getenv("DB_NAME")
 	driver, err := postgres.WithInstance(conn, &postgres.Config{})
 	if err != nil {
-		println("postgres.WithInstance: ", err)
+		log.Fatalf("postgres.WithInstance: %s \n", err)
 		panic(err)
 	}
 	m, err := migrate.NewWithDatabaseInstance(migrationsPath, dbNamePG, driver)
 	if err != nil {
-		println("NewWithDatabaseInstance: ", err)
+		log.Fatalf("NewWithDatabaseInstance: %s \n", err)
 		panic(err)
 	}
 	err = m.Up()
 	if err != nil {
-		println("Error when migrating database: ", err)
+		log.Fatalf("Error when migrating database:%s \n", err)
 		panic(err)
 	}
-	println("Migrated database successfully")
+	log.Fatalln("Migrated database successfully")
 }

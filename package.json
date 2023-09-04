@@ -11,9 +11,6 @@
     "clients/*",
     "libs/ts/*"
   ],
-  "dependencies": {
-    "axios": "^1.4.0"
-  },
   "devDependencies": {
     "@types/jest": "^29.5.2",
     "@types/morgan": "^1.9.5",

@@ -18,6 +18,10 @@ spec:
       - name: usermgmt
         image: taxi/usermgmt
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: common-configmap
+          mountPath: /common-configmap
+          readOnly: true
         ports:
         - containerPort: 9090
         env:
@@ -41,6 +45,10 @@ spec:
             secretKeyRef:
               name: postgresql-secret
               key: pg_db
+      volumes:
+      - name: common-configmap
+        configMap:
+          name: common-configmap
 ---
 apiVersion: v1
 kind: Service
