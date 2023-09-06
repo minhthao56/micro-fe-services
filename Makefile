@@ -35,3 +35,7 @@ build-migration:
 
 docker-migration:
 	docker build -f deployment/migration-db.Dockerfile -t taxi/migration-db .
+
+# gen schema json
+gen-schema:
+	cargo run --bin entity

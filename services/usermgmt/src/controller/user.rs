@@ -1,10 +1,11 @@
 use actix_web::{get, HttpResponse, Responder, web, post};
 use serde::Deserialize;
-use crate::{
-    AppState, model,
-};
+use crate:: AppState;
 use serde_json::json;
-use types::user::CreateUserRequest;
+use entity::user::{
+    CreateUserRequest,
+    UserEntity
+};
 
 
 #[derive(Deserialize, Debug)]
@@ -23,7 +24,7 @@ async fn get_all_user(
 ) -> impl Responder {
 
     let query_result = sqlx::query_as!(
-        model::user::User,
+        UserEntity,
         "SELECT user_id, email FROM users",
     )
     .fetch_all(&data.db)

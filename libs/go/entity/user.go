@@ -1,4 +1,4 @@
-package types
+package entity
 
 type CreateFirebaseUserRequest struct {
 	Email    string `json:"email"`

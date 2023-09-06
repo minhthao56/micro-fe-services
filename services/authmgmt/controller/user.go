@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/minhthao56/monorepo-taxi/libs/go/auth"
-	"github.com/minhthao56/monorepo-taxi/libs/go/types"
+	"github.com/minhthao56/monorepo-taxi/libs/go/entity"
 )
 
 type UserController interface {
@@ -31,7 +31,7 @@ func (u *UserControllerImpl) CreateUser(c *gin.Context) {
 			"message": "error reading request body",
 		})
 	}
-	var userReq types.CreateFirebaseUserRequest
+	var userReq entity.CreateFirebaseUserRequest
 	if err = json.Unmarshal(payload, &userReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "error parsing request body",

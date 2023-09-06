@@ -1,5 +1,4 @@
 mod controller;
-mod model;
 
 use actix_web::{web, App, HttpServer, middleware::Logger};
 use sqlx::{ Pool, Postgres};
