@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 use schemars::{schema_for, JsonSchema};
-use sqlx::FromRow;
+use sqlx::{FromRow, types::Uuid};
 use std::{fs, io::Write};
 
 #[derive(Debug, FromRow, Deserialize, Serialize)]
 #[allow(non_snake_case)]
 pub struct UserEntity {
-    pub user_id: i32,
-    pub email: String,
+    pub user_id: Uuid,
+    pub email: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]

@@ -4,26 +4,48 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/minhthao56/monorepo-taxi/libs/go/entity"
 	"github.com/swaggest/jsonschema-go"
 )
 
-type MyStruct struct {
-	Amount float64  `json:"amount" minimum:"10.5" example:"20.6" required:"true"`
-	Abc    string   `json:"abc" pattern:"[abc]"`
-	_      struct{} `additionalProperties:"false"`                   // Tags of unnamed field are applied to parent schema.
-	_      struct{} `title:"My Struct" description:"Holds my data."` // Multiple unnamed fields can be used.
-}
-
 func main() {
 	reflector := jsonschema.Reflector{}
-	schema, err := reflector.Reflect(MyStruct{})
-	if err != nil {
-		log.Fatal(err)
+	for fileName, entityType := range entity.GetEntities() {
+		schema, err := reflector.Reflect(entityType)
+		if err != nil {
+			log.Printf("Error generating JSON schema for entity: %v", err)
+			continue
+		}
+
+		j, err := json.MarshalIndent(schema, "", " ")
+		if err != nil {
+			log.Printf("Error marshaling JSON schema: %v", err)
+			continue
+		}
+		filePath := fmt.Sprintf("%s.json", fileName)
+		err = saveToFile("json/authmgmt/"+filePath, j)
+		if err != nil {
+			log.Printf("Error saving JSON schema to file %s: %v", filePath, err)
+			continue // Skip to the next entity
+		}
+
+		fmt.Printf("JSON schema for entity %s saved to %s\n", fileName, filePath)
 	}
-	j, err := json.MarshalIndent(schema, "", " ")
+}
+
+func saveToFile(filePath string, data []byte) error {
+	file, err := os.Create(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	fmt.Println(string(j))
+	defer file.Close()
+
+	_, err = file.Write(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

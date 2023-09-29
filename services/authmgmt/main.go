@@ -25,6 +25,6 @@ func main() {
 	router.NewRouterUser(routerGroup, userManager)
 
 	r.Run(":8080")
-	log.Println("user management service started port 8080")
+	log.Println("user anthmgnt service started port 8080")
 
 }
