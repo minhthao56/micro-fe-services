@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 reqwest = { workspace = true}
+uuid = {workspace = true}
+sqlx = { workspace = true}

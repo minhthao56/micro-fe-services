@@ -8,5 +8,5 @@ import (
 
 func NewRouterUser(router *gin.RouterGroup, client auth.UserManager) {
 	userController := controller.NewUserController(client)
-	router.POST("/firebase-user/create", userController.CreateUser)
+	router.POST("/firebase/create-user", userController.CreateUser)
 }

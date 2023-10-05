@@ -1,15 +1,18 @@
 CREATE TABLE IF NOT EXISTS public.users(
-    user_id UUID PRIMARY KEY,
+    user_id SERIAL PRIMARY KEY,
     last_name VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
-    username VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NULL,
+    email VARCHAR(255) NOT NULL,
     user_group VARCHAR(255) NOT NULL,
+    firebase_uid VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- Assuming you've already created the 'public.users' table
 
-INSERT INTO public.users (user_id, last_name, first_name, username, email, user_group)
-VALUES ('aaa3ff4b-58aa-4a07-a4cc-a14fadc4a20e', 'Minh', 'Thao', 'minhthao56', 'minhthao5648+admin@gmail.com', 'admin');
+-- Drop the existing constraint if it exists
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS constant_user_group;
+
+-- Add the new CHECK constraint
+ALTER TABLE public.users
+ADD CONSTRAINT constant_user_group CHECK (user_group IN ('ADMIN_GROUP', 'CLIENT_GROUP', 'DRIVER_GROUP'));

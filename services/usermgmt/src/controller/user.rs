@@ -1,11 +1,18 @@
 use actix_web::{get, HttpResponse, Responder, web, post};
+use reqwest::Client;
 use serde::Deserialize;
 use crate:: AppState;
 use serde_json::json;
 use entity::user::{
     CreateUserRequest,
-    UserEntity
+    UserEntity,
+    CreateUserResponse
 };
+use schema::authmgmt::{
+    req::Req,
+    resp::Resp
+};
+use utils::read_file::read_config;
 
 
 #[derive(Deserialize, Debug)]
@@ -60,16 +67,58 @@ async fn create_user(
         user_group: req.user_group,
         password: req.password,
     };
+    let firebase_user  = Req{
+        email: user.email,
+        password: user.password,
+    };
+    let path = String::from("/common-configmap/url_auth_service");
+    let ip_service = match read_config(path) {
+        Ok(url) => url,
+        Err(e) => {
+            eprintln!("Error reading file: {}", e);
+            return HttpResponse::InternalServerError().json(e.to_string());
+        }
+    };
+    let endpoint = format!("http://{}:8080/authmgmt/firebase/create-user", ip_service);
 
-   let tx =  data.db.begin().await;
+    // Start a transaction
+    let tx =  data.db.begin().await;
     if tx.is_err() {
-         return HttpResponse::InternalServerError().json(tx.err().unwrap().to_string());
-    }
+        return HttpResponse::InternalServerError().json(tx.err().unwrap().to_string());
+   }
+    let res = match Client::new()
+    .post(&endpoint)
+    .json(&firebase_user)
+    .send()
+    .await {
+        Ok(res) => res,
+        Err(e) => {
+            eprintln!("Make http req have an error: {}", e);
+            return HttpResponse::InternalServerError().json(e.to_string());
+        }
+    };
+    let response_text: String = match res.text().await  {
+            Ok(body) => body,
+            Err(e) => {
+                eprintln!("Error response_text: {}", e);
+                return HttpResponse::InternalServerError().json(e.to_string());
+            }
+    };
+    // Attempt to parse the trimmed response as JSON
+    let body: Resp = match  serde_json::from_str(response_text.trim()) {
+        Ok(body) => body,
+        Err(e) => {
+            eprintln!("Error reading body: {}", e);
+            return HttpResponse::InternalServerError().json(e.to_string());
+        }
+    };
+
+    // INSERT data into users table
     let query_result = sqlx::query!(
-        "INSERT INTO users (email, first_name, last_name) VALUES ($1, $2, $3)",
-        user.email,user.first_name,user.last_name
+        "INSERT INTO users (last_name, first_name, email, user_group, firebase_uid) VALUES ($1, $2, $3, $4, $5) RETURNING user_id",
+        user.first_name,user.last_name, body.email, user.user_group, body.uid
     )
-    .execute(&data.db)
+    .fetch_one(&data.db)
     .await;
 
     if query_result.is_err() {
@@ -77,19 +126,22 @@ async fn create_user(
         return HttpResponse::InternalServerError().json(e.to_string());
     }
     let r = query_result.unwrap();
-    let row_effected = r.rows_affected();
+    let user_id = r.user_id;
 
-    if row_effected != 1 {
-        let e = "Failed to insert user";
-        return HttpResponse::InternalServerError().json(e.to_string());
-    }
+    // commit the transaction
     let commit = tx.unwrap().commit().await;
-
     if commit.is_err() {
         let e = commit.err().unwrap();
         return HttpResponse::InternalServerError().json(e.to_string());
     }
-    HttpResponse::Ok().json("ok")
+    let user_resp = CreateUserResponse {
+        email: body.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        user_group: user.user_group,
+        user_id: user_id,
+    };
+    HttpResponse::Ok().json(user_resp)
 }
 
 pub fn config(conf: &mut web::ServiceConfig) {

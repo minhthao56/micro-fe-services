@@ -10,6 +10,8 @@ actix-web = { workspace = true}
 reqwest = { workspace = true}
 database = { path = "../../libs/rust/database"}
 entity = { path = "../../libs/rust/entity"}
+schema = { path = "../../libs/rust/schema"}
+utils = { path = "../../libs/rust/utils"}
 serde_json = {workspace = true}
 sqlx = { workspace = true}
 serde = { workspace = true}

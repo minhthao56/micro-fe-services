@@ -31,8 +31,12 @@ func main() {
 	}
 	err = m.Up()
 	if err != nil {
-		log.Fatalf("Error when migrating database:%s \n", err)
-		panic(err)
+		log.Printf("migrate.Up: %s \n", err)
+		if err == migrate.ErrNoChange {
+			log.Println("No change in database")
+		} else {
+			panic(err)
+		}
 	}
-	log.Fatalln("Migrated database successfully")
+	log.Println("Migrated database successfully")
 }

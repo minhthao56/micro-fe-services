@@ -1864,6 +1864,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "schema"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "schemars"
 version = "0.8.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2551,9 +2558,11 @@ dependencies = [
  "database",
  "entity",
  "reqwest",
+ "schema",
  "serde",
  "serde_json",
  "sqlx",
+ "utils",
  "uuid",
 ]
 
@@ -2562,6 +2571,8 @@ name = "utils"
 version = "0.1.0"
 dependencies = [
  "reqwest",
+ "sqlx",
+ "uuid",
 ]
 
 [[package]]

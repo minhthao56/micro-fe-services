@@ -1,13 +1,10 @@
 mod controller;
-mod schema;
-
 use actix_web::{web, App, HttpServer, middleware::Logger};
 use sqlx::{ Pool, Postgres};
 use database::db::Database;
 pub struct AppState {
     db: Pool<Postgres>,
 }
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

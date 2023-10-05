@@ -32,5 +32,3 @@ spec:
                 name: postgresql-secret
                 key: pg_db
       restartPolicy: Never
-  backoffLimit: 4
-
