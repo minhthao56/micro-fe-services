@@ -41,4 +41,9 @@ gen-schema:
 	cargo run --bin entity
 
 connect-db:
-	psql -h 127.0.0.1 -p 5432 -d taxi-db -U postgres	
+	psql -h 127.0.0.1 -p 5432 -d taxi-db -U postgres
+
+# Frontend
+
+start-frontend:
+	npx nx dev call-center
