@@ -4,6 +4,8 @@ import {
   useLocation,
   useNavigation,
 } from "react-router-dom";
+import Email from "../components/inputs/Email";
+import Password from "../components/inputs/Password";
 
 export default function LoginPage() {
   const location = useLocation();
@@ -11,19 +13,16 @@ export default function LoginPage() {
   const from = params.get("from") || "/";
 
   const navigation = useNavigation();
-  const isLoggingIn = navigation.formData?.get("username") != null;
+  const isLoggingIn = navigation.formData?.get("email") != null;
 
   const actionData = useActionData() as { error: string } | undefined;
 
   return (
     <div>
-      <p>You must log in to view the page at {from}</p>
-
       <Form method="post" replace>
         <input type="hidden" name="redirectTo" value={from} />
-        <label>
-          Username: <input name="username" />
-        </label>{" "}
+        <Email />
+        <Password />
         <button type="submit" disabled={isLoggingIn}>
           {isLoggingIn ? "Logging in..." : "Login"}
         </button>

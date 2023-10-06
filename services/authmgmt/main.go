@@ -13,7 +13,7 @@ func main() {
 	db := database.GetDatabaseInstance()
 	conn := db.GetConnection()
 	defer conn.Close()
-	userManager, err := auth.NewUserManager()
+	firebaseManager, err := auth.NewFirebaseManager()
 	if err != nil {
 		log.Fatalf("Error when creating user manager:%s \n", err)
 		panic(err)
@@ -22,7 +22,8 @@ func main() {
 
 	r := gin.Default()
 	routerGroup := r.Group("/authmgmt")
-	router.NewRouterUser(routerGroup, userManager)
+	router.NewRouterUser(routerGroup, firebaseManager)
+	router.NewRouterAuth(routerGroup, firebaseManager)
 
 	r.Run(":8080")
 	log.Println("user anthmgnt service started port 8080")

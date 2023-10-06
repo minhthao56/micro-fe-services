@@ -17,11 +17,11 @@ type UserController interface {
 }
 
 type UserControllerImpl struct {
-	UserManager auth.UserManager
+	FirebaseManager auth.FirebaseManager
 }
 
-func NewUserController(client auth.UserManager) UserController {
-	return &UserControllerImpl{UserManager: client}
+func NewUserController(client auth.FirebaseManager) UserController {
+	return &UserControllerImpl{FirebaseManager: client}
 }
 
 func (u *UserControllerImpl) CreateUser(c *gin.Context) {
@@ -37,7 +37,7 @@ func (u *UserControllerImpl) CreateUser(c *gin.Context) {
 			"message": "error parsing request body",
 		})
 	}
-	r, err := u.UserManager.CreateUser(userReq.Email, userReq.Password)
+	r, err := u.FirebaseManager.CreateUser(userReq.Email, userReq.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "error creating user",

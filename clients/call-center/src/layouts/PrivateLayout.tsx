@@ -12,8 +12,8 @@ import {
   Avatar,
   Switch,
 } from "@nextui-org/react";
-import { SunIcon } from "../icons/SunIcon";
-import { MoonIcon } from "../icons/MoonIcon";
+import { SunIcon } from "../components/icons/SunIcon";
+import { MoonIcon } from "../components/icons/MoonIcon";
 import { useThemeSwitcher } from "../hooks/useThemeSwitcher";
 export default function PrivateLayout() {
   const { value, onValueChange } = useThemeSwitcher();

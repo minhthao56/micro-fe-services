@@ -1,11 +1,11 @@
-import { createBrowserRouter, redirect } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../pages/HomePage";
 import PublicLayout from "../layouts/PublicLayout";
 import PrivateLayout from "../layouts/PrivateLayout";
-import {loginAction, loginLoader, protectedLoader} from "./loader";
+import {loginLoader, protectedLoader} from "./loader";
 import LoginPage from "../pages/LoginPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
-import { fakeAuthProvider } from "../auth/auth";
+import { loginAction, logoutAction } from "./action";
 
 const router = createBrowserRouter([
   {
@@ -37,11 +37,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/logout",
-        async action() {
-          // We signout in a "resource route" that we can hit from a fetcher.Form
-          await fakeAuthProvider.signout();
-          return redirect("/");
-        },
+        action: logoutAction,
       },
     ],
   },

@@ -10,13 +10,13 @@ import (
 	"google.golang.org/api/option"
 )
 
-type UserManager interface {
+type FirebaseManager interface {
 	CreateUser(email string, password string) (*auth.UserRecord, error)
 	GetUser(uid string) (*auth.UserRecord, error)
 	UpdateUser(uid string, email string, password string) (*auth.UserRecord, error)
 }
 
-type UserManagerImpl struct {
+type FirebaseManagerImpl struct {
 	client *auth.Client
 }
 
@@ -32,7 +32,7 @@ func NewAppFirebase() (*firebase.App, error) {
 	return app, nil
 }
 
-func NewAuthApp() (*auth.Client, error) {
+func NewFirebaseManager() (FirebaseManager, error) {
 	app, err := NewAppFirebase()
 	if err != nil {
 		return nil, err
@@ -41,18 +41,14 @@ func NewAuthApp() (*auth.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error initializing auth client: %v", err)
 	}
-	return authClient, nil
-}
 
-func NewUserManager() (UserManager, error) {
-	authClient, err := NewAuthApp()
 	if err != nil {
 		return nil, err
 	}
-	return &UserManagerImpl{client: authClient}, nil
+	return &FirebaseManagerImpl{client: authClient}, nil
 }
 
-func (u *UserManagerImpl) CreateUser(email string, password string) (*auth.UserRecord, error) {
+func (u *FirebaseManagerImpl) CreateUser(email string, password string) (*auth.UserRecord, error) {
 	params := (&auth.UserToCreate{}).
 		Email(email).
 		Password(password)
@@ -63,7 +59,7 @@ func (u *UserManagerImpl) CreateUser(email string, password string) (*auth.UserR
 	return user, nil
 }
 
-func (u *UserManagerImpl) GetUser(uid string) (*auth.UserRecord, error) {
+func (u *FirebaseManagerImpl) GetUser(uid string) (*auth.UserRecord, error) {
 	user, err := u.client.GetUser(context.Background(), uid)
 	if err != nil {
 		return nil, fmt.Errorf("error getting user: %v", err)
@@ -71,7 +67,7 @@ func (u *UserManagerImpl) GetUser(uid string) (*auth.UserRecord, error) {
 	return user, nil
 }
 
-func (u *UserManagerImpl) UpdateUser(uid string, email string, password string) (*auth.UserRecord, error) {
+func (u *FirebaseManagerImpl) UpdateUser(uid string, email string, password string) (*auth.UserRecord, error) {
 	params := (&auth.UserToUpdate{}).
 		Email(email).
 		Password(password)
@@ -80,4 +76,12 @@ func (u *UserManagerImpl) UpdateUser(uid string, email string, password string) 
 		return nil, fmt.Errorf("error updating user: %v", err)
 	}
 	return user, nil
+}
+
+func (u *FirebaseManagerImpl) CreateCustomTokens(uid string) (string, error) {
+	token, err := u.client.CustomToken(context.Background(), uid)
+	if err != nil {
+		return "", fmt.Errorf("error creating custom token: %v", err)
+	}
+	return token, nil
 }

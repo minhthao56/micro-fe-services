@@ -12,7 +12,7 @@ export default function HomePage() {
   const isLoggingOut = fetcher.formData != null;
   return (
     <div className="flex gap-4 items-center">
-      <p>Welcome {user}!</p>
+      <p>Welcome {JSON.stringify(user)}!</p>
       <fetcher.Form method="post" action="/logout">
         <button type="submit" disabled={isLoggingOut}>
           {isLoggingOut ? "Signing out..." : "Sign out"}
