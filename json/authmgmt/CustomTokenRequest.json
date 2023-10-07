@@ -1,13 +1,17 @@
 {
  "required": [
   "uid",
-  "email"
+  "firebaseToken",
+  "userGroup"
  ],
  "properties": {
-  "email": {
+  "firebaseToken": {
    "type": "string"
   },
   "uid": {
+   "type": "string"
+  },
+  "userGroup": {
    "type": "string"
   }
  },

@@ -101,9 +101,6 @@ importers:
       '@nextui-org/react':
         specifier: ^2.1.13
         version: 2.1.13(@types/react@18.2.15)(framer-motion@10.16.4)(react-dom@18.2.0)(react@18.2.0)(tailwindcss@3.3.3)
-      axios:
-        specifier: ^1.4.0
-        version: 1.4.0
       firebase:
         specifier: ^10.4.0
         version: 10.4.0
@@ -128,9 +125,15 @@ importers:
       react-router-dom:
         specifier: ^6.16.0
         version: 6.16.0(react-dom@18.2.0)(react@18.2.0)
+      schema:
+        specifier: workspace:^
+        version: link:../../libs/ts/schema
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
+      utils:
+        specifier: workspace:^
+        version: link:../../libs/ts/utils
 
   libs/ts/database:
     dependencies:
@@ -144,6 +147,14 @@ importers:
       '@types/pg':
         specifier: ^8.10.2
         version: 8.10.2
+
+  libs/ts/schema: {}
+
+  libs/ts/utils:
+    dependencies:
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
 
   services/communicatemgmt:
     dependencies:

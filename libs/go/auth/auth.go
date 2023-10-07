@@ -11,9 +11,10 @@ import (
 )
 
 type FirebaseManager interface {
-	CreateUser(email string, password string) (*auth.UserRecord, error)
-	GetUser(uid string) (*auth.UserRecord, error)
-	UpdateUser(uid string, email string, password string) (*auth.UserRecord, error)
+	CreateUser(ctx context.Context, email string, password string) (*auth.UserRecord, error)
+	GetUser(ctx context.Context, uid string) (*auth.UserRecord, error)
+	UpdateUser(ctx context.Context, uid string, email string, password string) (*auth.UserRecord, error)
+	CustomTokenWithClaims(ctx context.Context, uid string, userGroup string, user_id string) (string, error)
 }
 
 type FirebaseManagerImpl struct {
@@ -48,40 +49,52 @@ func NewFirebaseManager() (FirebaseManager, error) {
 	return &FirebaseManagerImpl{client: authClient}, nil
 }
 
-func (u *FirebaseManagerImpl) CreateUser(email string, password string) (*auth.UserRecord, error) {
+func (u *FirebaseManagerImpl) CreateUser(ctx context.Context, email string, password string) (*auth.UserRecord, error) {
 	params := (&auth.UserToCreate{}).
 		Email(email).
 		Password(password)
-	user, err := u.client.CreateUser(context.Background(), params)
+	user, err := u.client.CreateUser(ctx, params)
 	if err != nil {
 		return nil, fmt.Errorf("error creating user: %v", err)
 	}
 	return user, nil
 }
 
-func (u *FirebaseManagerImpl) GetUser(uid string) (*auth.UserRecord, error) {
-	user, err := u.client.GetUser(context.Background(), uid)
+func (u *FirebaseManagerImpl) GetUser(ctx context.Context, uid string) (*auth.UserRecord, error) {
+	user, err := u.client.GetUser(ctx, uid)
 	if err != nil {
 		return nil, fmt.Errorf("error getting user: %v", err)
 	}
 	return user, nil
 }
 
-func (u *FirebaseManagerImpl) UpdateUser(uid string, email string, password string) (*auth.UserRecord, error) {
+func (u *FirebaseManagerImpl) UpdateUser(ctx context.Context, uid string, email string, password string) (*auth.UserRecord, error) {
 	params := (&auth.UserToUpdate{}).
 		Email(email).
 		Password(password)
-	user, err := u.client.UpdateUser(context.Background(), uid, params)
+	user, err := u.client.UpdateUser(ctx, uid, params)
 	if err != nil {
 		return nil, fmt.Errorf("error updating user: %v", err)
 	}
 	return user, nil
 }
 
-func (u *FirebaseManagerImpl) CreateCustomTokens(uid string) (string, error) {
-	token, err := u.client.CustomToken(context.Background(), uid)
+func (u *FirebaseManagerImpl) CustomTokenWithClaims(ctx context.Context, uid string, userGroup string, userID string) (string, error) {
+	claims := map[string]interface{}{
+		"user_group": userGroup,
+		"user_id":    userID,
+	}
+	token, err := u.client.CustomTokenWithClaims(ctx, uid, claims)
 	if err != nil {
 		return "", fmt.Errorf("error creating custom token: %v", err)
+	}
+	return token, nil
+}
+
+func (f *FirebaseManagerImpl) VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error) {
+	token, err := f.client.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		return nil, fmt.Errorf("error VerifyIDToken: %v", err)
 	}
 	return token, nil
 }

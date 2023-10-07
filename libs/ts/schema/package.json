@@ -1,0 +1,12 @@
+{
+  "name": "schema",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "build": "rm -rf dist && tsc"
+  },
+  "private": true
+}

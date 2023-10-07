@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirect } from "react-router-dom";
 import authProvider from "../auth";
+import { createCustomToken} from "../services/authmgmt/customToken"
 
 export async function loginAction({ request }: LoaderFunctionArgs) {
     const formData = await request.formData();
@@ -15,8 +16,20 @@ export async function loginAction({ request }: LoaderFunctionArgs) {
     }
   
     try {
-      await authProvider.signIn(email.toString(), password.toString());
+      const userCredential = await authProvider.signIn(email.toString(), password.toString());
+      if (!userCredential) {
+        return {
+          error: "Invalid login attempt",
+        };
+      }
+      const user = userCredential.user;
+      const idToken = await user.getIdToken()
+      const uid = user.uid;
+      const resp =  await createCustomToken({firebaseToken: idToken, uid: uid, userGroup: "call-center"})
+      await authProvider.signInWithCustomToken(resp.customToken)
+
     } catch (error) {
+      console.log(error)
       return {
         error: "Invalid login attempt",
       };

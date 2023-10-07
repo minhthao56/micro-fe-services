@@ -1,13 +1,9 @@
 {
  "required": [
-  "uid",
-  "email"
+  "customToken"
  ],
  "properties": {
-  "email": {
-   "type": "string"
-  },
-  "uid": {
+  "customToken": {
    "type": "string"
   }
  },

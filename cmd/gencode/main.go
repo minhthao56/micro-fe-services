@@ -6,13 +6,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/minhthao56/monorepo-taxi/libs/go/entity"
+	"github.com/minhthao56/monorepo-taxi/libs/go/schema"
 	"github.com/swaggest/jsonschema-go"
 )
 
 func main() {
 	reflector := jsonschema.Reflector{}
-	for fileName, entityType := range entity.GetEntities() {
+	for fileName, entityType := range schema.GetEntities() {
 		schema, err := reflector.Reflect(entityType)
 		if err != nil {
 			log.Printf("Error generating JSON schema for entity: %v", err)

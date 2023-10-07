@@ -1,14 +1,16 @@
 import {
   Auth,
   User,
-  browserLocalPersistence,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
+  UserCredential,
+  signInWithCustomToken,
 } from "firebase/auth";
 import { auth } from "./firebase";
 
 interface AuthProvider {
-  signIn(email: string, password: string): Promise<void>;
+  signIn(email: string, password: string): Promise<UserCredential>;
+  signInWithCustomToken(token: string): Promise<void>;
   signOut(auth: Auth): Promise<void>;
   getIsAuthenticated(): Promise<boolean>
   getUser(): User | null;
@@ -21,12 +23,23 @@ class AuthWithFirebase implements AuthProvider {
   constructor(firebaseAuth: Auth) {
     this.firebaseAuth = firebaseAuth;
   }
-
-  async signIn(email: string, password: string): Promise<void> {
+  async signInWithCustomToken(token: string): Promise<void> {
     try {
-      await this.firebaseAuth.setPersistence(browserLocalPersistence);
-      await signInWithEmailAndPassword(this.firebaseAuth, email, password);
       this.isAuthenticated = true;
+      await signInWithCustomToken(this.firebaseAuth, token);
+    }
+    catch (error) {
+      this.isAuthenticated = false;
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async signIn(email: string, password: string): Promise<UserCredential> {
+    try {
+      const user = await signInWithEmailAndPassword(this.firebaseAuth, email, password);
+      this.isAuthenticated = true;
+      return user;
     } catch (error) {
       this.isAuthenticated = false;
       console.error(error);

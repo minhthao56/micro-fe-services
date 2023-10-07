@@ -47,3 +47,6 @@ connect-db:
 
 start-frontend:
 	npx nx dev call-center
+
+build-frontend:
+	npx nx build call-center

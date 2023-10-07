@@ -8,5 +8,5 @@ import (
 
 func NewRouterAuth(router *gin.RouterGroup, firebase auth.FirebaseManager) {
 	controller := controller.NewAuthController(firebase)
-	router.POST("/firebase/create-custom-token", controller.CreateCustomTokens)
+	router.POST("/create-custom-token", controller.CreateCustomTokens)
 }

@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import Email from "../components/inputs/Email";
 import Password from "../components/inputs/Password";
+import { Button } from "@nextui-org/react";
 
 export default function LoginPage() {
   const location = useLocation();
@@ -23,9 +24,9 @@ export default function LoginPage() {
         <input type="hidden" name="redirectTo" value={from} />
         <Email />
         <Password />
-        <button type="submit" disabled={isLoggingIn}>
+        <Button type="submit" disabled={isLoggingIn} size="md">
           {isLoggingIn ? "Logging in..." : "Login"}
-        </button>
+        </Button>
         {actionData && actionData.error ? (
           <p style={{ color: "red" }}>{actionData.error}</p>
         ) : null}

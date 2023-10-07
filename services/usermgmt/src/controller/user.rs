@@ -79,7 +79,7 @@ async fn create_user(
             return HttpResponse::InternalServerError().json(e.to_string());
         }
     };
-    let endpoint = format!("http://{}:8080/authmgmt/firebase/create-user", ip_service);
+    let endpoint = format!("http://{}:8080/authmgmt/create-firebase-user", ip_service);
 
     // Start a transaction
     let tx =  data.db.begin().await;

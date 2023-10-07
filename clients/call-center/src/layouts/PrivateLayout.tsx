@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useFetcher } from "react-router-dom";
 import {
   Navbar,
   NavbarBrand,
@@ -17,6 +17,8 @@ import { MoonIcon } from "../components/icons/MoonIcon";
 import { useThemeSwitcher } from "../hooks/useThemeSwitcher";
 export default function PrivateLayout() {
   const { value, onValueChange } = useThemeSwitcher();
+  const fetcher = useFetcher();
+  const isLoggingOut = fetcher.formData != null;
   return (
     <>
       <>
@@ -37,7 +39,6 @@ export default function PrivateLayout() {
               </Link>
             </NavbarItem>
           </NavbarContent>
-
           <NavbarContent as="div" justify="end">
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
@@ -48,7 +49,6 @@ export default function PrivateLayout() {
                   color="secondary"
                   name="Jason Hughes"
                   size="sm"
-                  src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
                 />
               </DropdownTrigger>
               <DropdownMenu aria-label="Profile Actions" variant="flat">
@@ -57,7 +57,11 @@ export default function PrivateLayout() {
                   <p className="font-semibold">zoey@example.com</p>
                 </DropdownItem>
                 <DropdownItem key="logout" color="danger">
-                  Log Out
+                  <fetcher.Form method="post" action="/logout">
+                    <button type="submit" disabled={isLoggingOut}>
+                      {isLoggingOut ? "Signing out..." : "Sign out"}
+                    </button>
+                  </fetcher.Form>
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>

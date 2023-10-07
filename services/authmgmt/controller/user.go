@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/minhthao56/monorepo-taxi/libs/go/auth"
-	"github.com/minhthao56/monorepo-taxi/libs/go/entity"
+	"github.com/minhthao56/monorepo-taxi/libs/go/schema"
 )
 
 type UserController interface {
@@ -31,22 +31,22 @@ func (u *UserControllerImpl) CreateUser(c *gin.Context) {
 			"message": "error reading request body",
 		})
 	}
-	var userReq entity.CreateFirebaseUserRequest
+	var userReq schema.CreateFirebaseUserRequest
 	if err = json.Unmarshal(payload, &userReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "error parsing request body",
 		})
 	}
-	r, err := u.FirebaseManager.CreateUser(userReq.Email, userReq.Password)
+	r, err := u.FirebaseManager.CreateUser(c, userReq.Email, userReq.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "error creating user",
 			"error":   err.Error(),
 		})
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"uid":   r.UID,
-		"email": r.Email,
+	c.JSON(http.StatusOK, schema.CreateFirebaseUserResponse{
+		UID:   r.UID,
+		Email: r.Email,
 	})
 }
 
