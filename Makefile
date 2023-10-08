@@ -43,10 +43,19 @@ gen-schema:
 connect-db:
 	psql -h 127.0.0.1 -p 5432 -d taxi-db -U postgres
 
-# Frontend
+gen-sqlx:
+	cargo sqlx prepare --workspace
 
+# Frontend
 start-frontend:
 	npx nx dev call-center
 
 build-frontend:
 	npx nx build call-center
+
+# App
+customer-start-ios:
+	npx nx ios customer 
+
+customer-start-android:
+	npx nx android customer

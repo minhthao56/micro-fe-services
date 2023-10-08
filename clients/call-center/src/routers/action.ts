@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirect } from "react-router-dom";
-import authProvider from "../auth";
+import authProvider from "utils/firebase";
 import { createCustomToken} from "../services/authmgmt/customToken"
 
 export async function loginAction({ request }: LoaderFunctionArgs) {

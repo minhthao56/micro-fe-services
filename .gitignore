@@ -14,3 +14,4 @@ server.key
 .sqlx
 .env
 .vscode
+.DS_Store

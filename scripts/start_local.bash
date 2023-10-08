@@ -8,7 +8,7 @@ eval $(minikube -p minikube docker-env)
 make build-communicatemgmt
 make docker-communicatemgmt
 
-# make build-usermgmt
+# make build-usermgmts
 make docker-usermgmt
 
 make build-authmgmt
@@ -45,4 +45,3 @@ kubectl apply -f deployment/config/firebase.yml
 kubectl apply -f deployment/ingress/default-ingress.yml
 
 kubectl apply -f deployment/jobs/migration-db.yaml
-

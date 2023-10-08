@@ -38,7 +38,6 @@ class AuthWithFirebase implements AuthProvider {
   async signIn(email: string, password: string): Promise<UserCredential> {
     try {
       const user = await signInWithEmailAndPassword(this.firebaseAuth, email, password);
-      this.isAuthenticated = true;
       return user;
     } catch (error) {
       this.isAuthenticated = false;
