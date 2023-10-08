@@ -14,6 +14,21 @@
   "targetDefaults":{
     "build":{
       "dependsOn":["^build"]
+    },
+    "android": {
+      "dependsOn": ["^build"]
+    },
+    "ios": {
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "start": {
+      "dependsOn": ["^build"]
     }
   }
 }

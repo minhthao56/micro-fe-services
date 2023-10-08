@@ -1,4 +1,0 @@
-packages:
-  - 'clients/*'
-  - 'services/*'
-  - 'libs/ts/*'

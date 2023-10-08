@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirect } from "react-router-dom";
-import authProvider from "../auth";
+import authProvider from "utils/firebase";
 
 export async function protectedLoader({ request }: LoaderFunctionArgs) {
   const isAuthenticated = await authProvider.getIsAuthenticated();
