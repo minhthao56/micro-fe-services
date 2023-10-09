@@ -31,6 +31,7 @@ export default function HomeLayout() {
     return <Text>Loading...</Text>;
   }
 
+  console.log("HomeLayout", val);
 
   if (!val?.session) {
     return <Redirect href="/sign-in" />;
