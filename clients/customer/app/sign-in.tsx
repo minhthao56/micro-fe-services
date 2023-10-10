@@ -1,14 +1,11 @@
 import { router } from "expo-router";
-import { Slot, SplashScreen } from "expo-router";
-import { Suspense, useEffect } from "react";
 import { useColorScheme, Text, View } from "react-native";
-import { useFonts } from "expo-font";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { TamaguiProvider, Theme, YStack, Button } from "tamagui";
+import { TamaguiProvider, Theme, Button } from "tamagui";
 import config from "../tamagui.config";
 
 import { useSession } from "./ctx";
@@ -26,13 +23,9 @@ export default function SignIn() {
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
             <Button
-              onPress={() => {
-                console.log("---run--", val);
-                val?.signIn();
-                console.log("---after--", val);
+              onPress={async () => {
+                await val?.signIn();
                 router.replace("/");
-                console.log("---go to home--", val);
-
               }}
             >
               Sign In

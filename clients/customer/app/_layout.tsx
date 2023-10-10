@@ -7,13 +7,14 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { TamaguiProvider, Theme  } from "tamagui";
+import { TamaguiProvider, Theme } from "tamagui";
 import { SessionProvider } from "./ctx";
 
 import config from "../tamagui.config";
 
-SplashScreen.preventAutoHideAsync();
+export { ErrorBoundary } from "expo-router";
 
+SplashScreen.preventAutoHideAsync();
 
 export default function Root() {
   const colorScheme = useColorScheme();
@@ -31,7 +32,7 @@ export default function Root() {
 
   if (!loaded) return null;
   return (
-    <TamaguiProvider config={config}  defaultTheme="dark">
+    <TamaguiProvider config={config} defaultTheme="dark">
       <SessionProvider>
         <Suspense fallback={<Text>Loading...</Text>}>
           <Theme name={colorScheme}>

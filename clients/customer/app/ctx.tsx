@@ -1,7 +1,15 @@
 import React from 'react';
 import { useStorageState } from './useStorageState';
 
-const AuthContext = React.createContext<{ signIn: () => void; signOut: () => void; session?: string | null, isLoading: boolean } | null>(null);
+
+type AuthContextType = {
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
+  session?: string | null;
+  isLoading: boolean;
+}
+
+const AuthContext = React.createContext<AuthContextType | null>(null);
 
 // This hook can be used to access the user info.
 export function useSession() {
@@ -11,23 +19,21 @@ export function useSession() {
       throw new Error('useSession must be wrapped in a <SessionProvider />');
     }
   }
-  
-
   return value;
 }
 
 export function SessionProvider(props: { children: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) {
-  const [[isLoading, session], setSession] = useStorageState('session');
+  const {state, setValue} = useStorageState('session');
+  const [isLoading, session] = state
 
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
-          // Perform sign-in logic here
-          setSession('xxx');
+       signIn: async () => {
+          await setValue('123');
         },
-        signOut: () => {
-          setSession(null);
+        signOut: async  () => {
+         await setValue(null);
         },
         session,
         isLoading,
