@@ -21,10 +21,8 @@ export default function TabOneScreen() {
           lightColor="#eee"
           darkColor="rgba(255,255,255,0.1)"
         />
-        <Button>Test</Button>
         <Text
           onPress={() => {
-            // The `app/(app)/_layout.tsx` will redirect to the sign-in screen.
             val?.signOut();
           }}
         >

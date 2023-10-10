@@ -1,22 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
-import {useState, useReducer, useEffect, useCallback} from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import { Platform } from 'react-native';
-
-type UseStateHook<T> = [[boolean, T | null], (value?: T | null) => void];
-
-function useAsyncState<T>(
-    initialValue: [boolean, T | null] = [true, null]
-  ): UseStateHook<T> {
-    const reducer = (
-      state: [boolean, T | null],
-      action: T | null = null
-    ): [boolean, T | null] => {
-      return [false, action];
-    };
-  
-    return useReducer(reducer, initialValue) as UseStateHook<T>;
-  }
-  
 
 export async function setStorageItemAsync(key: string, value: string | null) {
   if (Platform.OS === 'web') {
@@ -37,14 +21,28 @@ export async function setStorageItemAsync(key: string, value: string | null) {
     }
   }
 }
+export async function getStorageItemAsync(key: string) {
+  if (Platform.OS === 'web') {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        return localStorage.getItem(key);
+      }
+    } catch (e) {
+      console.error('Local storage is unavailable:', e);
+    }
+  } else {
+    return SecureStore.getItemAsync(key);
+  }
+}
 
 export function useStorageState(key: string) {
   // Public
-  const [state, setState] = useAsyncState<string>();
-  const [isLoading, session] = useState(state);
+  const [isLoading, setLoading] = useState(false);
+  const [state, setState] = useState<string| null| undefined>("");
 
-  // Get
-  useEffect(() => {
+
+  const initValue = useCallback(async () => {
+    setLoading(true);
     if (Platform.OS === 'web') {
       try {
         if (typeof localStorage !== 'undefined') {
@@ -54,11 +52,16 @@ export function useStorageState(key: string) {
         console.error('Local storage is unavailable:', e);
       }
     } else {
-      SecureStore.getItemAsync(key).then(value => {
-        setState(value);
-      });
+      const value = await getStorageItemAsync(key);
+      setState(value);
     }
-  }, [key]);
+    setLoading(false);
+  },[key])
+
+  // Get
+  useEffect(() => {
+    initValue()
+  }, [initValue]);
 
   // Set
   const setValue = useCallback(
@@ -71,5 +74,5 @@ export function useStorageState(key: string) {
     [key]
   );
   
-  return {state, setValue};
+  return {state, setValue, isLoading};
 }

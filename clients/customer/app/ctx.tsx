@@ -23,8 +23,7 @@ export function useSession() {
 }
 
 export function SessionProvider(props: { children: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) {
-  const {state, setValue} = useStorageState('session');
-  const [isLoading, session] = state
+  const {state, setValue, isLoading} = useStorageState('session');
 
   return (
     <AuthContext.Provider
@@ -35,7 +34,7 @@ export function SessionProvider(props: { children: string | number | boolean | R
         signOut: async  () => {
          await setValue(null);
         },
-        session,
+        session: state,
         isLoading,
       }}>
       {props.children}

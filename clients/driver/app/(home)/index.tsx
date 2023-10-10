@@ -6,7 +6,7 @@ export default function TabOneScreen() {
     const val = useSession();
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One Driver App</Text>
+      <Text style={styles.title}>Tab One</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <Text
         onPress={() => {
