@@ -1,5 +1,5 @@
 import { Slot, SplashScreen } from "expo-router";
-import { Suspense, useCallback, useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useColorScheme, Text } from "react-native";
 import { useFonts } from "expo-font";
 import {
@@ -8,8 +8,8 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { TamaguiProvider, Theme } from "tamagui";
-import { SessionProvider } from "./ctx";
 
+import { SessionProvider } from "./ctx";
 
 import config from "../tamagui.config";
 
@@ -33,6 +33,7 @@ export default function Root() {
 
   if (!loaded) return null;
   return (
+    // @ts-ignore
     <TamaguiProvider config={config} defaultTheme="dark">
       <Suspense fallback={<Text>Loading...</Text>}>
         <Theme name={colorScheme}>
@@ -40,7 +41,7 @@ export default function Root() {
             value={colorScheme === "light" ? DefaultTheme : DarkTheme}
           >
             <SessionProvider>
-              <Slot />
+                <Slot />
             </SessionProvider>
           </ThemeProvider>
         </Theme>

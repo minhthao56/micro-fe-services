@@ -7,7 +7,8 @@
     "android": "EXPO_USE_METRO_WORKSPACE_ROOT=1 expo start --android",
     "ios": "EXPO_USE_METRO_WORKSPACE_ROOT=1 expo start --ios",
     "web": "EXPO_USE_METRO_WORKSPACE_ROOT=1 expo start --web",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "postinstall": "cd ../.. && yarn build"
   },
   "jest": {
     "preset": "jest-expo"
@@ -15,13 +16,10 @@
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
     "@react-navigation/native": "^6.0.2",
-    "@tamagui/animations-moti": "^1.74.12",
-    "@tamagui/babel-plugin": "^1.74.12",
     "@tamagui/font-inter": "^1.74.12",
     "@tamagui/font-silkscreen": "^1.74.12",
     "@tamagui/lucide-icons": "^1.74.12",
     "@tamagui/themes": "^1.74.12",
-    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "expo": "~49.0.13",
     "expo-font": "~11.4.0",
     "expo-linking": "~5.0.2",
@@ -42,7 +40,13 @@
     "react-native-svg": "13.9.0",
     "react-native-web": "~0.19.6",
     "tamagui": "^1.74.12",
+    "tamagui-shared-ui": "*",
     "utils": "*"
+  },
+  "devDependencies": {
+    "@expo/metro-config": "~0.10.0",
+    "@tamagui/babel-plugin": "^1.74.12",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4"
   },
   "overrides": {
     "react-refresh": "~0.14.0"

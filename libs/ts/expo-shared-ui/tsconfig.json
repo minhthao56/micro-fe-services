@@ -4,6 +4,6 @@
   "compilerOptions": {
     "outDir": "./build"
   },
-  "include": ["./"],
-  "exclude": ["**/__mocks__/*", "**/__tests__/*"]
+  "include": ["src"],
+  "exclude": ["**/__mocks__/*", "**/__tests__/*", "./build", "./node_modules"]
 }

@@ -3,8 +3,6 @@ import { Text, View } from "../../components/Themed";
 import { useSession } from "../ctx";
 import { add } from "utils/add";
 import { MyView } from "expo-shared-ui";
-import { Activity, Airplay } from "@tamagui/lucide-icons";
-import {  XGroup, XStack, YStack,Input, Button } from "tamagui";
 import { FormsDemo } from "../../components/FormDemo";
 
 export default function TabOneScreen() {
