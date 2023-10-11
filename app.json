@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "de72e137-1945-4640-a866-9eb9e4ba596a"
+      }
+    },
+    "android": {
+      "package": "com.taxi.monorepo"
+    }
+  }
+}

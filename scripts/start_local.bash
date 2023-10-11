@@ -1,5 +1,5 @@
 #!/bin/bash
-minikube start
+minikube start --cpus 2 --memory 1800
 
 minikube addons enable ingress
 
