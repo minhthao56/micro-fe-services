@@ -51,7 +51,8 @@
     "init:call": "yarn workspace call-center install",
     "init:all": "yarn && yarn init:comu && yarn init:call",
     "dev:comu": "yarn workspace communicatemgmt start",
-    "build": "yarn workspace tamagui-shared-ui build && yarn workspace expo-shared-ui build",
-    "start:c": "yarn workspace customer start"
+    "build": "yarn workspace tamagui-shared-ui build && yarn workspace utils build && yarn workspace expo-shared-ui build",
+    "start:c": "yarn workspace customer start",
+    "watch:tamagui": "yarn workspace tamagui-shared-ui watch"
   }
 }

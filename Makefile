@@ -58,7 +58,7 @@ customer-start-ios:
 	npx nx ios customer 
 
 customer-start-android:
-	npx nx android customer
+	npx nx android customer --verbose 
 
 driver-start-ios:
 	npx nx ios driver

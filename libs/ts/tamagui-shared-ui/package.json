@@ -17,6 +17,7 @@
     "@tamagui/font-silkscreen": "^1.74.12",
     "@tamagui/lucide-icons": "^1.74.12",
     "@tamagui/themes": "^1.74.12",
+    "react-hook-form": "^7.47.0",
     "tamagui": "^1.74.13"
   },
   "devDependencies": {

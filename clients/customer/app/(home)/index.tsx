@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 import { Text, View } from "../../components/Themed";
 import { useSession } from "../ctx";
 import { add } from "utils/add";
-import { MyView } from "expo-shared-ui";
 import { FormsDemo } from "../../components/FormDemo";
 
 export default function TabOneScreen() {
@@ -13,7 +12,6 @@ export default function TabOneScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Tab One Customer App</Text>
         <Text style={styles.title}>{add(2, 3)}</Text>
-        <MyView />
         <View
           style={styles.separator}
           lightColor="#eee"
