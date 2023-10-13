@@ -4,7 +4,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useColorScheme } from "react-native";
 import Colors from "../../constants/Colors";
 
-import { useSession } from "../ctx";
+import { useSession } from "utils/auth/mobile";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -16,12 +16,12 @@ function TabBarIcon(props: {
 export default function HomeLayout() {
   const val = useSession();
   const colorScheme = useColorScheme();
-  console.log("--HomeLayout--",val);
+  console.log("--HomeLayout--uid--",val?.user?.uid);
   if (val?.isLoading) {
     return <Text>Loading...</Text>;
   }
 
-  if (!val?.session) {
+  if (!val?.isAuthenticated) {
     return <Redirect href="/sign-in" />;
   }
 

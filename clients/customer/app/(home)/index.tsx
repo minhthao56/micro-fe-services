@@ -1,8 +1,9 @@
 import { StyleSheet } from "react-native";
 import { Text, View } from "../../components/Themed";
-import { useSession } from "../ctx";
+import { useSession } from "utils/auth/mobile";
 import { add } from "utils/add";
 import { FormsDemo } from "../../components/FormDemo";
+import {Button} from "tamagui"
 
 export default function TabOneScreen() {
   const val = useSession();
@@ -17,13 +18,13 @@ export default function TabOneScreen() {
           lightColor="#eee"
           darkColor="rgba(255,255,255,0.1)"
         />
-        <Text
-          onPress={() => {
-            val?.signOut();
+        <Button
+          onPress={async () => {
+           await val?.signOut();
           }}
         >
           Sign Out
-        </Text>
+        </Button>
       </View>
     </>
   );

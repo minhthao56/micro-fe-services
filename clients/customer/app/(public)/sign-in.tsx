@@ -1,24 +1,22 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { router } from "expo-router";
-import { Button, Text, H2, Stack } from "tamagui";
+import { H2 } from "tamagui";
 import { LoginForm, LoginFormData } from "tamagui-shared-ui";
 import { KeyboardAvoidingComponent } from "expo-shared-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { authMobile } from "utils/firebase/mobile";
-import { useSession } from "../ctx";
+import { useSession } from "utils/auth/mobile";
 
 export default function SignIn() {
-  const val = useSession();
+  const session = useSession();
   const onSubmit = useCallback(async (data: LoginFormData) => {
     try {
-      console.log("email: ", data.email);
-      console.log("password: ", data.password);
-      const user = await authMobile.signIn(data.email, data.password);
-      console.log("user.user.email: ", user.user.email);
-      console.log("user.uid: ", user.user.uid);
-
-      // await val?.signIn();
-      // router.replace("/");
+      const userCredential = await session?.signIn(data.email, data.password);
+      const user = userCredential?.user;
+      if (user?.uid) {
+        router.replace("/");
+      }else {
+        console.log("No user id");
+      }
     } catch (error) {
       console.log(error);
     }
@@ -28,7 +26,7 @@ export default function SignIn() {
       style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
     >
       <KeyboardAvoidingComponent>
-        <H2 mb="$4">Taxi SM</H2>
+        <H2 mb="$4" >Taxi SM</H2>
         <LoginForm onSubmit={onSubmit} title="Sign In" />
       </KeyboardAvoidingComponent>
     </SafeAreaView>
