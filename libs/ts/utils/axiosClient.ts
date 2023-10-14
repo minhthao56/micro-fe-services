@@ -10,8 +10,11 @@ export class Client implements IClient {
     this.axiosInstance = axios.create({
       baseURL: "http://api.taxi.com/" + serverName,
       timeout: 1000,
-    //   headers: { "X-Custom-Header": "foobar" },
     });
+  }
+
+  setToken(token: string) {
+    this.axiosInstance.defaults.headers.common["Authorization"] = token;
   }
 
   async post<T, R>(path: string, data: T) {

@@ -5,8 +5,8 @@ minikube addons enable ingress
 
 eval $(minikube -p minikube docker-env)
 
-make build-communicatemgmt
-make docker-communicatemgmt
+make build-communicate
+make docker-communicate
 
 # make build-usermgmts
 make docker-usermgmt
@@ -14,8 +14,8 @@ make docker-usermgmt
 make build-authmgmt
 make docker-authmgmt
 
-make build-ordermgmt
-make docker-ordermgmt
+make build-booking
+make docker-booking
 
 make build-migration
 make docker-migration
@@ -30,13 +30,13 @@ kubectl apply -f deployment/postgresql/pg-deploy-service.yml
 
 kubectl apply -f deployment/postgresql/pg-configmap.yml
 
-kubectl apply -f deployment/communicatemgmt/commu-deploy-service.yml
+kubectl apply -f deployment/communicate/commu-deploy-service.yml
 
 kubectl apply -f deployment/usermgmt/usermgmt-deploy-service.yml
 
 kubectl apply -f deployment/authmgmt/authmgmt-deploy-service.yml
 
-kubectl apply -f deployment/ordermgmt/ordermgmt-deploy-service.yml
+kubectl apply -f deployment/booking/booking-deploy-service.yml
 
 kubectl apply -f deployment/common/common-configmap.yml
 

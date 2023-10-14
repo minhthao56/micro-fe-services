@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ordermgmt
+  name: communicate
   labels:
-    app: ordermgmt
+    app: communicate
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ordermgmt
+      app: communicate
   template:
     metadata:
       labels:
-        app: ordermgmt
+        app: communicate
     spec:
       containers:
-      - name: ordermgmt
-        image: taxi/ordermgmt
+      - name: communicate
+        image: taxi/communicate
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 6060
+        - containerPort: 7070
         env:
         - name: POSTGRES_USER
           valueFrom:
@@ -46,11 +46,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ordermgmt-service
+  name: communicate-service
 spec:
   selector:
-    app: ordermgmt
+    app: communicate
   ports:
     - protocol: TCP
-      port: 6060
-      targetPort: 6060
+      port: 7070
+      targetPort: 7070

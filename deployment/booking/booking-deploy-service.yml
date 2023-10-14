@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: communicatemgmt
+  name: booking
   labels:
-    app: communicatemgmt
+    app: booking
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: communicatemgmt
+      app: booking
   template:
     metadata:
       labels:
-        app: communicatemgmt
+        app: booking
     spec:
       containers:
-      - name: communicatemgmt
-        image: taxi/communicatemgmt
+      - name: booking
+        image: taxi/booking
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 7070
+        - containerPort: 6060
         env:
         - name: POSTGRES_USER
           valueFrom:
@@ -46,11 +46,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: communicatemgmt-service
+  name: booking-service
 spec:
   selector:
-    app: communicatemgmt
+    app: booking
   ports:
     - protocol: TCP
-      port: 7070
-      targetPort: 7070
+      port: 6060
+      targetPort: 6060

@@ -8,8 +8,8 @@ import (
 
 func main() {
 	r := gin.Default()
-	ordermgmt := r.Group("/ordermgmt")
-	ordermgmt.GET("/", func(c *gin.Context) {
+	booking := r.Group("/booking")
+	booking.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "order management service",
 		})

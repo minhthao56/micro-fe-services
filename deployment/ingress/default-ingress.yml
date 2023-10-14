@@ -12,11 +12,11 @@ spec:
   - host: api.taxi.com
     http:
       paths:
-      - path: /communicatemgmt
+      - path: /communicate
         pathType: Prefix
         backend:
           service:
-            name: communicatemgmt-service
+            name: communicate-service
             port:
               number: 7070
       - path: /usermgmt
@@ -33,10 +33,10 @@ spec:
             name: authmgmt-service
             port:
               number: 8080
-      - path: /ordermgmt
+      - path: /booking
         pathType: Prefix
         backend:
           service:
-            name: ordermgmt-service
+            name: booking-service
             port:
               number: 6060

@@ -12,6 +12,6 @@ try {
 }
 
 app.use(morgan("dev"));
-app.use("/communicatemgmt", notiRouter);
+app.use("/communicate", notiRouter);
 
 export default app;

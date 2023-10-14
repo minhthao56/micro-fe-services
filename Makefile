@@ -6,13 +6,13 @@ build-usermgmt:
 docker-usermgmt:
 	docker build -f deployment/usermgmt.Dockerfile -t taxi/usermgmt .
 
-# ordermgmt
-build-ordermgmt:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ./build/ordermgmt ./services/ordermgmt/
+# booking
+build-booking:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o ./build/booking ./services/booking/
 
 
-docker-ordermgmt:
-	docker build -f deployment/ordermgmt.Dockerfile -t taxi/ordermgmt .
+docker-booking:
+	docker build -f deployment/booking.Dockerfile -t taxi/booking .
 
 # authmgmt
 build-authmgmt:
@@ -21,13 +21,13 @@ build-authmgmt:
 docker-authmgmt:
 	docker build -f deployment/authmgmt.Dockerfile -t taxi/authmgmt .
 
-# communicatemgmt
-build-communicatemgmt:
-	pnpm install
-	npx nx build communicatemgmt
+# communicate
+build-communicate:
+	yarn
+	npx nx build communicate
 
-docker-communicatemgmt:
-	docker build -f deployment/communicatemgmt.Dockerfile -t taxi/communicatemgmt .
+docker-communicate:
+	docker build -f deployment/communicate.Dockerfile -t taxi/communicate .
 
 # migration db
 build-migration:
