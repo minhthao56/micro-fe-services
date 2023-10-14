@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -18,10 +19,11 @@ type UserController interface {
 
 type UserControllerImpl struct {
 	FirebaseManager auth.FirebaseManager
+	db              *sql.DB
 }
 
-func NewUserController(client auth.FirebaseManager) UserController {
-	return &UserControllerImpl{FirebaseManager: client}
+func NewUserController(client auth.FirebaseManager, db *sql.DB) UserController {
+	return &UserControllerImpl{FirebaseManager: client, db: db}
 }
 
 func (u *UserControllerImpl) CreateUser(c *gin.Context) {

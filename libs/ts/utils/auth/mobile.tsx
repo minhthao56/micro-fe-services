@@ -1,6 +1,7 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
 import { authMobile } from "../firebase/mobile";
-import { User, AuthWithFirebase } from "../firebase/provider";
+import type {User} from "firebase/auth"
+import { AuthWithFirebase } from "../firebase/provider";
 
 type AuthContextType = {
   signIn: AuthWithFirebase["signIn"];

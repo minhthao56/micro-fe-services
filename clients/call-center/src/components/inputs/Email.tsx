@@ -1,7 +1,9 @@
-import { Input } from "@nextui-org/react";
+import { Input, InputProps } from "@nextui-org/react";
 import { MailIcon } from "../icons/MailIcon";
 
-export default function Email() {
+
+
+export default function Email(props: InputProps) {
   return (
     <Input
       type="email"
@@ -12,6 +14,7 @@ export default function Email() {
       endContent={
         <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
       }
+      {...props}
     />
   );
 }

@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirect } from "react-router-dom";
 import { authWeb } from "utils/firebase/web";
+import {UserGroup} from "utils/constants/user-group"
 import { createCustomToken } from "../services/authmgmt/customToken";
 
 export async function loginAction({ request }: LoaderFunctionArgs) {
@@ -30,11 +31,11 @@ export async function loginAction({ request }: LoaderFunctionArgs) {
     const resp = await createCustomToken({
       firebaseToken: idToken,
       uid: uid,
-      userGroup: "call-center",
+      userGroup: UserGroup.ADMIN_GROUP,
     });
     await authWeb.signInWithCustomToken(resp.customToken);
   } catch (error) {
-    console.log(error);
+    console.log("---error---", error);
     return {
       error: "Invalid login attempt",
     };

@@ -1,9 +1,9 @@
 import React from "react";
-import {Input} from "@nextui-org/react";
+import {Input, InputProps} from "@nextui-org/react";
 import { EyeSlashFilledIcon } from "../icons/EyeSlashFilledIcon";
 import { EyeFilledIcon } from "../icons/EyeFilledIcon";
 
-export default function Password() {
+export default function Password(props: InputProps) {
   const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -25,6 +25,7 @@ export default function Password() {
       }
       type={isVisible ? "text" : "password"}
       className="max-w-xs"
+      {...props}
     />
   );
 }

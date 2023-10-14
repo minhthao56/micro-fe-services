@@ -22,8 +22,8 @@ func main() {
 
 	r := gin.Default()
 	routerGroup := r.Group("/authmgmt")
-	router.NewRouterUser(routerGroup, firebaseManager)
-	router.NewRouterAuth(routerGroup, firebaseManager)
+	router.NewRouterUser(routerGroup, firebaseManager, conn)
+	router.NewRouterAuth(routerGroup, firebaseManager, conn)
 
 	r.Run(":8080")
 	log.Println("user anthmgnt service started port 8080")

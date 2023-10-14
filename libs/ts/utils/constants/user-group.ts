@@ -1,0 +1,5 @@
+export enum UserGroup {
+  ADMIN_GROUP = "ADMIN_GROUP",
+  CLIENT_GROUP = "CLIENT_GROUP",
+  DRIVER_GROUP = "DRIVER_GROUP",
+}

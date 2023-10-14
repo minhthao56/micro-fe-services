@@ -14,7 +14,8 @@ type FirebaseManager interface {
 	CreateUser(ctx context.Context, email string, password string) (*auth.UserRecord, error)
 	GetUser(ctx context.Context, uid string) (*auth.UserRecord, error)
 	UpdateUser(ctx context.Context, uid string, email string, password string) (*auth.UserRecord, error)
-	CustomTokenWithClaims(ctx context.Context, uid string, userGroup string, user_id string) (string, error)
+	CustomTokenWithClaims(ctx context.Context, uid string, claims map[string]interface{}) (string, error)
+	VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error)
 }
 
 type FirebaseManagerImpl struct {
@@ -24,6 +25,10 @@ type FirebaseManagerImpl struct {
 func NewAppFirebase() (*firebase.App, error) {
 	configPath := "/firebase/firebase-config.json"
 	configData, err := os.ReadFile(configPath)
+
+	if err != nil {
+		return nil, fmt.Errorf("error reading config file: %v", err)
+	}
 
 	opt := option.WithCredentialsJSON(configData)
 	app, err := firebase.NewApp(context.Background(), nil, opt)
@@ -79,11 +84,7 @@ func (u *FirebaseManagerImpl) UpdateUser(ctx context.Context, uid string, email 
 	return user, nil
 }
 
-func (u *FirebaseManagerImpl) CustomTokenWithClaims(ctx context.Context, uid string, userGroup string, userID string) (string, error) {
-	claims := map[string]interface{}{
-		"user_group": userGroup,
-		"user_id":    userID,
-	}
+func (u *FirebaseManagerImpl) CustomTokenWithClaims(ctx context.Context, uid string, claims map[string]interface{}) (string, error) {
 	token, err := u.client.CustomTokenWithClaims(ctx, uid, claims)
 	if err != nil {
 		return "", fmt.Errorf("error creating custom token: %v", err)

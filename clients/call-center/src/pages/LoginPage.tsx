@@ -19,11 +19,10 @@ export default function LoginPage() {
   const actionData = useActionData() as { error: string } | undefined;
 
   return (
-    <div>
       <Form method="post" replace>
         <input type="hidden" name="redirectTo" value={from} />
-        <Email />
-        <Password />
+        <Email className="mb-2"/>
+        <Password className="mb-4"/>
         <Button type="submit" disabled={isLoggingIn} size="md">
           {isLoggingIn ? "Logging in..." : "Login"}
         </Button>
@@ -31,6 +30,5 @@ export default function LoginPage() {
           <p style={{ color: "red" }}>{actionData.error}</p>
         ) : null}
       </Form>
-    </div>
   );
 }

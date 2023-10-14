@@ -13,7 +13,7 @@ export interface AuthProvider {
   getIsAuthenticated(): Promise<boolean>;
   getUser(): User | null;
 }
-export { Auth, User, UserCredential}
+// export { Auth, User, UserCredential}
 
 export class AuthWithFirebase implements AuthProvider {
   private isAuthenticated = false;
