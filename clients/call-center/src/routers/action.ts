@@ -15,6 +15,12 @@ export async function loginAction({ request }: LoaderFunctionArgs) {
     };
   }
 
+  if (!password) {
+    return {
+      error: "You must provide a password to log in",
+    };
+  }
+
   try {
     const userCredential = await authWeb.signIn(
       email.toString(),
@@ -35,7 +41,8 @@ export async function loginAction({ request }: LoaderFunctionArgs) {
     });
     await authWeb.signInWithCustomToken(resp.customToken);
   } catch (error) {
-    console.log("---error---", error);
+    console.error("--error login--", error);
+    await authWeb.signOut();
     return {
       error: "Invalid login attempt",
     };

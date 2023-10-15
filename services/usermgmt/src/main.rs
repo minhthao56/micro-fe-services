@@ -1,7 +1,10 @@
 mod controller;
+mod middleware;
+
 use actix_web::{web, App, HttpServer, middleware::Logger};
 use sqlx::{ Pool, Postgres};
 use database::db::Database;
+use middleware::validate_jwt::SayHi;
 pub struct AppState {
     db: Pool<Postgres>,
 }
@@ -17,7 +20,7 @@ async fn main() -> std::io::Result<()> {
             web::scope("/usermgmt")
                 .configure(controller::healthchecker::config)
                 .configure(controller::user::config),
-        ).wrap(Logger::default())
+        ).wrap(Logger::default()).wrap(SayHi)
     })
     .bind(("0.0.0.0", 9090))?
     .run()

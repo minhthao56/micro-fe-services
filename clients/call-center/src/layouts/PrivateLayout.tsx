@@ -1,4 +1,4 @@
-import { Outlet, useFetcher } from "react-router-dom";
+import { Outlet, useFetcher, useRouteLoaderData } from "react-router-dom";
 import {
   Navbar,
   NavbarBrand,
@@ -12,13 +12,17 @@ import {
   Avatar,
   Switch,
 } from "@nextui-org/react";
+import type { User } from "firebase/auth";
 import { SunIcon } from "../components/icons/SunIcon";
 import { MoonIcon } from "../components/icons/MoonIcon";
 import { useThemeSwitcher } from "../hooks/useThemeSwitcher";
+
 export default function PrivateLayout() {
   const { value, onValueChange } = useThemeSwitcher();
+  const { user } = useRouteLoaderData("root") as { user: User };
   const fetcher = useFetcher();
   const isLoggingOut = fetcher.formData != null;
+  
   return (
     <>
       <>
@@ -54,7 +58,7 @@ export default function PrivateLayout() {
               <DropdownMenu aria-label="Profile Actions" variant="flat">
                 <DropdownItem key="profile" className="h-14 gap-2">
                   <p className="font-semibold">Signed in as</p>
-                  <p className="font-semibold">zoey@example.com</p>
+                  <p className="font-semibold">{user.email}</p>
                 </DropdownItem>
                 <DropdownItem key="logout" color="danger">
                   <fetcher.Form method="post" action="/logout">
