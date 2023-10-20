@@ -20,4 +20,8 @@ export class Client implements IClient {
     const response = await this.axiosInstance.post<R>(path, data);
     return response.data;
   }
+  async get<R>(path: string) {
+    const response = await this.axiosInstance.get<R>(path);
+    return response.data;
+  }
 }

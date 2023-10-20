@@ -1,7 +1,8 @@
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirect } from "react-router-dom";
-import {authWeb} from "utils/firebase/web";
-import {setToken} from "../services/initClient"
+import { authWeb } from "utils/firebase/web";
+import { setToken } from "../services/initClient";
+import { whoami } from "../services/usermgmt/user";
 
 export async function protectedLoader({ request }: LoaderFunctionArgs) {
   try {
@@ -15,13 +16,15 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
     if (token) {
       setToken(token);
     }
+
+    const user = await whoami();
+    console.log("user", user);
     return { user: authWeb.getUser() };
   } catch (error) {
+    authWeb.signOut();
     console.error("error protectedLoader", error);
     throw error;
   }
-
- 
 }
 
 export async function loginLoader() {

@@ -11,7 +11,6 @@ server.crt
 server.csr
 server.key
 
-.sqlx
 .env
 .vscode
 .DS_Store

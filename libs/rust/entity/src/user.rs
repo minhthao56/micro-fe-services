@@ -7,7 +7,11 @@ use std::{fs, io::Write};
 #[allow(non_snake_case)]
 pub struct UserEntity {
     pub user_id: i32,
-    pub email: Option<String>,
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub user_group: String,
+    pub firebase_uid: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]

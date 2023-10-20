@@ -1,4 +1,4 @@
-use actix_web::{get, HttpResponse, Responder, web, post};
+use actix_web::{get, HttpResponse, Responder, web, post, HttpRequest};
 use reqwest::Client;
 use serde::Deserialize;
 use crate:: AppState;
@@ -19,7 +19,15 @@ use utils::read_file::read_config;
 struct  FilterOptions{}
 
 #[get("/whoami")]
-async fn whoami() -> impl Responder {
+async fn whoami(
+    req: HttpRequest,
+    _: web::Data<AppState>,
+) -> impl Responder {
+    let headers = req.headers();
+    let auth_header = headers.get("Authorization").unwrap();
+    let auth_header_str = auth_header.to_str().unwrap();
+    let token = auth_header_str.replace("Bearer ", "");
+    println!("---whoami--Token---: {}", token);
     let s = String::from("whoami");
     HttpResponse::Ok().body(s)
 }
@@ -32,7 +40,7 @@ async fn get_all_user(
 
     let query_result = sqlx::query_as!(
         UserEntity,
-        "SELECT user_id, email FROM users",
+        "SELECT user_id, email, firebase_uid, first_name, last_name, user_group FROM users",
     )
     .fetch_all(&data.db)
     .await;
