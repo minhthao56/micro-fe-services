@@ -1,7 +1,6 @@
 # usermgmt
 build-usermgmt:
-	cargo build --release --bin usermgmt
-
+	cross build --target x86_64-unknown-linux-gnu --bin usermgmt
 
 docker-usermgmt:
 	docker build -f deployment/usermgmt.Dockerfile -t taxi/usermgmt .

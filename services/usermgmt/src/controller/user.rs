@@ -1,7 +1,7 @@
-use actix_web::{get, HttpResponse, Responder, web, post, HttpRequest};
+use actix_web::{get, HttpResponse, Responder, web::{self, ReqData}, post};
 use reqwest::Client;
 use serde::Deserialize;
-use crate:: AppState;
+use crate::{ AppState,helpers::firebase};
 use serde_json::json;
 use entity::user::{
     CreateUserRequest,
@@ -20,16 +20,40 @@ struct  FilterOptions{}
 
 #[get("/whoami")]
 async fn whoami(
-    req: HttpRequest,
-    _: web::Data<AppState>,
+    firebase_user: ReqData<firebase::FirebaseUser>,
+    data: web::Data<AppState>,
 ) -> impl Responder {
-    let headers = req.headers();
-    let auth_header = headers.get("Authorization").unwrap();
-    let auth_header_str = auth_header.to_str().unwrap();
-    let token = auth_header_str.replace("Bearer ", "");
-    println!("---whoami--Token---: {}", token);
-    let s = String::from("whoami");
-    HttpResponse::Ok().body(s)
+    let user_id = firebase_user.user_id.clone();
+    let user_group = firebase_user.user_group.clone();
+    let db_user_id = firebase_user.db_user_id.parse::<i32>().unwrap();
+
+    let query_result = sqlx::query_as!(
+        UserEntity,
+        "SELECT user_id, email, firebase_uid, first_name, last_name, user_group FROM users WHERE firebase_uid = $1 AND user_group = $2 AND user_id = $3",
+        user_id,
+        user_group,
+        db_user_id,
+    )
+    .fetch_all(&data.db)
+    .await;
+
+    if query_result.is_err() {
+        let message = "Something bad happened while fetching all note items";
+        return HttpResponse::InternalServerError()
+            .json(json!({"status": "error","message": message}));
+    }
+
+    let users = query_result.unwrap();
+    if users.len() == 0 {
+        return HttpResponse::InternalServerError()
+            .json(json!({"status": "error","message": "User not found"}));
+    }
+    println!("users: {:?}", users);
+    let json_response = serde_json::json!({
+        "status": "success",
+        "results": users[0],
+    });
+    HttpResponse::Ok().json(json_response)
 }
 
 #[get("/users")]

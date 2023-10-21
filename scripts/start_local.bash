@@ -1,6 +1,5 @@
 #!/bin/bash
-minikube start --cpus 2 --memory 1800
-
+minikube start
 minikube addons enable ingress
 
 eval $(minikube -p minikube docker-env)

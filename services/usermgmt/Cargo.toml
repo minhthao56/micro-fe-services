@@ -16,8 +16,8 @@ serde_json = { workspace = true }
 sqlx = { workspace = true }
 serde = { workspace = true }
 uuid = { workspace = true }
-futures_util = { workspace = true }
-
+futures-util = "0.3"
+jsonwebtoken = "9"
 [[bin]]
 name = "usermgmt"
 path = "src/main.rs"
