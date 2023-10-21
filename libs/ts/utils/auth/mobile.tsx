@@ -1,6 +1,6 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
 import { authMobile } from "../firebase/mobile";
-import type {User} from "firebase/auth"
+import type { User } from "firebase/auth";
 import { AuthWithFirebase } from "../firebase/provider";
 
 type AuthContextType = {
@@ -65,19 +65,19 @@ export function SessionProvider(props: {
     <AuthContext.Provider
       value={{
         signIn: async (email: string, password: string) => {
-            try {
-                const userCredential = await authMobile.signIn(email, password);
-                const user = userCredential?.user;
-                if (user?.uid) {
-                  setIsAuthenticated(true);
-                  setUser(user);
-                }
-                return userCredential;
-
-            } catch (error) {
-                console.log(error);
-                throw error;
+          try {
+            const userCredential = await authMobile.signIn(email, password);
+            const user = userCredential?.user;
+            if (user?.uid) {
+              setIsAuthenticated(true);
+              setUser(user);
             }
+            return userCredential;
+          } catch (error) {
+            setIsAuthenticated(false);
+            console.error(error);
+            throw error;
+          }
         },
         signOut: async () => {
           try {
@@ -85,12 +85,20 @@ export function SessionProvider(props: {
             setIsAuthenticated(false);
             setUser(null);
           } catch (error) {
-            console.log(error);
+            setIsAuthenticated(false);
+            console.error(error);
             throw error;
           }
         },
         signInWithCustomToken: async (token: string) => {
-          return await authMobile.signInWithCustomToken(token);
+          try {
+            await authMobile.signInWithCustomToken(token);
+            setIsAuthenticated(true);
+          } catch (error) {
+            setIsAuthenticated(false);
+            console.error(error);
+            throw error;
+          }
         },
 
         user,
