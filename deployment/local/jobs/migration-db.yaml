@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-db
+spec:
+  template:
+    spec:
+      containers:
+      - name: migration-db
+        image: taxi/migration-db:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "./migration"]
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgresql-secret
+                key: username
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgresql-secret
+                key: password
+          - name: DB_URL
+            valueFrom:
+              configMapKeyRef:
+                name: postgresql-configmap
+                key: db_host
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: postgresql-secret
+                key: pg_db
+      restartPolicy: Never

@@ -7,4 +7,4 @@ docker rmi -f $ID
 make build-migration
 make docker-migration
 
-kubectl apply -f deployment/jobs/migration-db.yaml
+kubectl apply -f deployment/local/jobs/migration-db.yaml

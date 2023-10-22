@@ -6,13 +6,6 @@ make build-$svcname
 eval $(minikube -p minikube docker-env)
 
 ID=$(docker images --format "{{.ID}} {{.Repository}} {{.Tag}}" | grep "taxi/$svcname latest" | awk '{print $1}')
-# if [ "$svcname" != "usermgmt" ]
-# then
-#     make build-$svcname
-
-# else
-#     cargo sqlx prepare --workspace
-# fi
 
 make docker-$svcname
 

@@ -29,18 +29,18 @@ kubectl apply -f deployment/postgresql/pg-deploy-service.yml
 
 kubectl apply -f deployment/postgresql/pg-configmap.yml
 
-kubectl apply -f deployment/communicate/commu-deploy-service.yml
+kubectl apply -f deployment/local/communicate/commu-deploy-service.yml
 
-kubectl apply -f deployment/usermgmt/usermgmt-deploy-service.yml
+kubectl apply -f deployment/local/usermgmt/usermgmt-deploy-service.yml
 
-kubectl apply -f deployment/authmgmt/authmgmt-deploy-service.yml
+kubectl apply -f deployment/local/authmgmt/authmgmt-deploy-service.yml
 
-kubectl apply -f deployment/booking/booking-deploy-service.yml
+kubectl apply -f deployment/local/booking/booking-deploy-service.yml
 
 kubectl apply -f deployment/common/common-configmap.yml
 
 kubectl apply -f deployment/config/firebase.yml
 
-kubectl apply -f deployment/ingress/default-ingress.yml
+kubectl apply -f deployment/local/ingress/default-ingress.yml
 
-kubectl apply -f deployment/jobs/migration-db.yaml
+kubectl apply -f deployment/local/jobs/migration-db.yaml
