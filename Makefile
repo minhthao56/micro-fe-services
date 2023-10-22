@@ -37,7 +37,7 @@ docker-migration:
 
 # gen schema json
 gen-schema:
-	cargo run --bin entity
+	cargo run --bin schema
 
 connect-db:
 	psql -h 127.0.0.1 -p 5432 -d taxi-db -U postgres
@@ -64,3 +64,4 @@ driver-start-ios:
 
 driver-start-android:
 	npx nx android driver
+	

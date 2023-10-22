@@ -16,7 +16,6 @@ function TabBarIcon(props: {
 export default function HomeLayout() {
   const val = useSession();
   const colorScheme = useColorScheme();
-  console.log("--HomeLayout--uid--",val?.user?.uid);
   if (val?.isLoading) {
     return <Text>Loading...</Text>;
   }
@@ -34,8 +33,8 @@ export default function HomeLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Tab One",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerShown: false,
         }}
       />
       <Tabs.Screen

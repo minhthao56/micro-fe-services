@@ -2,8 +2,9 @@ CREATE TABLE IF NOT EXISTS public.users(
     user_id SERIAL PRIMARY KEY,
     last_name VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     user_group VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(80) NOT NUL UNIQUE,
     firebase_uid VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()

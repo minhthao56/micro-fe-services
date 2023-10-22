@@ -3,14 +3,14 @@ use reqwest::Client;
 use serde::Deserialize;
 use crate::{ AppState,helpers::firebase};
 use serde_json::json;
-use entity::user::{
-    CreateUserRequest,
-    UserEntity,
-    CreateUserResponse
-};
+use entity::user::UserEntity;
 use schema::authmgmt::{
     req::Req,
-    resp::Resp
+    resp::Resp,
+};
+use schema::usermgmt::{
+    user::CreateUserRequest,
+    user::CreateUserResponse,
 };
 use utils::read_file::read_config;
 

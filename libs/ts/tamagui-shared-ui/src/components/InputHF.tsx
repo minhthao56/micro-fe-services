@@ -15,6 +15,5 @@ export function InputHF<T extends FieldValues>({
   ...props
 }: InputHFProps<T>) {
   const { field } = useController<T>(hookForm);
-  console.log({ field });
   return <Input {...props} onChangeText={field.onChange} value={field.value} />;
 }

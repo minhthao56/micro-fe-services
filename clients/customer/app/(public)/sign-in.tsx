@@ -5,8 +5,8 @@ import { LoginForm, LoginFormData } from "tamagui-shared-ui";
 import { KeyboardAvoidingComponent } from "expo-shared-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "utils/auth/mobile";
-import { createCustomToken } from "../../services/authmgmt/customToken";
-import { UserGroup } from "utils/constants/user-group";
+// import { createCustomToken } from "../../services/authmgmt/customToken";
+// import { UserGroup } from "utils/constants/user-group";
 
 export default function SignIn() {
   const session = useSession();
@@ -16,15 +16,14 @@ export default function SignIn() {
       const user = userCredential?.user;
       if (user?.uid) {
         const firebaseToken = await user.getIdToken();
-        console.log("--firebaseToken--", firebaseToken)
-        const token = await createCustomToken({
-          uid: user.uid,
-          firebaseToken,
-          userGroup: UserGroup.CLIENT_GROUP,
-        });
-        console.log("--token--", token.customToken)
+        // const token = await createCustomToken({
+        //   uid: user.uid,
+        //   firebaseToken,
+        //   userGroup: UserGroup.CLIENT_GROUP,
+        // });
+        // console.log("--token--", token.customToken)
 
-        await session?.signInWithCustomToken(token.customToken);
+        // await session?.signInWithCustomToken(token.customToken);
         router.replace("/");
       } else {
         await session?.signOut();

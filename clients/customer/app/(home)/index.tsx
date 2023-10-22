@@ -1,48 +1,39 @@
-import { StyleSheet } from "react-native";
-import { Text, View } from "../../components/Themed";
 import { useSession } from "utils/auth/mobile";
-import { add } from "utils/add";
-import { FormsDemo } from "../../components/FormDemo";
-import {Button} from "tamagui"
+import { Map } from "@tamagui/lucide-icons";
+import { Button, YStack, H3, Text, XStack, Input } from "tamagui";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { Keyboard, TouchableWithoutFeedback } from "react-native";
 
 export default function TabOneScreen() {
-  const val = useSession();
+  const session = useSession();
+  
   return (
-    <>
-    <FormsDemo size={"$zIndex.0"}/>
-      <View style={styles.container}>
-        <Text style={styles.title}>Tab One Customer App</Text>
-        <Text style={styles.title}>{add(2, 3)}</Text>
-        <View
-          style={styles.separator}
-          lightColor="#eee"
-          darkColor="rgba(255,255,255,0.1)"
-        />
+    <SafeAreaView style={{ flex: 1 }}>
+       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+       <YStack flex={1} px="$4" pt="$4">
+        <XStack justifyContent="space-between" pb ="$2">
+          <H3>Transport</H3>
+          <Button icon={Map} size="$3" borderRadius="$10" onPress={()=>{
+            router.push("/(map)/current");
+            
+          }}>
+            Map
+          </Button>
+        </XStack>
+        <Text>Where you'er going, let get</Text>
+        <Text pb="$5">you there!</Text>
+        <Input placeholder="Where to?"/>
         <Button
-          onPress={async () => {
-           await val?.signOut();
-          }}
-        >
+          onPress={() => {
+            session?.signOut();
+          }}>
           Sign Out
-        </Button>
-      </View>
-    </>
+          </Button>
+        
+      </YStack>
+       </TouchableWithoutFeedback>
+     
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});

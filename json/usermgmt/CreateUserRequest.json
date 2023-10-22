@@ -7,6 +7,7 @@
     "first_name",
     "last_name",
     "password",
+    "phone_number",
     "user_group"
   ],
   "properties": {
@@ -20,6 +21,9 @@
       "type": "string"
     },
     "password": {
+      "type": "string"
+    },
+    "phone_number": {
       "type": "string"
     },
     "user_group": {

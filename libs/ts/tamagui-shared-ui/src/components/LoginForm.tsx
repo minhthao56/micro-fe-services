@@ -1,4 +1,4 @@
-import { Button, Form, Spinner, Input, H4 } from "tamagui";
+import { Button, Form, Spinner, H4 } from "tamagui";
 import { InputHF } from "./InputHF";
 import { useForm } from "react-hook-form";
 
