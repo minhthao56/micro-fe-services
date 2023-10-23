@@ -1,51 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
-import { Button, Form, H4, SizeTokens, Spinner } from 'tamagui'
+import { Button, Form, H4, SizeTokens, Spinner } from "tamagui";
 export function FormsDemo(props: { size: SizeTokens }) {
-
-  const [status, setStatus] = useState<'off' | 'submitting' | 'submitted'>('off')
+  const [status, setStatus] = useState<"off" | "submitting" | "submitted">(
+    "off"
+  );
   useEffect(() => {
-
-    if (status === 'submitting') {
-
-      const timer = setTimeout(() => setStatus('off'), 2000)
+    if (status === "submitting") {
+      const timer = setTimeout(() => setStatus("off"), 2000);
 
       return () => {
-
-        clearTimeout(timer)
-
-      }
-
+        clearTimeout(timer);
+      };
     }
-
-  }, [status])
+  }, [status]);
   return (
-
     <Form
       alignItems="center"
       minWidth={300}
       gap="$2"
-      onSubmit={() => setStatus('submitting')}
+      onSubmit={() => setStatus("submitting")}
       borderWidth={1}
       borderRadius="$4"
       backgroundColor="$background"
       borderColor="$borderColor"
       padding="$8"
     >
-
       <H4>{status[0].toUpperCase() + status.slice(1)}</H4>
-      <Form.Trigger asChild disabled={status !== 'off'}>
-
-        <Button icon={status === 'submitting' ? () => <Spinner /> : undefined}>
-
+      <Form.Trigger asChild disabled={status !== "off"}>
+        <Button icon={status === "submitting" ? () => <Spinner /> : undefined}>
           Submit
-
         </Button>
-
       </Form.Trigger>
-
     </Form>
-
-  )
-
+  );
 }
