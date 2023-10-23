@@ -1,4 +1,4 @@
-import { Map } from "@tamagui/lucide-icons";
+import { Map, MapPin } from "@tamagui/lucide-icons";
 import {
   Button,
   YStack,
@@ -8,13 +8,25 @@ import {
   Input,
   Separator,
   ScrollView,
+  Heading,
 } from "tamagui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
-import { CardDemo } from "../../components/CardDemo";
+import { LocationCard } from "../../components/LocationCard";
+import debounce from "lodash.debounce";
+import { useCallback, useState } from "react";
+import { searchAddress } from "../../services/googleapis/geocode";
 
 export default function TabOneScreen() {
+  const [address, setAddress] = useState([]);
+  const onChangeText = async (text: string) => {
+    const address = await searchAddress(text);
+    setAddress(address.results);
+  };
+
+  const debouncedChangeHandler = useCallback(debounce(onChangeText, 300), []);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -34,10 +46,25 @@ export default function TabOneScreen() {
           </XStack>
           <Text>Where you'er going, let get</Text>
           <Text pb="$5">you there!</Text>
-          <Input placeholder="Where to?" />
+          <Input
+            placeholder="Where to?"
+            onChangeText={debouncedChangeHandler}
+          />
           <Separator marginVertical={15} />
           <ScrollView>
-            <CardDemo />
+            {address.map((item: any, index) => {
+              return (
+                <LocationCard key={index} p="$3" mb="$3">
+                  <XStack alignItems="center" justifyContent="center" px="$1">
+                    <MapPin size="$1" />
+                    <YStack ml="$2">
+                      <Text fontWeight="bold" fontSize="$4">{item.name}</Text>
+                      <Text>{item.formatted_address}</Text>
+                    </YStack>
+                  </XStack>
+                </LocationCard>
+              );
+            })}
           </ScrollView>
         </YStack>
       </TouchableWithoutFeedback>

@@ -11,9 +11,9 @@ export const getAddressByLatLng= async (lat: number, long: number) => {
 };
 
 export const searchAddress = async (address: string) => {
-    const response = await googleapisClient.get<any>("geocode/json", {
+    const response = await googleapisClient.get<any>("place/textsearch/json", {
         params: {
-            address,
+          query: address,
         },
     });
     return response;
