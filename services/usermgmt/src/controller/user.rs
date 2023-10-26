@@ -98,6 +98,7 @@ async fn create_user(
         last_name: req.last_name,
         user_group: req.user_group,
         password: req.password,
+        phone_number: req.phone_number,
     };
     let firebase_user  = Req{
         email: user.email,
@@ -148,7 +149,7 @@ async fn create_user(
     // INSERT data into users table
     let query_result = sqlx::query!(
         "INSERT INTO users (last_name, first_name, email, user_group, firebase_uid) VALUES ($1, $2, $3, $4, $5) RETURNING user_id",
-        user.first_name,user.last_name, body.email, user.user_group, body.uid
+        user.first_name,user.last_name, body.email, user.user_group, body.uid,
     )
     .fetch_one(&data.db)
     .await;
@@ -172,6 +173,7 @@ async fn create_user(
         last_name: user.last_name,
         user_group: user.user_group,
         user_id: user_id,
+        phone_number: user.phone_number,
     };
     HttpResponse::Ok().json(user_resp)
 }

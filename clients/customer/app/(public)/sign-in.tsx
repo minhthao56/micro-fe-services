@@ -19,7 +19,7 @@ export default function SignIn() {
         // const token = await createCustomToken({
         //   uid: user.uid,
         //   firebaseToken,
-        //   userGroup: UserGroup.CLIENT_GROUP,
+        //   userGroup: UserGroup.CUSTOMER_GROUP,
         // });
         // console.log("--token--", token.customToken)
 
