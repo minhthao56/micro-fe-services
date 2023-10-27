@@ -8,5 +8,6 @@ func GetEntities() map[string]interface{} {
 		"CustomTokenResponse":        CustomTokenResponse{},
 		"SetLocationRequest":         SetLocationRequest{},
 		"StatusResponse":             StatusResponse{},
+		"CreateBookingRequest":       CreateBookingRequest{},
 	}
 }

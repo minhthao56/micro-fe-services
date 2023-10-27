@@ -1,0 +1,35 @@
+{
+ "required": [
+  "driverID",
+  "customerID",
+  "startLong",
+  "startLat",
+  "endLong",
+  "endLat",
+  "status"
+ ],
+ "properties": {
+  "customerID": {
+   "type": "string"
+  },
+  "driverID": {
+   "type": "string"
+  },
+  "endLat": {
+   "type": "number"
+  },
+  "endLong": {
+   "type": "number"
+  },
+  "startLat": {
+   "type": "number"
+  },
+  "startLong": {
+   "type": "number"
+  },
+  "status": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

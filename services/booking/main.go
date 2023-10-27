@@ -19,6 +19,7 @@ func main() {
 	r.Use(middleware.ValidateJWT())
 	routerGroup := r.Group("/booking")
 	router.NewRouterCustomer(routerGroup, conn)
+	router.NewRouterBooking(routerGroup, conn)
 
 	r.Run(":6060")
 	log.Println("user anthmgnt service started port 8080")

@@ -1,0 +1,15 @@
+{
+ "required": [
+  "message",
+  "status"
+ ],
+ "properties": {
+  "message": {
+   "type": "string"
+  },
+  "status": {
+   "type": "integer"
+  }
+ },
+ "type": "object"
+}
