@@ -1,18 +1,25 @@
 package main
 
 import (
-	"net/http"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/minhthao56/monorepo-taxi/libs/go/database"
+	"github.com/minhthao56/monorepo-taxi/services/booking/middleware"
+	"github.com/minhthao56/monorepo-taxi/services/booking/router"
 )
 
 func main() {
+	db := database.GetDatabaseInstance()
+	conn := db.GetConnection()
+	defer conn.Close()
+
 	r := gin.Default()
-	booking := r.Group("/booking")
-	booking.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "order management service",
-		})
-	})
+	r.Use(gin.Recovery())
+	r.Use(middleware.ValidateJWT())
+	routerGroup := r.Group("/booking")
+	router.NewRouterCustomer(routerGroup, conn)
+
 	r.Run(":6060")
+	log.Println("user anthmgnt service started port 8080")
 }

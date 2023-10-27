@@ -6,5 +6,7 @@ func GetEntities() map[string]interface{} {
 		"CreateFirebaseUserResponse": CreateFirebaseUserResponse{},
 		"CustomTokenRequest":         CustomTokenRequest{},
 		"CustomTokenResponse":        CustomTokenResponse{},
+		"SetLocationRequest":         SetLocationRequest{},
+		"StatusResponse":             StatusResponse{},
 	}
 }

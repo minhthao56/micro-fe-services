@@ -6,6 +6,7 @@ export default function HomePage() {
   if (!user) {
     return <p>You are not logged in.</p>;
   }
+  console.log({user});
 
   return (
     <div className="flex gap-4 items-center">
