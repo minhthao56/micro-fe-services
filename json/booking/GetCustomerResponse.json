@@ -1,0 +1,48 @@
+{
+ "required": [
+  "customer"
+ ],
+ "definitions": {
+  "SchemaCustomer": {
+   "required": [
+    "customer_id",
+    "long",
+    "lat",
+    "first_name",
+    "last_name",
+    "email",
+    "phone_number"
+   ],
+   "properties": {
+    "customer_id": {
+     "type": "string"
+    },
+    "email": {
+     "type": "string"
+    },
+    "first_name": {
+     "type": "string"
+    },
+    "last_name": {
+     "type": "string"
+    },
+    "lat": {
+     "type": "number"
+    },
+    "long": {
+     "type": "number"
+    },
+    "phone_number": {
+     "type": "string"
+    }
+   },
+   "type": "object"
+  }
+ },
+ "properties": {
+  "customer": {
+   "$ref": "#/definitions/SchemaCustomer"
+  }
+ },
+ "type": "object"
+}

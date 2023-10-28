@@ -38,6 +38,10 @@ docker-migration:
 # gen schema json
 gen-schema:
 	cargo run --bin schema
+	go run cmd/gencode/main.go
+
+gen-typescript:
+	scripts/generate-typescript.bash
 
 connect-db:
 	psql -h 127.0.0.1 -p 5432 -d taxi-db -U postgres

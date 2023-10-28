@@ -10,4 +10,5 @@ import (
 func NewRouterCustomer(r *gin.RouterGroup, conn *sql.DB) {
 	controller := controller.NewCustomerController(conn)
 	r.POST("/customer/set-location", controller.SerCurrentLocation)
+	r.GET("/customers", controller.GetCustomers)
 }

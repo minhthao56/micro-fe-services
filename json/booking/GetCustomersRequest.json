@@ -1,0 +1,19 @@
+{
+ "required": [
+  "limit",
+  "offset",
+  "search"
+ ],
+ "properties": {
+  "limit": {
+   "type": "integer"
+  },
+  "offset": {
+   "type": "integer"
+  },
+  "search": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

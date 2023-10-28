@@ -13,6 +13,11 @@ use schema::usermgmt::{
     user::CreateUserResponse,
 };
 use utils::read_file::read_config;
+use utils::constants::{
+    ADMIN_GROUP,
+    CUSTOMER_GROUP,
+    DRIVER_GROUP,
+};
 
 
 #[derive(Deserialize, Debug)]
@@ -89,7 +94,14 @@ async fn get_all_user(
 async fn create_user(
     body: web::Json<CreateUserRequest>,
     data: web::Data<AppState>,
+    firebase_user: ReqData<firebase::FirebaseUser>,
 ) -> impl Responder {
+    let user_group = firebase_user.user_group.clone();
+
+    if user_group != ADMIN_GROUP {
+        return HttpResponse::InternalServerError()
+            .json(json!({"status": "error","message": "You are not allowed to create user"}));
+    }
     let req = body.into_inner();
     println!("req: {:?}", req);
     let user = CreateUserRequest {
@@ -100,6 +112,17 @@ async fn create_user(
         password: req.password,
         phone_number: req.phone_number,
     };
+
+    if user.user_group != ADMIN_GROUP && user.user_group != CUSTOMER_GROUP && user.user_group != DRIVER_GROUP {
+        return HttpResponse::InternalServerError()
+            .json(json!({"status": "error","message": "Invalid user group"}));
+    }
+
+    if user.user_group == ADMIN_GROUP {
+        return HttpResponse::InternalServerError()
+            .json(json!({"status": "error","message": "You are not allowed to create admin user"}));
+    }
+
     let firebase_user  = Req{
         email: user.email,
         password: user.password,
@@ -160,6 +183,34 @@ async fn create_user(
     }
     let r = query_result.unwrap();
     let user_id = r.user_id;
+
+    // Create CUSTOMER_GROUP
+    if user.user_group == CUSTOMER_GROUP {
+        let query_result = sqlx::query!(
+            "INSERT INTO customers (user_id) VALUES ($1)",
+            user_id,
+        )
+        .fetch_one(&data.db)
+        .await;
+        if query_result.is_err() {
+            let e = query_result.err().unwrap();
+            return HttpResponse::InternalServerError().json(e.to_string());
+        }
+    }
+
+    // Create DRIVER_GROUP
+    if user.user_group == DRIVER_GROUP {
+        let query_result = sqlx::query!(
+            "INSERT INTO drivers (user_id) VALUES ($1)",
+            user_id,
+        )
+        .fetch_one(&data.db)
+        .await;
+        if query_result.is_err() {
+            let e = query_result.err().unwrap();
+            return HttpResponse::InternalServerError().json(e.to_string());
+        }
+    }
 
     // commit the transaction
     let commit = tx.unwrap().commit().await;

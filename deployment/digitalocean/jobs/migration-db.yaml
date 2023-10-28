@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: migration-db
-        image: taxi/migration-db:latest
+        image: minhthao56/migration-db
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh", "-c", "./migration"]
         env:

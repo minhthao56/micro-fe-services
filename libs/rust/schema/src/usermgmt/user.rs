@@ -15,7 +15,6 @@ pub struct CreateUserRequest {
 
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
-
 pub struct CreateUserResponse {
     pub email: String,
     pub first_name: String,

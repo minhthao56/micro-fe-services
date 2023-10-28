@@ -1,13 +1,23 @@
 package schema
 
-func GetEntities() map[string]interface{} {
+func GetUserSchema() map[string]interface{} {
 	return map[string]interface{}{
 		"CreateFirebaseUserRequest":  CreateFirebaseUserRequest{},
 		"CreateFirebaseUserResponse": CreateFirebaseUserResponse{},
 		"CustomTokenRequest":         CustomTokenRequest{},
 		"CustomTokenResponse":        CustomTokenResponse{},
-		"SetLocationRequest":         SetLocationRequest{},
-		"StatusResponse":             StatusResponse{},
-		"CreateBookingRequest":       CreateBookingRequest{},
+	}
+}
+
+func GetBookingSchema() map[string]interface{} {
+	return map[string]interface{}{
+		"SetLocationRequest":   SetLocationRequest{},
+		"StatusResponse":       StatusResponse{},
+		"CreateBookingRequest": CreateBookingRequest{},
+		"Customer":             Customer{},
+		"GetCustomersResponse": GetCustomersResponse{},
+		"GetCustomersRequest":  GetCustomersRequest{},
+		"GetCustomerResponse":  GetCustomerResponse{},
+		"GetCustomerRequest":   GetCustomerRequest{},
 	}
 }
