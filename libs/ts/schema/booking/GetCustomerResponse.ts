@@ -8,8 +8,8 @@ export interface SchemaCustomer {
     email?:       string;
     first_name:   string;
     last_name:    string;
-    lat?:         number;
-    long?:        number;
+    lat?:         string;
+    long?:        string;
     phone_number: string;
     [property: string]: any;
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type CustomerRepository interface {
-	SerCurrentLocation(ctx context.Context, long float64, lat float64, customer_id string) error
+	SerCurrentLocation(ctx context.Context, req schema.SetLocationRequest, customer_id string) error
 	GetCustomers(ctx context.Context, req schema.GetCustomersRequest) ([]schema.Customer, error)
 	GetCustomer(ctx context.Context, customer_id string) (schema.Customer, error)
 	CountCustomers(ctx context.Context, req schema.GetCustomersRequest) (int, error)
@@ -22,8 +22,8 @@ func NewCustomerRepository(db *sql.DB) CustomerRepository {
 	return &CustomerRepositoryImpl{db: db}
 }
 
-func (c *CustomerRepositoryImpl) SerCurrentLocation(ctx context.Context, long float64, lat float64, customer_id string) error {
-	r, e := c.db.Exec("UPDATE customers SET long = $1, lat = $2 WHERE customer_id = $3", long, lat, customer_id)
+func (c *CustomerRepositoryImpl) SerCurrentLocation(ctx context.Context, req schema.SetLocationRequest, customer_id string) error {
+	r, e := c.db.Exec("UPDATE customers SET long = $1, lat = $2 WHERE customer_id = $3", req.Long, req.Lat, customer_id)
 	if e != nil {
 		return e
 	}
@@ -47,12 +47,12 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 	if e != nil {
 		return customers, e
 	}
-
+	var long, lat sql.NullString
 	for r.Next() {
 		e = r.Scan(
 			&customer.CustomerId,
-			&customer.Long,
-			&customer.Lat,
+			&long,
+			&lat,
 			&customer.FirstName,
 			&customer.LastName,
 			&customer.Email,
@@ -61,6 +61,8 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 		if e != nil {
 			return customers, e
 		}
+		customer.Long = long.String
+		customer.Lat = lat.String
 		customers = append(customers, customer)
 	}
 	return customers, nil
@@ -75,15 +77,18 @@ func (c *CustomerRepositoryImpl) GetCustomer(ctx context.Context, customer_id st
 		WHERE c.customer_id = $1
 	`, customer_id,
 	)
+	var long, lat sql.NullString
 	e := r.Scan(
 		&customer.CustomerId,
-		&customer.Long,
-		&customer.Lat,
+		&long,
+		&lat,
 		&customer.FirstName,
 		&customer.LastName,
 		&customer.Email,
 		&customer.PhoneNumber,
 	)
+	customer.Long = long.String
+	customer.Lat = lat.String
 	if e != nil {
 		return customer, e
 	}

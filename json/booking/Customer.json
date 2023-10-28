@@ -19,10 +19,10 @@
    "type": "string"
   },
   "lat": {
-   "type": "number"
+   "type": "string"
   },
   "long": {
-   "type": "number"
+   "type": "string"
   },
   "phone_number": {
    "type": "string"

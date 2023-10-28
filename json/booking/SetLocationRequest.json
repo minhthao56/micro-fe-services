@@ -5,10 +5,10 @@
  ],
  "properties": {
   "lat": {
-   "type": "number"
+   "type": "string"
   },
   "long": {
-   "type": "number"
+   "type": "string"
   }
  },
  "type": "object"

@@ -55,7 +55,7 @@ func (u *CustomerControllerImpl) SerCurrentLocation(c *gin.Context) {
 		return
 	}
 
-	if err := u.repoCustomer.SerCurrentLocation(c, request.Long, request.Lat, stringUserID); err != nil {
+	if err := u.repoCustomer.SerCurrentLocation(c, request, stringUserID); err != nil {
 		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
 			Message: err.Error(),
 			Status:  http.StatusInternalServerError,
