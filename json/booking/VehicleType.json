@@ -1,0 +1,15 @@
+{
+ "required": [
+  "vehicle_type_id",
+  "vehicle_name"
+ ],
+ "properties": {
+  "vehicle_name": {
+   "type": "string"
+  },
+  "vehicle_type_id": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

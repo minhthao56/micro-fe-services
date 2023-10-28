@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
-import HomePage from "../pages/HomePage";
+import CustomerPage from "../pages/CustomerPage";
+import DriverPage from "../pages/DriverPage";
 import PublicLayout from "../layouts/PublicLayout";
 import PrivateLayout from "../layouts/PrivateLayout";
 import {loginLoader, protectedLoader} from "./loader";
@@ -16,8 +17,12 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <CustomerPage />,
       },
+      {
+        path: "/driver",
+        element: <DriverPage />,
+      }
     ],
   },
   {

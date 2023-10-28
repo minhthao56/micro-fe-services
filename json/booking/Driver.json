@@ -1,0 +1,44 @@
+{
+ "required": [
+  "driver_id",
+  "first_name",
+  "last_name",
+  "phone_number",
+  "vehicle_name",
+  "vehicle_type_id",
+  "status"
+ ],
+ "properties": {
+  "current_lat": {
+   "type": "string"
+  },
+  "current_long": {
+   "type": "string"
+  },
+  "driver_id": {
+   "type": "string"
+  },
+  "email": {
+   "type": "string"
+  },
+  "first_name": {
+   "type": "string"
+  },
+  "last_name": {
+   "type": "string"
+  },
+  "phone_number": {
+   "type": "string"
+  },
+  "status": {
+   "type": "string"
+  },
+  "vehicle_name": {
+   "type": "string"
+  },
+  "vehicle_type_id": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

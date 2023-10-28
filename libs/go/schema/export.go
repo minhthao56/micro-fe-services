@@ -11,13 +11,20 @@ func GetUserSchema() map[string]interface{} {
 
 func GetBookingSchema() map[string]interface{} {
 	return map[string]interface{}{
-		"SetLocationRequest":   SetLocationRequest{},
-		"StatusResponse":       StatusResponse{},
-		"CreateBookingRequest": CreateBookingRequest{},
-		"Customer":             Customer{},
-		"GetCustomersResponse": GetCustomersResponse{},
-		"GetCustomersRequest":  GetCustomersRequest{},
-		"GetCustomerResponse":  GetCustomerResponse{},
-		"GetCustomerRequest":   GetCustomerRequest{},
+		"SetLocationRequest":      SetLocationRequest{},
+		"StatusResponse":          StatusResponse{},
+		"CreateBookingRequest":    CreateBookingRequest{},
+		"Customer":                Customer{},
+		"GetCustomersResponse":    GetCustomersResponse{},
+		"GetCustomersRequest":     GetCustomersRequest{},
+		"GetCustomerResponse":     GetCustomerResponse{},
+		"GetCustomerRequest":      GetCustomerRequest{},
+		"GetDriversRequest":       GetDriversRequest{},
+		"GetDriversResponse":      GetDriversResponse{},
+		"GetDriverRequest":        GetDriverRequest{},
+		"GetDriverResponse":       GetDriverResponse{},
+		"Driver":                  Driver{},
+		"GetVehicleTypesResponse": GetVehicleTypesResponse{},
+		"VehicleType":             VehicleType{},
 	}
 }

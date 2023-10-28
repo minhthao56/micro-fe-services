@@ -8,7 +8,8 @@
     "last_name",
     "password",
     "phone_number",
-    "user_group"
+    "user_group",
+    "vehicle_type_id"
   ],
   "properties": {
     "email": {
@@ -28,6 +29,10 @@
     },
     "user_group": {
       "type": "string"
+    },
+    "vehicle_type_id": {
+      "type": "integer",
+      "format": "int32"
     }
   }
 }

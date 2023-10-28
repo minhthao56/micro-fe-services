@@ -11,6 +11,7 @@ pub struct CreateUserRequest {
     pub user_group: String,
     pub password: String,
     pub phone_number: String,
+    pub vehicle_type_id: i32,
 }
 
 

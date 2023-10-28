@@ -18,7 +18,7 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
     }
 
     const user = await whoami();
-    console.log("user", user);
+    localStorage.setItem("whoami", JSON.stringify(user.results));
     return { user: authWeb.getUser() };
   } catch (error) {
     authWeb.signOut();

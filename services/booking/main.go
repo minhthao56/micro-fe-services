@@ -20,6 +20,8 @@ func main() {
 	routerGroup := r.Group("/booking")
 	router.NewRouterCustomer(routerGroup, conn)
 	router.NewRouterBooking(routerGroup, conn)
+	router.NewRouterDriver(routerGroup, conn)
+	router.NewRouterVehicleType(routerGroup, conn)
 
 	r.Run(":6060")
 	log.Println("booking service started port 8080")

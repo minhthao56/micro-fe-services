@@ -3,8 +3,6 @@ import {
   Navbar,
   NavbarBrand,
   NavbarContent,
-  NavbarItem,
-  Link,
   DropdownItem,
   DropdownTrigger,
   Dropdown,
@@ -16,15 +14,16 @@ import type { User } from "firebase/auth";
 import { SunIcon } from "../components/icons/SunIcon";
 import { MoonIcon } from "../components/icons/MoonIcon";
 import { useThemeSwitcher } from "../hooks/useThemeSwitcher";
+import RouterNavLink from "../components/RouterNavLink";
 
 export default function PrivateLayout() {
   const { value, onValueChange } = useThemeSwitcher();
   const { user } = useRouteLoaderData("root") as { user: User };
   const fetcher = useFetcher();
   const isLoggingOut = fetcher.formData != null;
-  
+
   return (
-    <>
+    <div>
       <>
         <Navbar>
           <NavbarBrand>
@@ -32,16 +31,8 @@ export default function PrivateLayout() {
           </NavbarBrand>
 
           <NavbarContent className="hidden sm:flex gap-4" justify="center">
-            <NavbarItem isActive>
-              <Link color="foreground" href="#">
-                Drivers
-              </Link>
-            </NavbarItem>
-            <NavbarItem isActive>
-              <Link color="foreground" href="#">
-                Clients
-              </Link>
-            </NavbarItem>
+            <RouterNavLink to="/">Customers</RouterNavLink>
+            <RouterNavLink to="/driver">Drivers</RouterNavLink>
           </NavbarContent>
           <NavbarContent as="div" justify="end">
             <Dropdown placement="bottom-end">
@@ -80,7 +71,9 @@ export default function PrivateLayout() {
           </NavbarContent>
         </Navbar>
       </>
-      <Outlet />
-    </>
+      <div className="mx-3">
+        <Outlet />
+      </div>
+    </div>
   );
 }

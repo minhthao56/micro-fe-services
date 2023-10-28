@@ -111,6 +111,7 @@ async fn create_user(
         user_group: req.user_group,
         password: req.password,
         phone_number: req.phone_number,
+        vehicle_type_id: req.vehicle_type_id,
     };
 
     if user.user_group != ADMIN_GROUP && user.user_group != CUSTOMER_GROUP && user.user_group != DRIVER_GROUP {
@@ -201,8 +202,9 @@ async fn create_user(
     // Create DRIVER_GROUP
     if user.user_group == DRIVER_GROUP {
         let query_result = sqlx::query!(
-            "INSERT INTO drivers (user_id) VALUES ($1)",
+            "INSERT INTO drivers (user_id, vehicle_type_id) VALUES ($1, $2)",
             user_id,
+            user.vehicle_type_id,
         )
         .fetch_one(&data.db)
         .await;

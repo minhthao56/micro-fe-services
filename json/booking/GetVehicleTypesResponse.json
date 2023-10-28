@@ -1,0 +1,34 @@
+{
+ "required": [
+  "vehicle_types"
+ ],
+ "definitions": {
+  "SchemaVehicleType": {
+   "required": [
+    "vehicle_type_id",
+    "vehicle_name"
+   ],
+   "properties": {
+    "vehicle_name": {
+     "type": "string"
+    },
+    "vehicle_type_id": {
+     "type": "string"
+    }
+   },
+   "type": "object"
+  }
+ },
+ "properties": {
+  "vehicle_types": {
+   "items": {
+    "$ref": "#/definitions/SchemaVehicleType"
+   },
+   "type": [
+    "array",
+    "null"
+   ]
+  }
+ },
+ "type": "object"
+}
