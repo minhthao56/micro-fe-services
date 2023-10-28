@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: authmgmt
-        image: registry.digitalocean.com/taxi/authmgmt
+        image: minhthao56/authmgmt
         imagePullPolicy: Always
         volumeMounts:
         - name: firebase-config

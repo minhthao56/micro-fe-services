@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: usermgmt
-        image: registry.digitalocean.com/taxi/usermgmt
+        image: minhthao56/usermgmt
         imagePullPolicy: Always
         volumeMounts:
         - name: common-configmap

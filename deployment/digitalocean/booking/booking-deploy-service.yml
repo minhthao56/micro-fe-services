@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: booking
-        image: registry.digitalocean.com/taxi/booking
+        image: minhthao56/booking
         imagePullPolicy: Always
         ports:
         - containerPort: 6060

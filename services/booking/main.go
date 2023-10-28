@@ -22,5 +22,5 @@ func main() {
 	router.NewRouterBooking(routerGroup, conn)
 
 	r.Run(":6060")
-	log.Println("user anthmgnt service started port 8080")
+	log.Println("booking service started port 8080")
 }

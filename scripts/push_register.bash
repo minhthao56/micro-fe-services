@@ -3,9 +3,9 @@ DOCKER_NAME=$1
 
 if [ -z "$DOCKER_NAME" ]
 then
-    echo "No docker name provided"
+    echo "No docker name provided locally."
     exit 0
 fi
 
-docker tag $DOCKER_NAME registry.digitalocean.com/$DOCKER_NAME
-docker push registry.digitalocean.com/$DOCKER_NAME
+docker tag taxi/$DOCKER_NAME minhthao56/$DOCKER_NAME
+docker push minhthao56/$DOCKER_NAME
