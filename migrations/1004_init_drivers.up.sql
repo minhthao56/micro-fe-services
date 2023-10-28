@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS public.drivers(
     user_id INTEGER NOT NULL UNIQUE,
     status VARCHAR(255),
     vehicle_type_id INTEGER,
-    current_lat DOUBLE PRECISION,
-    current_long DOUBLE PRECISION,
+    current_lat VARCHAR(80),
+    current_long VARCHAR(80),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP

@@ -2,11 +2,11 @@ package schema
 
 type Customer struct {
 	CustomerId  string  `json:"customer_id" required:"true"`
-	Long        float64 `json:"long" required:"true"`
-	Lat         float64 `json:"lat" required:"true"`
+	Long        float64 `json:"long"`
+	Lat         float64 `json:"lat"`
 	FirstName   string  `json:"first_name" required:"true"`
 	LastName    string  `json:"last_name" required:"true"`
-	Email       string  `json:"email" required:"true"`
+	Email       string  `json:"email"`
 	PhoneNumber string  `json:"phone_number" required:"true"`
 }
 

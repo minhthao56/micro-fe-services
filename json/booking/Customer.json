@@ -1,11 +1,8 @@
 {
  "required": [
   "customer_id",
-  "long",
-  "lat",
   "first_name",
   "last_name",
-  "email",
   "phone_number"
  ],
  "properties": {

@@ -8,11 +8,11 @@ export interface GetCustomersResponse {
 
 export interface SchemaCustomer {
     customer_id:  string;
-    email:        string;
+    email?:       string;
     first_name:   string;
     last_name:    string;
-    lat:          number;
-    long:         number;
+    lat?:         number;
+    long?:        number;
     phone_number: string;
     [property: string]: any;
 }

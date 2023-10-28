@@ -2,8 +2,8 @@
 CREATE TABLE IF NOT EXISTS public.customers(
     customer_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL UNIQUE,
-    lat DOUBLE PRECISION,
-    long DOUBLE PRECISION,
+    lat VARCHAR(80),
+    long VARCHAR(80),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP

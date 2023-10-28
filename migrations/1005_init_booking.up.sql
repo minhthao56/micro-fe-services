@@ -1,9 +1,9 @@
 --- Add table booking ---
 CREATE TABLE IF NOT EXISTS public.booking(
-    start_long DOUBLE PRECISION,
-    start_lat DOUBLE PRECISION,
-    end_lat DOUBLE PRECISION,
-    end_long DOUBLE PRECISION,
+    start_long VARCHAR(80),
+    start_lat VARCHAR(80),
+    end_lat VARCHAR(80),
+    end_long VARCHAR(80),
     status VARCHAR(255),
     customer_id INTEGER,
     driver_id INTEGER,
