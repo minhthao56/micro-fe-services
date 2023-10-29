@@ -172,17 +172,18 @@ async fn create_user(
 
     // INSERT data into users table
     let query_result = sqlx::query!(
-        "INSERT INTO users (last_name, first_name, email, user_group, firebase_uid) VALUES ($1, $2, $3, $4, $5) RETURNING user_id",
-        user.first_name,user.last_name, body.email, user.user_group, body.uid,
+        "INSERT INTO users (last_name, first_name, email, user_group, firebase_uid, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id",
+        user.first_name,user.last_name, body.email, user.user_group, body.uid, user.phone_number,
     )
     .fetch_one(&data.db)
     .await;
 
     if query_result.is_err() {
-        let e = query_result.err().unwrap();
+        println!("--1--");
+        let e = query_result.err().expect("No error INSERT data into users table");
         return HttpResponse::InternalServerError().json(e.to_string());
     }
-    let r = query_result.unwrap();
+    let r = query_result.expect("No error when get user_id");
     let user_id = r.user_id;
 
     // Create CUSTOMER_GROUP
@@ -191,10 +192,11 @@ async fn create_user(
             "INSERT INTO customers (user_id) VALUES ($1)",
             user_id,
         )
-        .fetch_one(&data.db)
+        .execute(&data.db)
         .await;
         if query_result.is_err() {
-            let e = query_result.err().unwrap();
+            println!("--2--");
+            let e = query_result.err().expect("No error INSERT data into customers table");
             return HttpResponse::InternalServerError().json(e.to_string());
         }
     }
@@ -202,14 +204,16 @@ async fn create_user(
     // Create DRIVER_GROUP
     if user.user_group == DRIVER_GROUP {
         let query_result = sqlx::query!(
-            "INSERT INTO drivers (user_id, vehicle_type_id) VALUES ($1, $2)",
+            "INSERT INTO drivers (user_id, vehicle_type_id, status) VALUES ($1, $2, $3)",
             user_id,
             user.vehicle_type_id,
+            "OFFLINE"
         )
-        .fetch_one(&data.db)
+        .execute(&data.db)
         .await;
         if query_result.is_err() {
-            let e = query_result.err().unwrap();
+            println!("--3--");
+            let e = query_result.err().expect("No error INSERT data into drivers table");
             return HttpResponse::InternalServerError().json(e.to_string());
         }
     }
@@ -217,7 +221,8 @@ async fn create_user(
     // commit the transaction
     let commit = tx.unwrap().commit().await;
     if commit.is_err() {
-        let e = commit.err().unwrap();
+        println!("--4--");
+        let e = commit.err().expect("No error commit the transaction");
         return HttpResponse::InternalServerError().json(e.to_string());
     }
     let user_resp = CreateUserResponse {
@@ -228,6 +233,7 @@ async fn create_user(
         user_id: user_id,
         phone_number: user.phone_number,
     };
+    println!("user_resp: {:?}", user_resp);
     HttpResponse::Ok().json(user_resp)
 }
 

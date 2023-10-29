@@ -1,14 +1,12 @@
-export interface GetDriversResponse {
-    drivers?: SchemaDriver[] | null;
-    limit:    number;
-    offset:   number;
-    total:    number;
+export interface GetNearbyDriversResponse {
+    drivers: SchemaDriverWithDistance[] | null;
     [property: string]: any;
 }
 
-export interface SchemaDriver {
+export interface SchemaDriverWithDistance {
     current_lat?:    number;
     current_long?:   number;
+    distance:        number;
     driver_id:       string;
     email?:          string;
     first_name:      string;

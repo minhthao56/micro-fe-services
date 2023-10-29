@@ -1,13 +1,13 @@
 package schema
 
 type Customer struct {
-	CustomerId  string `json:"customer_id" required:"true"`
-	Long        string `json:"long"`
-	Lat         string `json:"lat"`
-	FirstName   string `json:"first_name" required:"true"`
-	LastName    string `json:"last_name" required:"true"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phone_number" required:"true"`
+	CustomerId  string  `json:"customer_id" required:"true"`
+	Long        float64 `json:"long"`
+	Lat         float64 `json:"lat"`
+	FirstName   string  `json:"first_name" required:"true"`
+	LastName    string  `json:"last_name" required:"true"`
+	Email       string  `json:"email"`
+	PhoneNumber string  `json:"phone_number" required:"true"`
 }
 
 type SetLocationRequest struct {

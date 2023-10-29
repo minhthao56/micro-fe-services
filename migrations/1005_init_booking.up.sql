@@ -1,16 +1,16 @@
 --- Add table booking ---
 CREATE TABLE IF NOT EXISTS public.booking(
-    start_long VARCHAR(80),
-    start_lat VARCHAR(80),
-    end_lat VARCHAR(80),
-    end_long VARCHAR(80),
+    booking_id SERIAL NOT NULL PRIMARY KEY,
+    start_long DOUBLE PRECISION,
+    start_lat DOUBLE PRECISION,
+    end_lat DOUBLE PRECISION,
+    end_long DOUBLE PRECISION,
     status VARCHAR(255),
     customer_id INTEGER,
     driver_id INTEGER,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP,
-    PRIMARY KEY (driver_id, customer_id)
 );
 
 -- Add FOREIGN KEY
@@ -20,7 +20,7 @@ ALTER TABLE public.booking DROP CONSTRAINT IF EXISTS fk_customers_booking;
 ALTER TABLE public.booking DROP CONSTRAINT IF EXISTS constant_status_booking;
 
 ALTER TABLE public.booking
-    ADD CONSTRAINT constant_status_booking CHECK (status IN ('PENDING', 'ACCEPTED', 'STARTING', 'CANCELED', 'COMPLETED'));
+    ADD CONSTRAINT constant_status_booking CHECK (status IN ('PENDING', 'ACCEPTED', 'STARTING', 'CANCELED', 'COMPLETED', 'REJECTED'));
 
 ALTER TABLE public.booking
     ADD CONSTRAINT fk_drivers_booking FOREIGN KEY (driver_id) REFERENCES public.drivers (driver_id);

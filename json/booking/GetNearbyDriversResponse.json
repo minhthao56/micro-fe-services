@@ -1,9 +1,9 @@
 {
  "required": [
-  "driver"
+  "drivers"
  ],
  "definitions": {
-  "SchemaDriver": {
+  "SchemaDriverWithDistance": {
    "required": [
     "driver_id",
     "first_name",
@@ -11,13 +11,17 @@
     "phone_number",
     "vehicle_name",
     "vehicle_type_id",
-    "status"
+    "status",
+    "distance"
    ],
    "properties": {
     "current_lat": {
      "type": "number"
     },
     "current_long": {
+     "type": "number"
+    },
+    "distance": {
      "type": "number"
     },
     "driver_id": {
@@ -49,8 +53,14 @@
   }
  },
  "properties": {
-  "driver": {
-   "$ref": "#/definitions/SchemaDriver"
+  "drivers": {
+   "items": {
+    "$ref": "#/definitions/SchemaDriverWithDistance"
+   },
+   "type": [
+    "array",
+    "null"
+   ]
   }
  },
  "type": "object"

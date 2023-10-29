@@ -1,0 +1,15 @@
+{
+ "required": [
+  "request_lat",
+  "request_long"
+ ],
+ "properties": {
+  "request_lat": {
+   "type": "number"
+  },
+  "request_long": {
+   "type": "number"
+  }
+ },
+ "type": "object"
+}

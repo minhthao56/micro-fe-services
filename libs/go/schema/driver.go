@@ -1,16 +1,29 @@
 package schema
 
 type Driver struct {
-	DriverID      string `json:"driver_id" required:"true"`
-	CurrentLong   string `json:"current_long"`
-	CurrentLat    string `json:"current_lat"`
-	FirstName     string `json:"first_name" required:"true"`
-	LastName      string `json:"last_name" required:"true"`
-	Email         string `json:"email"`
-	PhoneNumber   string `json:"phone_number" required:"true"`
-	VehicleName   string `json:"vehicle_name" required:"true"`
-	VehicleTypeID string `json:"vehicle_type_id" required:"true"`
-	Status        string `json:"status" required:"true"`
+	DriverID      string  `json:"driver_id" required:"true"`
+	CurrentLong   float64 `json:"current_long"`
+	CurrentLat    float64 `json:"current_lat"`
+	FirstName     string  `json:"first_name" required:"true"`
+	LastName      string  `json:"last_name" required:"true"`
+	Email         string  `json:"email"`
+	PhoneNumber   string  `json:"phone_number" required:"true"`
+	VehicleName   string  `json:"vehicle_name" required:"true"`
+	VehicleTypeID string  `json:"vehicle_type_id" required:"true"`
+	Status        string  `json:"status" required:"true"`
+}
+type DriverWithDistance struct {
+	DriverID      string  `json:"driver_id" required:"true"`
+	CurrentLong   float64 `json:"current_long"`
+	CurrentLat    float64 `json:"current_lat"`
+	FirstName     string  `json:"first_name" required:"true"`
+	LastName      string  `json:"last_name" required:"true"`
+	Email         string  `json:"email"`
+	PhoneNumber   string  `json:"phone_number" required:"true"`
+	VehicleName   string  `json:"vehicle_name" required:"true"`
+	VehicleTypeID string  `json:"vehicle_type_id" required:"true"`
+	Status        string  `json:"status" required:"true"`
+	Distance      float64 `json:"distance" required:"true"`
 }
 
 type GetDriversRequest struct {
@@ -31,4 +44,13 @@ type GetDriverRequest struct {
 
 type GetDriverResponse struct {
 	Driver Driver `json:"driver" required:"true"`
+}
+
+type GetNearbyDriversRequest struct {
+	RequestLat  float64 `json:"request_lat" required:"true"`
+	RequestLong float64 `json:"request_long" required:"true"`
+}
+
+type GetNearbyDriversResponse struct {
+	Drivers []DriverWithDistance `json:"drivers" required:"true"`
 }

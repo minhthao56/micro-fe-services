@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS public.drivers(
     user_id INTEGER NOT NULL UNIQUE,
     status VARCHAR(255),
     vehicle_type_id INTEGER,
-    current_lat VARCHAR(80),
-    current_long VARCHAR(80),
+    current_lat DOUBLE PRECISION,
+    current_long DOUBLE PRECISION,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP
@@ -19,7 +19,7 @@ ALTER TABLE public.drivers
 
 ALTER TABLE public.drivers DROP CONSTRAINT IF EXISTS constant_status_driver;
 ALTER TABLE public.drivers
-    ADD CONSTRAINT constant_status_driver CHECK (status IN ('ONLINE', 'OFFLINE'));
+    ADD CONSTRAINT constant_status_driver CHECK (status IN ('ONLINE', 'OFFLINE','BUSY'));
 
 --- Add table vehicle_types ---
 CREATE TABLE IF NOT EXISTS public.vehicle_types(
@@ -39,5 +39,9 @@ ALTER TABLE public.drivers
 INSERT INTO public.vehicle_types (vehicle_name)
 VALUES ('Taxi 4 seats'), ('Taxi 7 seats'), ('Taxi 16 seats'), ('Taxi 29 seats'), ('Taxi 45 seats');
 
-INSERT INTO public.drivers (user_id, vehicle_type_id, status)
-VALUES (3, 1, 'ONLINE');
+INSERT INTO public.drivers (user_id, vehicle_type_id, status, current_lat, current_long)
+VALUES (3, 1, 'ONLINE', '10.812815', '106.716562'),
+       (5, 1, 'OFFLINE', '10.811032', '106.718262'),
+       (7, 2, 'OFFLINE', '10.816867', '106.719917'),
+       (8, 2, 'OFFLINE', '10.810472', '106.713542'),
+       (9, 2, 'OFFLINE', '10.802695', '106.710770');

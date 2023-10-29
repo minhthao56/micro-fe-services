@@ -10,10 +10,10 @@
  ],
  "properties": {
   "current_lat": {
-   "type": "string"
+   "type": "number"
   },
   "current_long": {
-   "type": "string"
+   "type": "number"
   },
   "driver_id": {
    "type": "string"

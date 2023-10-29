@@ -12,7 +12,7 @@ import (
 )
 
 type DriverController interface {
-	FindNearest(c *gin.Context)
+	FindNearByDriver(c *gin.Context)
 	UpdateLocation(c *gin.Context)
 	GetDrivers(c *gin.Context)
 }
@@ -27,9 +27,19 @@ func NewDriverController(db *sql.DB) DriverController {
 	return &DriverControllerImpl{db: db, repoDriver: repoDriver}
 }
 
-func (u *DriverControllerImpl) FindNearest(c *gin.Context) {
-	_, err := io.ReadAll(c.Request.Body)
-
+func (u *DriverControllerImpl) FindNearByDriver(c *gin.Context) {
+	query := c.Request.URL.Query()
+	stringLat := query.Get("lat")
+	lat, err := strconv.ParseFloat(stringLat, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+	stringLong := query.Get("long")
+	long, err := strconv.ParseFloat(stringLong, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schema.StatusResponse{
 			Message: err.Error(),
@@ -38,11 +48,23 @@ func (u *DriverControllerImpl) FindNearest(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, schema.StatusResponse{
-		Message: "success",
-		Status:  http.StatusOK,
-	})
+	request := schema.GetNearbyDriversRequest{
+		RequestLat:  lat,
+		RequestLong: long,
+	}
 
+	drivers, err := u.repoDriver.GetNearbyDrivers(c, request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, schema.GetNearbyDriversResponse{
+		Drivers: drivers,
+	})
 }
 
 func (u *DriverControllerImpl) UpdateLocation(c *gin.Context) {

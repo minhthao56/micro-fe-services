@@ -45,6 +45,11 @@ export default function CreateDriver({
       vehicle_type_id: Number.parseInt(data.vehicleTypeId),
       password: "119955",
       user_group: UserGroup.DRIVER_GROUP,
+    }, {
+      onSuccess: () => {
+        alert("Create driver successfully");
+        onOpenChange();
+      },
     });
   };
   return (

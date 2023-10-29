@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO users (last_name, first_name, email, user_group, firebase_uid) VALUES ($1, $2, $3, $4, $5) RETURNING user_id",
+  "query": "INSERT INTO users (last_name, first_name, email, user_group, firebase_uid, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id",
   "describe": {
     "columns": [
       {
@@ -15,6 +15,7 @@
         "Varchar",
         "Varchar",
         "Varchar",
+        "Varchar",
         "Varchar"
       ]
     },
@@ -22,5 +23,5 @@
       false
     ]
   },
-  "hash": "cd27e6c8db8ec971e41ba1ec93645cd439555ba5d6c5eafac97d6b1ad8d42405"
+  "hash": "5dc5fd2664743e9bc26c1a86ac321b06b735c3651e9d0a755e26a84a68ca2524"
 }

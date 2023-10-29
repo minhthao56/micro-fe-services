@@ -20,7 +20,7 @@ export class Client implements IClient {
     let baseURLName = baseURL || "";
     this.axiosInstance  = axios.create({
       baseURL: baseURLName + pathName,
-      timeout: 5000,
+      timeout: 60000,
       params: {},
     });
     this.baseURL = baseURLName;

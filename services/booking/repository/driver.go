@@ -11,6 +11,7 @@ type DriverRepository interface {
 	GetDrivers(ctx context.Context, req schema.GetDriversRequest) ([]schema.Driver, error)
 	GetDriver(ctx context.Context, driver_id string) (schema.Driver, error)
 	CountDriver(ctx context.Context, req schema.GetDriversRequest) (int, error)
+	GetNearbyDrivers(ctx context.Context, req schema.GetNearbyDriversRequest) ([]schema.DriverWithDistance, error)
 }
 
 type DriverRepositoryImpl struct {
@@ -36,7 +37,7 @@ func (d *DriverRepositoryImpl) GetDrivers(ctx context.Context, req schema.GetDri
 	if e != nil {
 		return drivers, e
 	}
-	var long, lat sql.NullString
+	var long, lat sql.NullFloat64
 	for r.Next() {
 		e = r.Scan(
 			&driver.DriverID,
@@ -53,8 +54,8 @@ func (d *DriverRepositoryImpl) GetDrivers(ctx context.Context, req schema.GetDri
 		if e != nil {
 			return drivers, e
 		}
-		driver.CurrentLong = long.String
-		driver.CurrentLat = lat.String
+		driver.CurrentLong = long.Float64
+		driver.CurrentLat = lat.Float64
 		drivers = append(drivers, driver)
 	}
 	return drivers, nil
@@ -70,7 +71,7 @@ func (c *DriverRepositoryImpl) GetDriver(ctx context.Context, driver_id string) 
 		WHERE d.driver_id = $1;
 	`, driver_id,
 	)
-	var long, lat sql.NullString
+	var long, lat sql.NullFloat64
 	e := r.Scan(
 		&driver.DriverID,
 		&long,
@@ -83,8 +84,8 @@ func (c *DriverRepositoryImpl) GetDriver(ctx context.Context, driver_id string) 
 		&driver.VehicleName,
 		&driver.VehicleTypeID,
 	)
-	driver.CurrentLong = long.String
-	driver.CurrentLat = lat.String
+	driver.CurrentLong = long.Float64
+	driver.CurrentLat = lat.Float64
 	if e != nil {
 		return driver, e
 	}
@@ -106,4 +107,61 @@ func (c *DriverRepositoryImpl) CountDriver(ctx context.Context, req schema.GetDr
 		return total, e
 	}
 	return total, nil
+}
+
+func (c *DriverRepositoryImpl) GetNearbyDrivers(ctx context.Context, req schema.GetNearbyDriversRequest) ([]schema.DriverWithDistance, error) {
+	var driver schema.DriverWithDistance
+	var drivers []schema.DriverWithDistance
+	r, e := c.db.Query(`
+		SELECT
+			d.driver_id,
+			d.current_long,
+			d.current_lat,
+			d.status,
+			u.first_name,
+			u.last_name,
+			u.email,
+			u.phone_number,
+			v.vehicle_name,
+			v.vehicle_type_id,
+			ST_Distance(
+				ST_MakePoint($1, $2)::geography,
+				ST_MakePoint(d.current_long, d.current_lat)::geography
+			) AS distance
+		FROM drivers AS d
+		JOIN users AS u ON d.user_id = u.user_id
+		JOIN vehicle_types AS v ON d.vehicle_type_id = v.vehicle_type_id
+		WHERE ST_DWithin(
+			ST_MakePoint($1, $2)::geography,
+			ST_MakePoint(d.current_long, d.current_lat)::geography,
+			3000
+		);
+	`, req.RequestLong, req.RequestLat,
+	)
+	if e != nil {
+		return drivers, e
+	}
+	var long, lat sql.NullFloat64
+	for r.Next() {
+		e = r.Scan(
+			&driver.DriverID,
+			&long,
+			&lat,
+			&driver.Status,
+			&driver.FirstName,
+			&driver.LastName,
+			&driver.Email,
+			&driver.PhoneNumber,
+			&driver.VehicleName,
+			&driver.VehicleTypeID,
+			&driver.Distance,
+		)
+		if e != nil {
+			return drivers, e
+		}
+		driver.CurrentLong = long.Float64
+		driver.CurrentLat = lat.Float64
+		drivers = append(drivers, driver)
+	}
+	return drivers, nil
 }

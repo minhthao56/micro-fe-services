@@ -9,7 +9,7 @@ import (
 
 func NewRouterDriver(r *gin.RouterGroup, conn *sql.DB) {
 	controller := controller.NewDriverController(conn)
-	r.GET("/driver/nearest", controller.FindNearest)
+	r.GET("/driver/nearby", controller.FindNearByDriver)
 	r.POST("/driver/update-location", controller.UpdateLocation)
 	r.GET("/drivers", controller.GetDrivers)
 }

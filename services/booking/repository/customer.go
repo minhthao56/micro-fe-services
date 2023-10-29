@@ -47,7 +47,7 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 	if e != nil {
 		return customers, e
 	}
-	var long, lat sql.NullString
+	var long, lat sql.NullFloat64
 	for r.Next() {
 		e = r.Scan(
 			&customer.CustomerId,
@@ -61,8 +61,8 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 		if e != nil {
 			return customers, e
 		}
-		customer.Long = long.String
-		customer.Lat = lat.String
+		customer.Long = long.Float64
+		customer.Lat = lat.Float64
 		customers = append(customers, customer)
 	}
 	return customers, nil
@@ -77,7 +77,7 @@ func (c *CustomerRepositoryImpl) GetCustomer(ctx context.Context, customer_id st
 		WHERE c.customer_id = $1
 	`, customer_id,
 	)
-	var long, lat sql.NullString
+	var long, lat sql.NullFloat64
 	e := r.Scan(
 		&customer.CustomerId,
 		&long,
@@ -87,8 +87,8 @@ func (c *CustomerRepositoryImpl) GetCustomer(ctx context.Context, customer_id st
 		&customer.Email,
 		&customer.PhoneNumber,
 	)
-	customer.Long = long.String
-	customer.Lat = lat.String
+	customer.Long = long.Float64
+	customer.Lat = lat.Float64
 	if e != nil {
 		return customer, e
 	}

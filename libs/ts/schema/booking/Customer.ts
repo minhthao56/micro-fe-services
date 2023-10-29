@@ -3,8 +3,8 @@ export interface Customer {
     email?:       string;
     first_name:   string;
     last_name:    string;
-    lat?:         string;
-    long?:        string;
+    lat?:         number;
+    long?:        number;
     phone_number: string;
     [property: string]: any;
 }
