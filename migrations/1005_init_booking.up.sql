@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.booking(
     driver_id INTEGER,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    deleted_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Add FOREIGN KEY
