@@ -1,13 +1,15 @@
 import React from "react";
-import MapContainer from "../../components/MapContainer";
 import { Details, Marker, Region } from "react-native-maps";
-import { XStack, Button, YStack, Text } from "tamagui";
-import { MapPin, X } from "@tamagui/lucide-icons";
-import { Card, Spinner } from "tamagui";
+import { XStack, Button, YStack, Text, Card, Spinner } from "tamagui";
+import { MapPin } from "@tamagui/lucide-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getAddressByLatLng } from "../../services/googleapis/geocode";
+
+import { getAddressByLatLng } from "../../services/goong/geocoding";
+import MapContainer from "../../components/MapContainer";
+
 
 export default function CurrentPage() {
   const [location, setLocation] = useState<Location.LocationObject>();
@@ -23,12 +25,19 @@ export default function CurrentPage() {
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
+      const stringLocation = await AsyncStorage.getItem("currentLocation");
+      let location = JSON.parse(stringLocation || "{}");
+
+      if (!stringLocation) {
+        location = await Location.getCurrentPositionAsync({});
+        await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
+      }
+
       const address = await getAddressByLatLng(
         location.coords.latitude,
         location.coords.longitude
       );
-      setAddress(address.results[0].formatted_address);
+      setAddress(address.results?.[0]?.formatted_address);
       setLocation(location);
     })();
   }, []);

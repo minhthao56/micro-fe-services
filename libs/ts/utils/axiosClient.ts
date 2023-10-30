@@ -22,6 +22,10 @@ export class Client implements IClient {
       baseURL: baseURLName + pathName,
       timeout: 60000,
       params: {},
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      }
     });
     this.baseURL = baseURLName;
   }
@@ -38,10 +42,12 @@ export class Client implements IClient {
     this.axiosInstance.defaults.baseURL = baseURL + path
   }
 
-
-
   setApiKey(key: string, value: string){
     this.axiosInstance.defaults.params[key] = value
+  }
+
+  setHeader(key: string, value: string){
+    this.axiosInstance.defaults.headers.common[key] = value
   }
 
   setToken(token: string) {
