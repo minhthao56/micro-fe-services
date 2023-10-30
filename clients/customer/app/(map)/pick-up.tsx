@@ -93,7 +93,7 @@ export default function PickUp() {
           latitude: parseFloat(lat) || 0,
           longitude: parseFloat(long) || 0,
         }}
-        apikey={"L5tIJpSCeilp7Guuti0y5NTPtrDctmgI8dDYBh1N"}
+        apikey={process.env.GOONG_API_KEY || ""}
         directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
       />
 
