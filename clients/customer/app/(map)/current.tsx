@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { getAddressByLatLng } from "../../services/goong/geocoding";
+import { getAddressByLatLng } from "../../services/googleapis/geocode";
 import MapContainer from "../../components/MapContainer";
 
 

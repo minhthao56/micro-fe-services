@@ -12,6 +12,13 @@ spec:
   - host: api.cheap-taxi.me
     http:
       paths:
+      # - path: /communicate
+      #   pathType: Prefix
+      #   backend:
+      #     service:
+      #       name: communicate-service
+      #       port:
+      #         number: 7070
       - path: /usermgmt
         pathType: Prefix
         backend:
@@ -19,6 +26,13 @@ spec:
             name: usermgmt-service
             port:
               number: 9090
+      - path: /authmgmt
+        pathType: Prefix
+        backend:
+          service:
+            name: authmgmt-service
+            port:
+              number: 8080
       - path: /booking
         pathType: Prefix
         backend:
