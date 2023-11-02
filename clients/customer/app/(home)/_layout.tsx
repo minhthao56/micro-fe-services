@@ -4,7 +4,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useColorScheme } from "react-native";
 import Colors from "../../constants/Colors";
 
-import { useSession } from "utils/auth/mobile";
+import { useSession } from "../../providers/SessionProvider";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -16,6 +16,7 @@ function TabBarIcon(props: {
 export default function HomeLayout() {
   const val = useSession();
   const colorScheme = useColorScheme();
+
   if (val?.isLoading) {
     return <Text>Loading...</Text>;
   }

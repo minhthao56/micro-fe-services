@@ -2,16 +2,21 @@ import { useLocalSearchParams } from "expo-router";
 import { MapPin } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
-import { XStack, Button, YStack, Text, Card, Spinner } from "tamagui";
+import { Alert } from "react-native";
+import { XStack, Button, YStack, Text, Card, Spinner, Input } from "tamagui";
+import { Sheet, SheetProps, useSheet } from "@tamagui/sheet";
+import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Marker } from "react-native-maps";
+import { Details, Marker, Region } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MapViewDirections from "react-native-maps-directions";
-import { getAddressByLatLng } from "../../services/googleapis/geocode";
+
+import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { ParamsAddress } from "../../types/app";
 import MapContainer from "../../components/MapContainer";
-
-
+import { findNearByDriver } from "../../services/booking/customer";
+import { getVehicleTypes } from "../../services/booking/vehicle-type"
+import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse"
 
 export default function PickUp() {
   const { displayName, formattedAddress, lat, long } =
@@ -19,6 +24,11 @@ export default function PickUp() {
   const [location, setLocation] = useState<Location.LocationObject>();
   const insets = useSafeAreaInsets();
   const [address, setAddress] = useState("");
+  const [origin, setOrigin] = useState<Location.LocationObject>();
+  const [position, setPosition] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [modal, setModal] = useState(true);
+  const [vehicles, setVehicles] = useState <SchemaVehicleType[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -35,8 +45,46 @@ export default function PickUp() {
       );
       setAddress(address.results?.[0]?.formatted_address);
       setLocation(location);
+
+      const vehicleTypes = await getVehicleTypes();
+      setVehicles(vehicleTypes.vehicle_types || []);
     })();
   }, []);
+
+  const handlePickUp = async () => {
+    try {
+      setOpen(true);
+      // const driver = await findNearByDriver({
+      //   request_lat: parseFloat(lat) || 0,
+      //   request_long: parseFloat(long) || 0,
+      // });
+
+
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    }
+  };
+
+  const onRegionChangeComplete = async (region: Region, details: Details)=>{
+    setOrigin({
+      coords: {
+        latitude: region.latitude,
+        longitude: region.longitude,
+        altitude: null,
+        accuracy: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      },
+      timestamp: Date.now(),
+    })
+
+    const address = await getAddressByLatLng(
+      region.latitude,
+      region.longitude,
+    );
+    setAddress(address.results?.[0]?.formatted_address);
+  }
 
   if (!location) {
     return (
@@ -63,52 +111,98 @@ export default function PickUp() {
               <Text ml="$2">{address}</Text>
             </XStack>
           </Card>
-          <Button mb={insets.bottom + 8}>Choose This Pick-Up</Button>
+          <Button mb={insets.bottom + 8} onPress={handlePickUp}>
+            Choose This Pick-Up
+          </Button>
         </YStack>
       </XStack>
     );
   };
 
   return (
-    <MapContainer
-      renderBottom={renderBottom}
-      // onRegionChangeComplete={onRegionChangeComplete}
-      initialRegion={{
-        latitude: location?.coords.latitude || 0,
-        longitude: location?.coords.longitude || 0,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}
-    >
-      <Marker
-        coordinate={{
+    <>
+      <MapContainer
+        renderBottom={renderBottom}
+        onRegionChangeComplete={onRegionChangeComplete}
+        initialRegion={{
           latitude: location?.coords.latitude || 0,
           longitude: location?.coords.longitude || 0,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
         }}
-      />
-      <Marker
-        coordinate={{
-          latitude: parseFloat(lat) || 0,
-          longitude: parseFloat(long) || 0,
-        }}
-      />
+      >
+        <Marker
+          coordinate={{
+            latitude: origin?.coords.latitude || location?.coords.latitude || 0,
+            longitude: origin?.coords.longitude || location?.coords.longitude || 0,
+          }}
+        />
+        <Marker
+          coordinate={{
+            latitude: parseFloat(lat) || 0,
+            longitude: parseFloat(long) || 0,
+          }}
+        />
 
-    <MapViewDirections
-        origin={{
-          latitude: location?.coords.latitude || 0,
-          longitude: location?.coords.longitude || 0,
-        }}
-        destination={{
-          latitude: parseFloat(lat) || 0,
-          longitude: parseFloat(long) || 0,
-        }}
-        apikey={process.env.EXPO_PUBLIC_GOOGLE_API_KEY || ""}
-        // directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
-        strokeWidth={5}
-        strokeColor="#00b0ff"
-      />
+        {/* {origin ? (
+          <MapViewDirections
+            origin={{
+              latitude: origin?.coords.latitude || 0,
+              longitude: origin?.coords.longitude || 0,
+            }}
+            destination={{
+              latitude: parseFloat(lat) || 0,
+              longitude: parseFloat(long) || 0,
+            }}
+            apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
+            directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
+            strokeWidth={7}
+            strokeColor="#00b0ff"
+          />
+        ) : null} */}
+      </MapContainer>
 
-      
-    </MapContainer>
+      <Sheet
+        forceRemoveScrollEnabled={open}
+        modal={modal}
+        open={open}
+        onOpenChange={setOpen}
+        snapPoints={[50, 50]}
+        dismissOnSnapToBottom
+        position={position}
+        onPositionChange={setPosition}
+        zIndex={100_000}
+        animation="medium"
+      >
+        <Sheet.Overlay
+          animation="lazy"
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+          opacity={0}
+        />
+        <Sheet.Handle />
+        <Sheet.Frame
+          padding="$4"
+          justifyContent="center"
+          alignItems="center"
+          space="$5"
+        >
+          
+          <Text>{JSON.stringify(vehicles)}</Text>
+          <Button
+            size="$6"
+            circular
+            icon={ChevronDown}
+            onPress={() => setOpen(false)}
+          />
+          <Input width={200} />
+          {modal && (
+            <>
+              <Button size="$6" circular icon={ChevronUp} />
+            </>
+          )}
+        </Sheet.Frame>
+      </Sheet>
+    </>
   );
 }

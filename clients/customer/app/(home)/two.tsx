@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { useSession } from "utils/auth/mobile";
+import { useSession } from "../../providers/SessionProvider";
 
 import { Text, View } from "../../components/Themed";
 import { Button } from "tamagui";

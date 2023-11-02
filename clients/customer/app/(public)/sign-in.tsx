@@ -4,9 +4,10 @@ import { H2 } from "tamagui";
 import { LoginForm, LoginFormData } from "tamagui-shared-ui";
 import { KeyboardAvoidingComponent } from "expo-shared-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSession } from "utils/auth/mobile";
+import { useSession } from "../../providers/SessionProvider";
 import { createCustomToken } from "../../services/authmgmt/customToken";
 import { UserGroup } from "utils/constants/user-group";
+import { Alert } from "react-native";
 
 export default function SignIn() {
   const session = useSession();
@@ -27,9 +28,11 @@ export default function SignIn() {
         await session?.signOut();
         console.log("No user id");
       }
-    } catch (error) {
+    } catch (error: any) {
       await session?.signOut();
       console.error(error);
+      Alert.alert("Error", error.message);
+
     }
   }, []);
   return (

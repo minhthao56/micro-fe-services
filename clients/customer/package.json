@@ -48,7 +48,8 @@
     "react-native-web": "~0.19.6",
     "tamagui": "^1.74.12",
     "tamagui-shared-ui": "*",
-    "utils": "*"
+    "utils": "*",
+    "schema": "*"
   },
   "devDependencies": {
     "@expo/metro-config": "~0.10.0",

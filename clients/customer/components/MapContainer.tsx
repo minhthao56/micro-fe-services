@@ -1,9 +1,10 @@
 import React, { PropsWithChildren } from "react";
 import MapView, { PROVIDER_GOOGLE, MapViewProps } from "react-native-maps";
-import { Button, YStack } from "tamagui";
+import { Button, XStack, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowLeft } from "@tamagui/lucide-icons";
+import { ArrowLeft, MapPin } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
+import { View } from "react-native";
 
 interface MapContainerProps extends Omit<MapViewProps, "provider" | "style"> {
   renderBottom?: () => React.ReactNode;
@@ -40,6 +41,17 @@ export default function MapContainer({
         icon={ArrowLeft}
       />
       {renderBottom && renderBottom()}
+      <View
+        style={{
+          left: "50%",
+          position: "absolute",
+          top: "50%",
+          marginLeft: -12,
+          marginTop: -20,
+        }}
+      >
+        <MapPin size={24} color="black" />
+      </View>
     </YStack>
   );
 }

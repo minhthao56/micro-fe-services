@@ -9,7 +9,7 @@ import {
 } from "@react-navigation/native";
 import { TamaguiProvider, Theme } from "tamagui";
 
-import { SessionProvider } from "utils/auth/mobile";
+import { SessionProvider } from "../providers/SessionProvider";
 
 import config from "../tamagui.config";
 

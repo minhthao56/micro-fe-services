@@ -1,7 +1,10 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
-import { authMobile } from "../firebase/mobile";
+import { authMobile } from "utils/firebase/mobile";
 import type { User } from "firebase/auth";
-import { AuthWithFirebase } from "../firebase/provider";
+import { AuthWithFirebase } from "utils/firebase/provider";
+import { setToken } from "../services/initClient"
+import { whoami } from "../services/usermgmt/user"
+import { Alert } from "react-native";
 
 type AuthContextType = {
   signIn: AuthWithFirebase["signIn"];
@@ -51,9 +54,13 @@ export function SessionProvider(props: {
           const user = authMobile.getUser();
           setUser(user);
           console.log("uid: ", user?.uid);
+          const token = await user?.getIdToken();
+          setToken(token || "");
+          await whoami();
         }
-      } catch (error) {
+      } catch (error: any) {
         console.log(error);
+        Alert.alert("Error", error.message);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
@@ -85,7 +92,6 @@ export function SessionProvider(props: {
             setIsAuthenticated(false);
             setUser(null);
           } catch (error) {
-            setIsAuthenticated(false);
             console.error(error);
             throw error;
           }
@@ -103,7 +109,7 @@ export function SessionProvider(props: {
 
         user,
         isLoading,
-        isAuthenticated,
+        isAuthenticated
       }}
     >
       {props.children}

@@ -1,6 +1,6 @@
 import { Client } from "utils/axiosClient";
 
-export const userClient = new Client({
+export const bookingClient = new Client({
   baseURL: process.env.EXPO_PUBLIC_BASE_URL || "",
-  path: "usermgmt",
+  path: "booking",
 });

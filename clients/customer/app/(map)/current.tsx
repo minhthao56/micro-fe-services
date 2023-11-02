@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { getAddressByLatLng } from "../../services/googleapis/geocode";
+import { getAddressByLatLng } from "../../services/goong/geocoding";
 import MapContainer from "../../components/MapContainer";
 
 
@@ -71,7 +71,11 @@ export default function CurrentPage() {
               <Text ml="$2">{address}</Text>
             </XStack>
           </Card>
-          <Button mb={insets.bottom + 8}>Confirm Destination</Button>
+          <Button mb={insets.bottom + 8} onPress={async ()=>{
+
+           await  AsyncStorage.clear();
+
+          }}>Confirm Destination</Button>
         </YStack>
       </XStack>
     );
