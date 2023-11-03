@@ -98,8 +98,9 @@ export function SessionProvider(props: {
         },
         signInWithCustomToken: async (token: string) => {
           try {
-            await authMobile.signInWithCustomToken(token);
+            const userCredential = await authMobile.signInWithCustomToken(token);
             setIsAuthenticated(true);
+            return userCredential
           } catch (error) {
             setIsAuthenticated(false);
             console.error(error);

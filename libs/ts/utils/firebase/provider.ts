@@ -8,7 +8,7 @@ import {
 } from "firebase/auth";
 export interface AuthProvider {
   signIn(email: string, password: string): Promise<UserCredential>;
-  signInWithCustomToken(token: string): Promise<void>;
+  signInWithCustomToken(token: string): Promise<UserCredential>;
   signOut(auth: Auth): Promise<void>;
   getIsAuthenticated(): Promise<boolean>;
   getUser(): User | null;
@@ -22,10 +22,10 @@ export class AuthWithFirebase implements AuthProvider {
   constructor(firebaseAuth: Auth) {
     this.auth = firebaseAuth;
   }
-  async signInWithCustomToken(token: string): Promise<void> {
+  async signInWithCustomToken(token: string): Promise<UserCredential> {
     try {
       this.isAuthenticated = true;
-      await signInWithCustomToken(this.auth, token);
+      return await signInWithCustomToken(this.auth, token);
     } catch (error) {
       this.isAuthenticated = false;
       console.error(error);

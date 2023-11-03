@@ -6,6 +6,7 @@ import { KeyboardAvoidingComponent } from "expo-shared-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "../../providers/SessionProvider";
 import { createCustomToken } from "../../services/authmgmt/customToken";
+import { setToken } from "../../services/initClient";
 import { UserGroup } from "utils/constants/user-group";
 import { Alert } from "react-native";
 
@@ -22,11 +23,18 @@ export default function SignIn() {
           firebaseToken,
           userGroup: UserGroup.CUSTOMER_GROUP,
         });
-        await session?.signInWithCustomToken(token.customToken);
+        const  userCredential = await session?.signInWithCustomToken(token.customToken);
+        const customToken = await userCredential?.user?.getIdToken();
+        if (!customToken) {
+          await session?.signOut();
+          throw new Error("Token is null");
+        }
+        setToken(customToken || "");
         router.replace("/");
       } else {
         await session?.signOut();
         console.log("No user id");
+        throw new Error("No user id");
       }
     } catch (error: any) {
       await session?.signOut();

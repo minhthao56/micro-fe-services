@@ -1,11 +1,10 @@
 import { useLocalSearchParams } from "expo-router";
-import { MapPin } from "@tamagui/lucide-icons";
+import { MapPin, Car, X } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { Alert } from "react-native";
-import { XStack, Button, YStack, Text, Card, Spinner, Input } from "tamagui";
-import { Sheet, SheetProps, useSheet } from "@tamagui/sheet";
-import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import { XStack, Button, YStack, Text, Card, Spinner } from "tamagui";
+import { Sheet } from "@tamagui/sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Details, Marker, Region } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -27,7 +26,6 @@ export default function PickUp() {
   const [origin, setOrigin] = useState<Location.LocationObject>();
   const [position, setPosition] = useState(0);
   const [open, setOpen] = useState(false);
-  const [modal, setModal] = useState(true);
   const [vehicles, setVehicles] = useState <SchemaVehicleType[]>([]);
 
   useEffect(() => {
@@ -53,12 +51,12 @@ export default function PickUp() {
 
   const handlePickUp = async () => {
     try {
+      setOrigin(location);
       setOpen(true);
       // const driver = await findNearByDriver({
       //   request_lat: parseFloat(lat) || 0,
       //   request_long: parseFloat(long) || 0,
       // });
-
 
     } catch (error: any) {
       Alert.alert("Error", error.message);
@@ -66,7 +64,7 @@ export default function PickUp() {
   };
 
   const onRegionChangeComplete = async (region: Region, details: Details)=>{
-    setOrigin({
+    setLocation({
       coords: {
         latitude: region.latitude,
         longitude: region.longitude,
@@ -85,6 +83,10 @@ export default function PickUp() {
     );
     setAddress(address.results?.[0]?.formatted_address);
   }
+
+  const handleChooseVehicle = () => {}
+
+  const handleBooking = () => {}
 
   if (!location) {
     return (
@@ -133,8 +135,8 @@ export default function PickUp() {
       >
         <Marker
           coordinate={{
-            latitude: origin?.coords.latitude || location?.coords.latitude || 0,
-            longitude: origin?.coords.longitude || location?.coords.longitude || 0,
+            latitude:  location?.coords.latitude || 0,
+            longitude: location?.coords.longitude || 0,
           }}
         />
         <Marker
@@ -144,7 +146,7 @@ export default function PickUp() {
           }}
         />
 
-        {/* {origin ? (
+        {origin ? (
           <MapViewDirections
             origin={{
               latitude: origin?.coords.latitude || 0,
@@ -159,12 +161,12 @@ export default function PickUp() {
             strokeWidth={7}
             strokeColor="#00b0ff"
           />
-        ) : null} */}
+        ) : null}
       </MapContainer>
 
       <Sheet
         forceRemoveScrollEnabled={open}
-        modal={modal}
+        modal={true}
         open={open}
         onOpenChange={setOpen}
         snapPoints={[50, 50]}
@@ -182,25 +184,21 @@ export default function PickUp() {
         />
         <Sheet.Handle />
         <Sheet.Frame
-          padding="$4"
-          justifyContent="center"
-          alignItems="center"
-          space="$5"
+          px="$4"
+          py="$6"
+          justifyContent="space-between"
         >
-          
-          <Text>{JSON.stringify(vehicles)}</Text>
-          <Button
-            size="$6"
-            circular
-            icon={ChevronDown}
-            onPress={() => setOpen(false)}
-          />
-          <Input width={200} />
-          {modal && (
-            <>
-              <Button size="$6" circular icon={ChevronUp} />
-            </>
-          )}
+          {
+            vehicles.map((vehicle, key) => (
+              <Card padding="$3" key={key} onPress={handleChooseVehicle}>
+                <XStack alignItems="center" justifyContent="space-around">
+                  <Car />
+                  <Text>{vehicle.vehicle_name}</Text>
+                </XStack>
+              </Card>
+            ))
+          }
+          <Button onPress={handleBooking}>Book</Button>
         </Sheet.Frame>
       </Sheet>
     </>
