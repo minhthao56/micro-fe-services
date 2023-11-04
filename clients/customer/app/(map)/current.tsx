@@ -8,7 +8,7 @@ import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
-import MapContainer from "../../components/MapContainer";
+import { MapContainer } from "tamagui-shared-ui";
 
 
 export default function CurrentPage() {

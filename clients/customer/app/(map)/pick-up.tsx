@@ -12,12 +12,12 @@ import MapViewDirections from "react-native-maps-directions";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { ParamsAddress } from "../../types/app";
-import MapContainer from "../../components/MapContainer";
 import { findNearByDriver } from "../../services/booking/customer";
 import { getVehicleTypes } from "../../services/booking/vehicle-type";
 import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse";
 import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
 import { View } from "../../components/Themed";
+import { MapContainer } from "tamagui-shared-ui";
 // import { createBooking } from "../../services/booking/booking"
 
 
@@ -193,19 +193,19 @@ export default function PickUp() {
             longitude: locationPickUp?.coords.longitude || 0,
           }}
         />
-        {/* <Marker
+        <Marker
           coordinate={{
             latitude: parseFloat(lat) || 0,
             longitude: parseFloat(long) || 0,
           }}
 
-        /> */}
+        />
         {
           selectedDriver?.driver_id ? (
             <Marker
               coordinate={{
-                latitude: selectedDriver?.latitude || 0,
-                longitude: selectedDriver?.longitude || 0,
+                latitude: selectedDriver?.current_lat || 0,
+                longitude: selectedDriver?.current_long || 0,
               }}
               image={
                 require("../../assets/images/icons8-car-64.png")

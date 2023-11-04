@@ -4,12 +4,13 @@ import { H2 } from "tamagui";
 import { LoginForm, LoginFormData } from "tamagui-shared-ui";
 import { KeyboardAvoidingComponent } from "expo-shared-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { UserGroup } from "utils/constants/user-group";
+import { Alert } from "react-native";
+
 import { useSession } from "../../providers/SessionProvider";
 import { createCustomToken } from "../../services/authmgmt/customToken";
 import { setToken } from "../../services/initClient";
-import { UserGroup } from "utils/constants/user-group";
-import { Alert } from "react-native";
-import { whoami } from "../../services/usermgmt/user";
+import { whoami } from "../../services/usermgmt/user"
 
 export default function SignIn() {
   const session = useSession();
@@ -22,7 +23,7 @@ export default function SignIn() {
         const token = await createCustomToken({
           uid: user.uid,
           firebaseToken,
-          userGroup: UserGroup.CUSTOMER_GROUP,
+          userGroup: UserGroup.DRIVER_GROUP,
         });
         const  userCredential = await session?.signInWithCustomToken(token.customToken);
         const customToken = await userCredential?.user?.getIdToken();
@@ -31,8 +32,8 @@ export default function SignIn() {
           throw new Error("Token is null");
         }
         setToken(customToken || "");
-        router.replace("/");
         await whoami();
+        router.replace("/");
       } else {
         await session?.signOut();
         console.log("No user id");
@@ -50,7 +51,7 @@ export default function SignIn() {
       style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
     >
       <KeyboardAvoidingComponent>
-        <H2 mb="$4">Taxi SM</H2>
+        <H2 mb="$4">Driver SM</H2>
         <LoginForm onSubmit={onSubmit} title="Sign In" />
       </KeyboardAvoidingComponent>
     </SafeAreaView>
