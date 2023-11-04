@@ -22,8 +22,7 @@ docker-authmgmt:
 
 # communicate
 build-communicate:
-	yarn
-	npx nx build communicate
+	scripts/build_communicate.bash
 
 docker-communicate:
 	docker build -f deployment/communicate.Dockerfile -t taxi/communicate .

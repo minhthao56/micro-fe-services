@@ -3,11 +3,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY node_modules node_modules
-COPY libs/ts libs/ts
-COPY services/communicate services/communicate
-COPY package.json package.json
-COPY tsconfig.base.json tsconfig.base.json
+COPY tmp/node_modules node_modules
+COPY tmp/libs/ts libs/ts
+COPY tmp/services/communicate services/communicate
+COPY tmp/package.json package.json
 
 EXPOSE 7070
 
