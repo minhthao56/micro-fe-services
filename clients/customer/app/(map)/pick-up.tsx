@@ -1,9 +1,9 @@
 import { useLocalSearchParams } from "expo-router";
-import { MapPin, Car, X } from "@tamagui/lucide-icons";
+import { MapPin, Car, Pin } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { Alert } from "react-native";
-import { XStack, Button, YStack, Text, Card, Spinner } from "tamagui";
+import { XStack, Button, YStack, Text, Card, Spinner, Avatar } from "tamagui";
 import { Sheet } from "@tamagui/sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Details, Marker, Region } from "react-native-maps";
@@ -14,57 +14,59 @@ import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { ParamsAddress } from "../../types/app";
 import MapContainer from "../../components/MapContainer";
 import { findNearByDriver } from "../../services/booking/customer";
-import { getVehicleTypes } from "../../services/booking/vehicle-type"
-import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse"
+import { getVehicleTypes } from "../../services/booking/vehicle-type";
+import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse";
+import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
+import { View } from "../../components/Themed";
+// import { createBooking } from "../../services/booking/booking"
+
 
 export default function PickUp() {
-  const { displayName, formattedAddress, lat, long } =
+  const { lat, long, displayName, formattedAddress } =
     useLocalSearchParams<ParamsAddress>();
-  const [location, setLocation] = useState<Location.LocationObject>();
+  const [locationPickUp, setLocationPickUp] =
+    useState<Location.LocationObject>();
   const insets = useSafeAreaInsets();
   const [address, setAddress] = useState("");
   const [origin, setOrigin] = useState<Location.LocationObject>();
   const [position, setPosition] = useState(0);
   const [open, setOpen] = useState(false);
-  const [vehicles, setVehicles] = useState <SchemaVehicleType[]>([]);
+  const [vehicles, setVehicles] = useState<SchemaVehicleType[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<SchemaVehicleType>();
+  const [selectedDriver, setSelectedDriver] =
+    useState<SchemaDriverWithDistance>();
+
+  const [isLookingForDriver, setIsLookingForDriver] = useState(false);
 
   useEffect(() => {
     (async () => {
       const stringLocation = await AsyncStorage.getItem("currentLocation");
-      let location = JSON.parse(stringLocation || "{}");
+      let currentLocation = JSON.parse(stringLocation || "{}");
 
       if (!stringLocation) {
-        location = await Location.getCurrentPositionAsync({});
+        currentLocation = await Location.getCurrentPositionAsync({});
         await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
       }
       const address = await getAddressByLatLng(
-        location.coords.latitude,
-        location.coords.longitude
+        currentLocation.coords.latitude,
+        currentLocation.coords.longitude
       );
       setAddress(address.results?.[0]?.formatted_address);
-      setLocation(location);
+      setLocationPickUp(currentLocation);
 
       const vehicleTypes = await getVehicleTypes();
       setVehicles(vehicleTypes.vehicle_types || []);
+      setSelectedVehicle(vehicleTypes?.vehicle_types?.[0]);
     })();
   }, []);
 
   const handlePickUp = async () => {
-    try {
-      setOrigin(location);
-      setOpen(true);
-      // const driver = await findNearByDriver({
-      //   request_lat: parseFloat(lat) || 0,
-      //   request_long: parseFloat(long) || 0,
-      // });
-
-    } catch (error: any) {
-      Alert.alert("Error", error.message);
-    }
+    setOrigin(locationPickUp);
+    setOpen(true);
   };
 
-  const onRegionChangeComplete = async (region: Region, details: Details)=>{
-    setLocation({
+  const onRegionChangeComplete = async (region: Region, details: Details) => {
+    setLocationPickUp({
       coords: {
         latitude: region.latitude,
         longitude: region.longitude,
@@ -75,20 +77,34 @@ export default function PickUp() {
         speed: null,
       },
       timestamp: Date.now(),
-    })
+    });
 
-    const address = await getAddressByLatLng(
-      region.latitude,
-      region.longitude,
-    );
+    const address = await getAddressByLatLng(region.latitude, region.longitude);
     setAddress(address.results?.[0]?.formatted_address);
-  }
+  };
 
-  const handleChooseVehicle = () => {}
+  const handleBooking = async () => {
+    setOpen(false);
+    try {
+      setIsLookingForDriver(true);
+      const data = await findNearByDriver({
+        request_lat: origin?.coords.latitude || 0,
+        request_long: origin?.coords.longitude || 0,
+      });
+      if (data.drivers?.length === 0) {
+        Alert.alert("No driver found");
+        return;
+      }
+      const drivers = data.drivers;
+      setSelectedDriver(drivers?.[0]);
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsLookingForDriver(false);
+    }
+  };
 
-  const handleBooking = () => {}
-
-  if (!location) {
+  if (!locationPickUp) {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center">
         <Spinner size="large" />
@@ -100,22 +116,60 @@ export default function PickUp() {
     return (
       <XStack position="absolute" bottom={0} left={0} right={0}>
         <YStack flex={1} p="$2">
-          <Card
-            flex={1}
-            mb="$2"
-            justifyContent="center"
-            alignItems="center"
-            py="$3"
-            px="$4"
-          >
+          <Card justifyContent="center" mb="$2" py="$3" px="$4">
             <XStack>
               <MapPin size="$1" />
-              <Text ml="$2">{address}</Text>
+              <Text>{address}</Text>
+            </XStack>
+            <View
+              style={{
+                marginVertical: 15,
+                height: 1,
+              }}
+              lightColor="#eee"
+              darkColor="rgba(255,255,255,0.3)"
+            />
+            <XStack>
+              <Pin size="$1" />
+              <Text>{formattedAddress}</Text>
             </XStack>
           </Card>
-          <Button mb={insets.bottom + 8} onPress={handlePickUp}>
-            Choose This Pick-Up
-          </Button>
+          {isLookingForDriver ? (
+            <Card
+              flex={1}
+              justifyContent="center"
+              alignItems="center"
+              py="$3"
+              px="$4"
+              mb={insets.bottom + 8}
+            >
+              <XStack>
+                <Spinner size="small" />
+                <Text ml="$2">Looking for driver</Text>
+              </XStack>
+            </Card>
+          ) : null}
+          {selectedDriver?.driver_id ? (
+            <Card
+              flex={1}
+              justifyContent="center"
+              py="$3"
+              px="$4"
+              mb={insets.bottom + 8}
+            >
+              <Text>
+                Name:{" "}
+                {selectedDriver.last_name + " " + selectedDriver.first_name}
+              </Text>
+              <Text>Phone Number: {selectedDriver.phone_number}</Text>
+              <Text>Email: {selectedDriver.email}</Text>
+              <Text>Distance: {selectedDriver.distance + " KM"}</Text>
+            </Card>
+          ) : (
+            <Button mb={insets.bottom + 8} onPress={handlePickUp}>
+              Choose This Pick-Up
+            </Button>
+          )}
         </YStack>
       </XStack>
     );
@@ -127,24 +181,38 @@ export default function PickUp() {
         renderBottom={renderBottom}
         onRegionChangeComplete={onRegionChangeComplete}
         initialRegion={{
-          latitude: location?.coords.latitude || 0,
-          longitude: location?.coords.longitude || 0,
+          latitude: locationPickUp?.coords.latitude || 0,
+          longitude: locationPickUp?.coords.longitude || 0,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
       >
         <Marker
           coordinate={{
-            latitude:  location?.coords.latitude || 0,
-            longitude: location?.coords.longitude || 0,
+            latitude: locationPickUp?.coords.latitude || 0,
+            longitude: locationPickUp?.coords.longitude || 0,
           }}
         />
-        <Marker
+        {/* <Marker
           coordinate={{
             latitude: parseFloat(lat) || 0,
             longitude: parseFloat(long) || 0,
           }}
-        />
+
+        /> */}
+        {
+          selectedDriver?.driver_id ? (
+            <Marker
+              coordinate={{
+                latitude: selectedDriver?.latitude || 0,
+                longitude: selectedDriver?.longitude || 0,
+              }}
+              image={
+                require("../../assets/images/icons8-car-64.png")
+              }
+            />
+          ) : null
+        }
 
         {origin ? (
           <MapViewDirections
@@ -183,21 +251,27 @@ export default function PickUp() {
           opacity={0}
         />
         <Sheet.Handle />
-        <Sheet.Frame
-          px="$4"
-          py="$6"
-          justifyContent="space-between"
-        >
-          {
-            vehicles.map((vehicle, key) => (
-              <Card padding="$3" key={key} onPress={handleChooseVehicle}>
-                <XStack alignItems="center" justifyContent="space-around">
-                  <Car />
-                  <Text>{vehicle.vehicle_name}</Text>
-                </XStack>
-              </Card>
-            ))
-          }
+        <Sheet.Frame px="$4" py="$6" justifyContent="space-between">
+          {vehicles.map((vehicle, key) => (
+            <Card
+              padding="$3"
+              key={key}
+              onPress={() => {
+                setSelectedVehicle(vehicle);
+              }}
+              borderColor={
+                selectedVehicle?.vehicle_type_id === vehicle.vehicle_type_id
+                  ? "white"
+                  : "transparent"
+              }
+              borderWidth={1}
+            >
+              <XStack alignItems="center" justifyContent="space-around">
+                <Car />
+                <Text>{vehicle.vehicle_name}</Text>
+              </XStack>
+            </Card>
+          ))}
           <Button onPress={handleBooking}>Book</Button>
         </Sheet.Frame>
       </Sheet>
