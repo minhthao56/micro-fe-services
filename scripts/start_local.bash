@@ -7,7 +7,7 @@ eval $(minikube -p minikube docker-env)
 make build-communicate
 make docker-communicate
 
-# make build-usermgmts
+make build-usermgmtsk
 make docker-usermgmt
 
 make build-authmgmt

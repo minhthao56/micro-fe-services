@@ -56,7 +56,7 @@
     "start:d": "yarn workspace driver start",
     "watch:tamagui": "yarn workspace tamagui-shared-ui watch",
     "update:expo:c": "cd clients/customer && npx expo install --fix",
-    "update:expo:d": "cd clients/driver && npx expo install --fix"
-
+    "update:expo:d": "cd clients/driver && npx expo install --fix",
+    "build:utils": "yarn workspace utils build"
   }
 }

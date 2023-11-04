@@ -1,8 +1,11 @@
 #!/bin/bash
 
+npx nx build communicate
+
 SERVICE_PATH="tmp/services/communicate"
 DB_PATH="tmp/libs/ts/database"
 UTILS_PATH="tmp/libs/ts/utils"
+
 
 if [ ! -d "$SERVICE_PATH" ]; then
   mkdir -p "$SERVICE_PATH"
@@ -30,4 +33,4 @@ for srcPaths in libs/ts/utils/*; do
     cp -R "$srcPaths" "$UTILS_PATH"
 done
 
-cd tmp && yarn install --production=true && npx nx build communicate
+cd tmp && yarn install --production=true

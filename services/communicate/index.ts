@@ -1,6 +1,2 @@
-import app from "./src/app";
-
-const port = 7070;
-app.listen(port, () => {
-  console.log(`server is listening on ${port}`);
-});
+import {startServer} from "./src/app";
+startServer();

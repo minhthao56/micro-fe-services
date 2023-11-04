@@ -18,6 +18,10 @@ spec:
       - name: communicate
         image: taxi/communicate
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: firebase-config
+          mountPath: /firebase
+          readOnly: true
         ports:
         - containerPort: 7070
         env:
@@ -41,6 +45,10 @@ spec:
             secretKeyRef:
               name: postgresql-secret
               key: pg_db
+      volumes:
+      - name: firebase-config
+        secret:
+          secretName: firebase-config
               
 ---
 apiVersion: v1

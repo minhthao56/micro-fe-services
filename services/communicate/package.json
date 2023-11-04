@@ -7,6 +7,7 @@
     "axios": "^1.4.0",
     "database": "*",
     "express": "^4.18.2",
+    "firebase-admin": "^11.11.0",
     "morgan": "^1.10.0",
     "socket.io": "^4.7.2"
   },
