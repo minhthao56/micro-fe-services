@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import SelectVehicle from "../components/inputs/SelectVehicle";
 import { createUser } from "../services/usermgmt/user";
-import { UserGroup } from "utils/constants/user-group";
+import { UserGroup } from "schema/constants/user-group";
 
 export interface FormValuesDriver {
   firstName: string;

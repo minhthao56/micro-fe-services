@@ -1,30 +1,30 @@
 {
  "required": [
-  "driverID",
-  "customerID",
-  "startLong",
-  "startLat",
-  "endLong",
-  "endLat",
+  "driver_id",
+  "customer_id",
+  "start_long",
+  "start_lag",
+  "end_long",
+  "end_lat",
   "status"
  ],
  "properties": {
-  "customerID": {
+  "customer_id": {
    "type": "string"
   },
-  "driverID": {
+  "driver_id": {
    "type": "string"
   },
-  "endLat": {
+  "end_lat": {
    "type": "number"
   },
-  "endLong": {
+  "end_long": {
    "type": "number"
   },
-  "startLat": {
+  "start_lag": {
    "type": "number"
   },
-  "startLong": {
+  "start_long": {
    "type": "number"
   },
   "status": {

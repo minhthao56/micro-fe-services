@@ -36,7 +36,6 @@ export async function validateSocketJWT(
   next: (err?: ExtendedError | undefined) => void, firebaseAuth: Auth
 ) {
     const token = socket.handshake.auth.token;
-    console.log("token", token);
     if (!token) {
         next(new Error("Don't have token"));
         return;

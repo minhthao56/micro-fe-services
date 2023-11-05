@@ -1,11 +1,11 @@
 package schema
 
 type CreateBookingRequest struct {
-	DriverID   string  `json:"driverID" required:"true"`
-	CustomerID string  `json:"customerID" required:"true"`
-	StartLong  float64 `json:"startLong" required:"true"`
-	StartLat   float64 `json:"startLat" required:"true"`
-	EndLong    float64 `json:"endLong" required:"true"`
-	EndLat     float64 `json:"endLat" required:"true"`
+	DriverID   string  `json:"driver_id" required:"true"`
+	CustomerID string  `json:"customer_id" required:"true"`
+	StartLong  float64 `json:"start_long" required:"true"`
+	StartLat   float64 `json:"start_lag" required:"true"`
+	EndLong    float64 `json:"end_long" required:"true"`
+	EndLat     float64 `json:"end_lat" required:"true"`
 	Status     string  `json:"status" required:"true"`
 }

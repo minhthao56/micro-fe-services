@@ -1,16 +1,20 @@
 import express, { Express } from "express";
 
 import { createServer } from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { Database } from "database";
 import morgan from "morgan";
 
 import notiRouter from "./routers/notification";
 import { firebaseApp } from "./firebase/init";
 import { validateJWT, validateSocketJWT } from "./middleware/validate-jwt"
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { registerConnectionHandlers, registerDisconnectionHandlers } from "./socket/connectionHandler"
 
 export async function startServer() {
   const app: Express = express();
+  const port = 7070;
+
   try {
     const conn = await Database.getConnection();
     const firebaseAuth = firebaseApp.auth();
@@ -35,23 +39,24 @@ export async function startServer() {
       validateSocketJWT(socket, next, firebaseAuth)
     });
 
-    io.on("connection", (socket) => {
-      console.log("a user connected", socket.id);
-      socket.on("message", (msg) => {
-        console.log("message: " + msg);
-        io.sockets.to(socket.id).emit("message", {
-          message: msg,
-          socketId: socket.id,
-        });
-      });
-    });
+
+    function onConnection(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
+      const { decodedIdToken } = socket.data;
+
+      registerConnectionHandlers(socket, conn, decodedIdToken);
+      
+      registerDisconnectionHandlers(socket, conn, decodedIdToken);
+
+    }
+
+    io.on("connection", onConnection);
   
 
-    const port = 7070;
 
     httpServer.listen(port, () => {
       console.log(`server is listening on ${port}`);
     });
+
   } catch (e) {
     console.log("Error in start service", e);
   }

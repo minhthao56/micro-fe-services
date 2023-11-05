@@ -12,17 +12,9 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 
-import { io } from 'socket.io-client';
 import { useEffect } from "react";
 
-const URL = "http://api.taxi.com/";
-const socket = io(URL, {
-  path: '/communicate/socket.io',
-  auth: {
-    token: '123'
-  } 
-});
-
+import { socketClient } from "../services/communicate/client";
 
 export default function CustomerPage() {
   const { isPending, error, data } = useQuery({
@@ -30,27 +22,27 @@ export default function CustomerPage() {
     queryFn: async () =>
       await getCustomers({ limit: 10, offset: 0, search: "" }),
   });
-  const { isOpen, onOpenChange, onOpen} = useDisclosure();
-
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
   useEffect(() => {
-    function onConnectErr(err: any) {
-      console.log('connect_error', err);
-    }
-    socket.on("connect_error", onConnectErr);
+    const socket = socketClient.getSocket();
 
+    socket.connect();
 
-    function onMessage(v: any) {
-      console.log('connected to server', v);
-    }
+    socket.on("connect", () => {
+      console.log("connect");
+    });
 
-    socket.on('message', onMessage);
-   
+    socket.on("data", () => {
+      console.log("data");
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log({reason});
+    });
+
     return () => {
-      socket.off('connect_error', onConnectErr);
-      socket.off('message', onMessage);
-
-
+      socket.disconnect();
     };
   }, []);
 
