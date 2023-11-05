@@ -12,13 +12,13 @@ spec:
   - host: api.cheap-taxi.me
     http:
       paths:
-      # - path: /communicate
-      #   pathType: Prefix
-      #   backend:
-      #     service:
-      #       name: communicate-service
-      #       port:
-      #         number: 7070
+      - path: /communicate
+        pathType: Prefix
+        backend:
+          service:
+            name: communicate-service
+            port:
+              number: 7070
       - path: /usermgmt
         pathType: Prefix
         backend:

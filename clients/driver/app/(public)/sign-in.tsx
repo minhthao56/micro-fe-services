@@ -4,7 +4,7 @@ import { H2 } from "tamagui";
 import { LoginForm, LoginFormData } from "tamagui-shared-ui";
 import { KeyboardAvoidingComponent } from "expo-shared-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { UserGroup } from "utils/constants/user-group";
+import { UserGroup } from "schema/constants/user-group";
 import { Alert } from "react-native";
 
 import { useSession } from "../../providers/SessionProvider";

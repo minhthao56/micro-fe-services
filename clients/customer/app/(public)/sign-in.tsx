@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "../../providers/SessionProvider";
 import { createCustomToken } from "../../services/authmgmt/customToken";
 import { setToken } from "../../services/initClient";
-import { UserGroup } from "utils/constants/user-group";
+import { UserGroup } from "schema/constants/user-group";
 import { Alert } from "react-native";
 import { whoami } from "../../services/usermgmt/user";
 

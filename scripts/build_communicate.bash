@@ -5,6 +5,7 @@ npx nx build communicate
 SERVICE_PATH="tmp/services/communicate"
 DB_PATH="tmp/libs/ts/database"
 UTILS_PATH="tmp/libs/ts/utils"
+SCHEMA_PATH="tmp/libs/ts/schema"
 
 
 if [ ! -d "$SERVICE_PATH" ]; then
@@ -19,6 +20,10 @@ if [ ! -d "$UTILS_PATH" ]; then
   mkdir -p "$UTILS_PATH"
 fi
 
+if [ ! -d "$SCHEMA_PATH" ]; then
+  mkdir -p "$SCHEMA_PATH"
+fi
+
 cp package.json tmp/package.json
 
 for srcPaths in services/communicate/*; do
@@ -31,6 +36,10 @@ done
 
 for srcPaths in libs/ts/utils/*; do
     cp -R "$srcPaths" "$UTILS_PATH"
+done
+
+for srcPaths in libs/ts/schema/*; do
+    cp -R "$srcPaths" "$SCHEMA_PATH"
 done
 
 cd tmp && yarn install --production=true
