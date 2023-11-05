@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: communicate
-        image: minhthao56/booking
+        image: minhthao56/communicate
         imagePullPolicy: Always
         volumeMounts:
         - name: firebase-config
