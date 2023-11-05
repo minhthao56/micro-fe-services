@@ -7,6 +7,10 @@ then
     exit 0
 fi
 
+docker rmi minhthao56/$SVC_NAME
+
+docker rmi taxi/$SVC_NAME
+
 make build-$SVC_NAME
 
 make docker-$SVC_NAME

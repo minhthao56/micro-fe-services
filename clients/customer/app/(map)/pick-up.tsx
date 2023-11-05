@@ -9,21 +9,23 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Details, Marker, Region } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MapViewDirections from "react-native-maps-directions";
+import { MapContainer } from "tamagui-shared-ui";
+import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse";
+import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
+import { CreateBookingRequest } from "schema/booking/CreateBookingRequest";
+import { SocketEventBooking } from "schema/constants/event";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { ParamsAddress } from "../../types/app";
 import { findNearByDriver } from "../../services/booking/customer";
 import { getVehicleTypes } from "../../services/booking/vehicle-type";
-import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse";
-import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
+import { socket } from "../../services/communicate/client";
 import { View } from "../../components/Themed";
-import { MapContainer } from "tamagui-shared-ui";
+
 // import { createBooking } from "../../services/booking/booking"
 
-
 export default function PickUp() {
-  const { lat, long, displayName, formattedAddress } =
-    useLocalSearchParams<ParamsAddress>();
+  const { lat, long, formattedAddress } = useLocalSearchParams<ParamsAddress>();
   const [locationPickUp, setLocationPickUp] =
     useState<Location.LocationObject>();
   const insets = useSafeAreaInsets();
@@ -65,7 +67,7 @@ export default function PickUp() {
     setOpen(true);
   };
 
-  const onRegionChangeComplete = async (region: Region, details: Details) => {
+  const onRegionChangeComplete = async (region: Region, _: Details) => {
     setLocationPickUp({
       coords: {
         latitude: region.latitude,
@@ -84,6 +86,10 @@ export default function PickUp() {
   };
 
   const handleBooking = async () => {
+    if (socket.disconnected) {
+      socket.connect();
+    }
+
     setOpen(false);
     try {
       setIsLookingForDriver(true);
@@ -96,11 +102,24 @@ export default function PickUp() {
         return;
       }
       const drivers = data.drivers;
+
+      socket.on("connect", () => {
+        Alert.alert("Connected");
+        const newBookingRequest: CreateBookingRequest = {
+          customer_id: "",
+          driver_id: "1",
+          end_lat: parseFloat(lat) || 0,
+          end_long: parseFloat(long) || 0,
+          start_lag: origin?.coords.latitude || 0,
+          start_long: origin?.coords.longitude || 0,
+          status: "",
+        };
+        socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
+      });
+
       setSelectedDriver(drivers?.[0]);
     } catch (error: any) {
       Alert.alert("Error", error.message);
-    } finally {
-      setIsLookingForDriver(false);
     }
   };
 
@@ -198,21 +217,16 @@ export default function PickUp() {
             latitude: parseFloat(lat) || 0,
             longitude: parseFloat(long) || 0,
           }}
-
         />
-        {
-          selectedDriver?.driver_id ? (
-            <Marker
-              coordinate={{
-                latitude: selectedDriver?.current_lat || 0,
-                longitude: selectedDriver?.current_long || 0,
-              }}
-              image={
-                require("../../assets/images/icons8-car-64.png")
-              }
-            />
-          ) : null
-        }
+        {selectedDriver?.driver_id ? (
+          <Marker
+            coordinate={{
+              latitude: selectedDriver?.current_lat || 0,
+              longitude: selectedDriver?.current_long || 0,
+            }}
+            image={require("../../assets/images/icons8-car-64.png")}
+          />
+        ) : null}
 
         {origin ? (
           <MapViewDirections

@@ -10,6 +10,7 @@ import { firebaseApp } from "./firebase/init";
 import { validateJWT, validateSocketJWT } from "./middleware/validate-jwt"
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { registerConnectionHandlers, registerDisconnectionHandlers } from "./socket/connectionHandler"
+import { registerBookingHandlers } from "./socket/bookingHandler"
 
 export async function startServer() {
   const app: Express = express();
@@ -46,6 +47,8 @@ export async function startServer() {
       registerConnectionHandlers(socket, conn, decodedIdToken);
       
       registerDisconnectionHandlers(socket, conn, decodedIdToken);
+
+      registerBookingHandlers(io, socket, conn, decodedIdToken);
 
     }
 

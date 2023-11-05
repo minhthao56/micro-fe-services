@@ -1,18 +1,24 @@
 import React from "react";
 import { Marker } from "react-native-maps";
-import { XStack, Button, YStack, Text, Card, Spinner } from "tamagui";
+import { XStack, Button, YStack, Spinner } from "tamagui";
 import { Power } from "@tamagui/lucide-icons";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
-
-import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { MapContainer } from "tamagui-shared-ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// import { getAddressByLatLng } from "../../services/goong/geocoding";
+import { socket } from "../../services/communicate/client";
+import { SocketEventBooking } from "schema/constants/event"
+import { NewBookingSocketRequest } from "schema/socket/booking"
+import { Alert } from "react-native";
 
 export default function TabOneScreen() {
   const [location, setLocation] = useState<Location.LocationObject>();
   const [errorMsg, setErrorMsg] = useState("");
   const [address, setAddress] = useState("");
+  const [connected, setConnected] = useState(socket.connected);
+  const [waitingConnect, setWaitingConnect] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -30,11 +36,11 @@ export default function TabOneScreen() {
         await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
       }
 
-      const address = await getAddressByLatLng(
-        location.coords.latitude,
-        location.coords.longitude
-      );
-      setAddress(address.results?.[0]?.formatted_address);
+      // const address = await getAddressByLatLng(
+      //   location.coords.latitude,
+      //   location.coords.longitude
+      // );
+      // setAddress(address.results?.[0]?.formatted_address);
       setLocation(location);
     })();
   }, []);
@@ -47,10 +53,55 @@ export default function TabOneScreen() {
     );
   }
 
+
+
+
+
+  function handleConnection() {
+
+    function onConnect(){
+      setWaitingConnect(false);
+      setConnected(true);
+      Alert.alert("Connected");
+    }
+  
+    function onBookingWaitingDriver (data:NewBookingSocketRequest) {
+      Alert.alert("New Booking", JSON.stringify(data));
+    }
+  
+    function onDisconnect () {
+      setConnected(false)
+      Alert.alert("Disconnected");
+    }
+
+    if (connected) {
+      socket.disconnect();
+      socket.removeAllListeners();
+      
+    } else {
+      setWaitingConnect(true);
+      socket.connect();
+      socket.on("connect", onConnect);
+      socket.on(SocketEventBooking.BOOKING_WAITING_DRIVER, onBookingWaitingDriver)
+      socket.on("disconnect",onDisconnect);
+    }
+  }
+
   const renderBottom = () => {
     return (
-      <XStack position="absolute" bottom={0} left={0} right={0} justifyContent="center">
-          <Button mb="$2" icon={Power} size="$5">Turn On</Button>
+      <XStack
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        justifyContent="center"
+      >
+        <Button
+          mb="$4"
+          icon={ waitingConnect?<Spinner/> : Power}
+          bg={connected ? "$red10Dark" : "$green10Dark"}
+          onPress={handleConnection}
+        >{`Turn ${connected ? "Off" : "On"}`}</Button>
       </XStack>
     );
   };

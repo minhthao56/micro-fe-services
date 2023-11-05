@@ -21,6 +21,8 @@ config.resolver.nodeModulesPaths = [
 ];
 config.resolver.sourceExts.push('mjs');
 config.resolver.sourceExts.push('cjs');
+config.resolver.blockList = [new RegExp(`${workspaceRoot}/tmp/.*`)];
+
 // 3. Force Metro to resolve (sub)dependencies only from the `nodeModulesPaths`
 config.resolver.disableHierarchicalLookup = true;
 module.exports = config;
