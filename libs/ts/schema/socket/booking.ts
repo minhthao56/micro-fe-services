@@ -15,3 +15,10 @@ export interface BookingStatusSocketResponse extends CreateBookingRequest {
   customer: CustomerSocket
   status: keyof typeof BookingStatus
 }
+
+export interface LocationDriverSocket {
+  driver_id: string
+  lat: number
+  long: number,
+  client_socket_id: string
+}

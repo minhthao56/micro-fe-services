@@ -36,9 +36,6 @@ export function DialogInstance({title, children ,...props}: DialogInstanceProps)
           gap="$4"
         >
           <Dialog.Title>{title}</Dialog.Title>
-          <Dialog.Description>
-            Make changes to your profile here. Click save when you're done.
-          </Dialog.Description>
           {children}
           <Unspaced>
             <Dialog.Close asChild>

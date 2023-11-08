@@ -6,6 +6,7 @@ import {
   NewBookingSocketRequest,
   CustomerSocket,
   BookingStatusSocketResponse,
+  LocationDriverSocket,
 } from "schema/socket/booking";
 import { DecodedIdTokenCustom } from "../types/app";
 
@@ -29,8 +30,7 @@ export function registerBookingHandlers(
       console.log("Cannot find driver");
       return;
     }
-    console.log({result});
-
+    console.log({ result });
 
     const { socket_id } = result.rows[0];
 
@@ -48,7 +48,7 @@ export function registerBookingHandlers(
       return;
     }
 
-    console.log({customers});
+    console.log({ customers });
     const customer = customers.rows[0];
 
     const req: NewBookingSocketRequest = {
@@ -57,16 +57,23 @@ export function registerBookingHandlers(
       customer,
     };
 
-    console.log({req});
-
+    console.log({ req });
 
     io.sockets.to(socket_id).emit("booking:waiting:driver", req);
   });
 
   socket.on("booking:status", async (data: BookingStatusSocketResponse) => {
-    const { customer, status } = data;
+    const { customer } = data;
     io.sockets
       .to(customer.socket_id)
-      .emit("booking:waiting:customer", { status });
+      .emit("booking:waiting:customer", data);
+  });
+
+  socket.on("booking:driver:location", async (data: LocationDriverSocket) => {
+    if (data.client_socket_id) {
+      io.sockets
+        .to(data.client_socket_id)
+        .emit("booking:driver:location", data);
+    }
   });
 }

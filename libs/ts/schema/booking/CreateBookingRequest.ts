@@ -3,7 +3,7 @@ export interface CreateBookingRequest {
     driver_id:   string;
     end_lat:     number;
     end_long:    number;
-    start_lag:   number;
+    start_lat:   number;
     start_long:  number;
     status:      string;
     [property: string]: any;

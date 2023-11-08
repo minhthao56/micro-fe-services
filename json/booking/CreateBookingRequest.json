@@ -3,7 +3,7 @@
   "driver_id",
   "customer_id",
   "start_long",
-  "start_lag",
+  "start_lat",
   "end_long",
   "end_lat",
   "status"
@@ -21,7 +21,7 @@
   "end_long": {
    "type": "number"
   },
-  "start_lag": {
+  "start_lat": {
    "type": "number"
   },
   "start_long": {

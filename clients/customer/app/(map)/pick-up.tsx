@@ -14,6 +14,10 @@ import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse";
 import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
 import { CreateBookingRequest } from "schema/booking/CreateBookingRequest";
 import { SocketEventBooking } from "schema/constants/event";
+import {
+  BookingStatusSocketResponse,
+  LocationDriverSocket,
+} from "schema/socket/booking";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { ParamsAddress } from "../../types/app";
@@ -39,6 +43,7 @@ export default function PickUp() {
     useState<SchemaDriverWithDistance>();
 
   const [isLookingForDriver, setIsLookingForDriver] = useState(false);
+  const [respBooking, setRespBooking] = useState<BookingStatusSocketResponse>();
 
   useEffect(() => {
     (async () => {
@@ -104,22 +109,45 @@ export default function PickUp() {
       const drivers = data.drivers;
 
       socket.on("connect", () => {
-        Alert.alert("Connected");
         const newBookingRequest: CreateBookingRequest = {
           customer_id: "",
           driver_id: "1",
           end_lat: parseFloat(lat) || 0,
           end_long: parseFloat(long) || 0,
-          start_lag: origin?.coords.latitude || 0,
+          start_lat: origin?.coords.latitude || 0,
           start_long: origin?.coords.longitude || 0,
           status: "",
         };
         socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
       });
-
-      setSelectedDriver(drivers?.[0]);
+      socket.on(
+        SocketEventBooking.BOOKING_WAITING_CUSTOMER,
+        (data: BookingStatusSocketResponse) => {
+          if ((data.status = "ACCEPTED")) {
+            setIsLookingForDriver(false);
+            setSelectedDriver(drivers?.[0]);
+          }
+          setRespBooking(data);
+        }
+      );
+      socket.on(
+        SocketEventBooking.BOOKING_DRIVER_LOCATION,
+        (data: LocationDriverSocket) => {
+          setSelectedDriver((prev) => {
+            if (prev?.driver_id === data.driver_id) {
+              return {
+                ...prev,
+                current_lat: data.lat,
+                current_long: data.long,
+              };
+            }
+            return prev;
+          });
+        }
+      );
     } catch (error: any) {
       Alert.alert("Error", error.message);
+      setIsLookingForDriver(false);
     }
   };
 
@@ -135,6 +163,21 @@ export default function PickUp() {
     return (
       <XStack position="absolute" bottom={0} left={0} right={0}>
         <YStack flex={1} p="$2">
+          {isLookingForDriver ? (
+            <Card
+              flex={1}
+              justifyContent="center"
+              alignItems="center"
+              py="$3"
+              px="$4"
+              mb={insets.bottom + 8}
+            >
+              <XStack>
+                <Spinner size="small" />
+                <Text ml="$2">Looking for driver</Text>
+              </XStack>
+            </Card>
+          ) : null}
           <Card justifyContent="center" mb="$2" py="$3" px="$4">
             <XStack>
               <MapPin size="$1" />
@@ -153,21 +196,6 @@ export default function PickUp() {
               <Text>{formattedAddress}</Text>
             </XStack>
           </Card>
-          {isLookingForDriver ? (
-            <Card
-              flex={1}
-              justifyContent="center"
-              alignItems="center"
-              py="$3"
-              px="$4"
-              mb={insets.bottom + 8}
-            >
-              <XStack>
-                <Spinner size="small" />
-                <Text ml="$2">Looking for driver</Text>
-              </XStack>
-            </Card>
-          ) : null}
           {selectedDriver?.driver_id ? (
             <Card
               flex={1}
@@ -218,31 +246,47 @@ export default function PickUp() {
             longitude: parseFloat(long) || 0,
           }}
         />
-        {selectedDriver?.driver_id ? (
-          <Marker
-            coordinate={{
-              latitude: selectedDriver?.current_lat || 0,
-              longitude: selectedDriver?.current_long || 0,
-            }}
-            image={require("../../assets/images/icons8-car-64.png")}
-          />
-        ) : null}
-
-        {origin ? (
+        {respBooking?.status === "STARTING" ? (
           <MapViewDirections
             origin={{
               latitude: origin?.coords.latitude || 0,
               longitude: origin?.coords.longitude || 0,
             }}
             destination={{
-              latitude: parseFloat(lat) || 0,
-              longitude: parseFloat(long) || 0,
+              latitude: selectedDriver?.current_lat || 0,
+              longitude: selectedDriver?.current_long || 0,
             }}
             apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
             directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
             strokeWidth={7}
             strokeColor="#00b0ff"
           />
+        ) : null}
+        {selectedDriver?.driver_id ? (
+          <>
+            <Marker
+              coordinate={{
+                latitude: selectedDriver?.current_lat || 0,
+                longitude: selectedDriver?.current_long || 0,
+              }}
+              image={require("../../assets/images/icons8-car-64.png")}
+            />
+
+            <MapViewDirections
+              origin={{
+                latitude: origin?.coords.latitude || 0,
+                longitude: origin?.coords.longitude || 0,
+              }}
+              destination={{
+                latitude: selectedDriver?.current_lat || 0,
+                longitude: selectedDriver?.current_long || 0,
+              }}
+              apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
+              directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
+              strokeWidth={7}
+              strokeColor="#00b0ff"
+            />
+          </>
         ) : null}
       </MapContainer>
 
