@@ -1,10 +1,16 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext, useCallback } from "react";
 import { authMobile } from "utils/firebase/mobile";
-import type { User } from "firebase/auth";
+import type { User, ParsedToken } from "firebase/auth";
 import { AuthWithFirebase } from "utils/firebase/provider";
-import { setToken } from "../services/initClient"
-import { whoami } from "../services/usermgmt/user"
+import { setToken } from "../services/initClient";
+import { whoami } from "../services/usermgmt/user";
 import { Alert } from "react-native";
+
+interface CustomClaims extends ParsedToken {
+  customer_id: string;
+  db_user_id: string;
+  driver_id: string;
+}
 
 type AuthContextType = {
   signIn: AuthWithFirebase["signIn"];
@@ -13,6 +19,7 @@ type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  claims: CustomClaims | null;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -42,6 +49,9 @@ export function SessionProvider(props: {
   const [isLoading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [claims, setClaims] = useState<CustomClaims | null>(null);
+
+  const checkAuth = useCallback(async () => {}, []);
 
   useEffect(() => {
     (async () => {
@@ -52,10 +62,16 @@ export function SessionProvider(props: {
           setIsAuthenticated(true);
           console.log("User is authenticated", isAuthenticated);
           const user = authMobile.getUser();
-          setUser(user);
           console.log("uid: ", user?.uid);
+         
           const token = await user?.getIdToken();
+          console.log("token: ", token);
           setToken(token || "");
+
+          const getIdTokenResult = await user?.getIdTokenResult();
+          const claims = getIdTokenResult?.claims as CustomClaims
+          setClaims(claims);
+          console.log("customer_id: ", claims.customer_id);
           await whoami();
         }
       } catch (error: any) {
@@ -98,9 +114,11 @@ export function SessionProvider(props: {
         },
         signInWithCustomToken: async (token: string) => {
           try {
-            const userCredential = await authMobile.signInWithCustomToken(token);
+            const userCredential = await authMobile.signInWithCustomToken(
+              token
+            );
             setIsAuthenticated(true);
-            return userCredential
+            return userCredential;
           } catch (error) {
             setIsAuthenticated(false);
             console.error(error);
@@ -110,7 +128,8 @@ export function SessionProvider(props: {
 
         user,
         isLoading,
-        isAuthenticated
+        isAuthenticated,
+        claims,
       }}
     >
       {props.children}

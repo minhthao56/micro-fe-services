@@ -5,8 +5,14 @@ import (
 	"database/sql"
 )
 
+type UserEntity struct {
+	UserID     string
+	DriverID   string
+	CustomerID string
+}
+
 type UserRepository interface {
-	GetUserByUID(ctx context.Context, uid string) (string, error)
+	GetByUIDWithUserGroup(ctx context.Context, firebaseUID string, userGroup string) (UserEntity, error)
 }
 
 type UserRepositoryImpl struct {
@@ -17,22 +23,37 @@ func NewUserRepository(db *sql.DB) UserRepository {
 	return &UserRepositoryImpl{db: db}
 }
 
-func (u *UserRepositoryImpl) GetUserByUID(ctx context.Context, firebaseUID string) (string, error) {
-	var userID string
-	err := u.db.QueryRow("SELECT user_id FROM users WHERE firebase_uid = $1", firebaseUID).
-		Scan(&userID)
-	if err != nil {
-		return "", err
-	}
-	return userID, nil
-}
+func (u *UserRepositoryImpl) GetByUIDWithUserGroup(ctx context.Context, firebaseUID string, userGroup string) (UserEntity, error) {
 
-func (u *UserRepositoryImpl) GetByUIDWithUserGroup(ctx context.Context, firebaseUID string, userGroup string) (string, error) {
+	var userEntity UserEntity = UserEntity{}
+
 	var userID string
 	err := u.db.QueryRow("SELECT user_id FROM users WHERE firebase_uid = $1 AND user_group = $2", firebaseUID, userGroup).
 		Scan(&userID)
 	if err != nil {
-		return "", err
+		return userEntity, err
 	}
-	return userID, nil
+
+	userEntity.UserID = userID
+
+	if userGroup == "DRIVER_GROUP" {
+		var driverID string
+		err := u.db.QueryRow("SELECT driver_id FROM drivers WHERE user_id = $1", userID).
+			Scan(&driverID)
+		if err != nil {
+			return userEntity, err
+		}
+		userEntity.DriverID = driverID
+	}
+	if userGroup == "CUSTOMER_GROUP" {
+		var customerID string
+		err := u.db.QueryRow("SELECT customer_id FROM customers WHERE user_id = $1", userID).
+			Scan(&customerID)
+		if err != nil {
+			return userEntity, err
+		}
+		userEntity.CustomerID = customerID
+	}
+
+	return userEntity, nil
 }

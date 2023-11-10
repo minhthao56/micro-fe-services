@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Marker } from "react-native-maps";
 import { XStack, Button, YStack, Spinner, Dialog } from "tamagui";
 import { Power } from "@tamagui/lucide-icons";
@@ -15,27 +15,40 @@ import {
   NewBookingSocketRequest,
 } from "schema/socket/booking";
 
-// import { getAddressByLatLng } from "../../services/goong/geocoding";
+import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { socket } from "../../services/communicate/client";
 import { DialogInstance } from "../../components/DialogInstance";
 import { intervalUpdate } from "../../utils/time";
+import { createBooking, updateBooking } from "../../services/booking/booking";
+import { updateLocation, updateStatus } from "../../services/booking/driver";
+import { useSession } from "../../providers/SessionProvider";
 
-type STATUS = "PICK_UP" | "START_TRIP" | "FINISH_TRIP" | "NOT_YET";
+interface NewBookingSocketRequestWithAddress extends NewBookingSocketRequest {
+  address: string;
+}
+
+interface BookingStatusSocketResponseWithBookingId
+  extends BookingStatusSocketResponse {
+  booking_id: string;
+}
 
 export default function TabOneScreen() {
   const [location, setLocation] = useState<Location.LocationObject>();
-  const [errorMsg, setErrorMsg] = useState("");
   const [connected, setConnected] = useState(socket.connected);
   const [waitingConnect, setWaitingConnect] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const [reqBooking, setReqBooking] = useState<NewBookingSocketRequest>();
-  const [status, setStatus] = useState<STATUS>("NOT_YET");
+  const [reqBooking, setReqBooking] =
+    useState<NewBookingSocketRequestWithAddress>();
+  const [respBooking, setRespBooking] =
+    useState<BookingStatusSocketResponseWithBookingId>();
+  const session = useSession();
+
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
+        Alert.alert("Permission to access location was denied");
         return;
       }
 
@@ -46,15 +59,56 @@ export default function TabOneScreen() {
         location = await Location.getCurrentPositionAsync({});
         await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
       }
-
-      // const address = await getAddressByLatLng(
-      //   location.coords.latitude,
-      //   location.coords.longitude
-      // );
-      // setAddress(address.results?.[0]?.formatted_address);
       setLocation(location);
     })();
   }, []);
+
+
+  useEffect(() => {
+    const unsubscribe = intervalUpdate(async () => {
+      const location = await Location.getCurrentPositionAsync({});
+      const stringLocation = await AsyncStorage.getItem("currentLocation");
+      let currentLocation = JSON.parse(stringLocation || "{}");
+
+      if (
+        currentLocation.coords.latitude !== location.coords.latitude ||
+        currentLocation.coords.longitude !== location.coords.longitude
+      ) {
+        await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
+        await updateLocation({
+          driver_id: session?.claims?.driver_id || "",
+          current_lat: location.coords.latitude,
+          current_long: location.coords.longitude,
+        });
+
+        setLocation(location);
+        console.log({reqBooking});
+        if (reqBooking?.customer.socket_id) {
+          const dataDriverLocation: LocationDriverSocket = {
+            driver_id: reqBooking?.driver_id || "",
+            lat: location.coords.latitude,
+            long: location.coords.longitude,
+            customer_socket_id: reqBooking?.customer.socket_id,
+          };
+          socket.emit(
+            SocketEventBooking.BOOKING_DRIVER_LOCATION,
+            dataDriverLocation
+          );
+        }
+      }
+    }, 5000);
+
+    return () => {
+      unsubscribe();
+    };
+
+  }, [reqBooking]);
+
+
+  const handleCompleteBooking = useCallback(async () => {}, []);
+
+  // Clear all
+
 
   if (!location) {
     return (
@@ -64,69 +118,64 @@ export default function TabOneScreen() {
     );
   }
 
-  const handleAcceptBooking = () => {
-    setShowDialog(false);
-    setStatus("PICK_UP");
-    const resp = {
-      ...reqBooking,
-      status: "ACCEPTED",
-    } as BookingStatusSocketResponse;
+  const handleAcceptBooking = async () => {
+    try {
+      setShowDialog(false);
+      const resp = {
+        ...reqBooking,
+        customer_id: String(reqBooking?.customer.customer_id) || "",
+        status: "ACCEPTED",
+      } as BookingStatusSocketResponse;
 
-    socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
+      const { booking_id } = await createBooking(resp);
+      setRespBooking({
+        ...resp,
+        booking_id: booking_id || "",
+      });
+
+      await updateStatus({driver_id: session?.claims?.driver_id || "", status: "BUSY" });
+
+      socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    }
   };
 
-  function handleConnection() {
-    let fnUnsubscribe: () => void = () => {};
+  const onConnect = async () => {
+    setWaitingConnect(false);
+    setConnected(true);
+    Alert.alert("Connected");
+    await updateStatus({
+      driver_id: session?.claims?.driver_id || "",
+      status: "ONLINE",
+    });
+  };
 
-    function onConnect() {
-      setWaitingConnect(false);
-      setConnected(true);
-      Alert.alert("Connected");
-    }
+  const onBookingWaitingDriver = async (data: NewBookingSocketRequest) => {
+    const addr = await getAddressByLatLng(data.start_lat, data.start_long);
+    const req: NewBookingSocketRequestWithAddress = {
+      ...data,
+      address: addr.results?.[0]?.formatted_address || "",
+    };
+    setReqBooking(req);
+    setShowDialog(true);
+  };
 
-    function onBookingWaitingDriver(data: NewBookingSocketRequest) {
-      setReqBooking(data);
-      setShowDialog(true);
-    }
+  const onDisconnect = async () => {
+    setConnected(false);
+    Alert.alert("Disconnected");
+    await updateStatus({
+      driver_id: session?.claims?.driver_id || "",
+      status: "OFFLINE",
+    });
+  };
 
-    function onDisconnect() {
-      setConnected(false);
-      Alert.alert("Disconnected");
-    }
-
+  const handleConnection = async () => {
     if (connected) {
       socket.disconnect();
       socket.removeAllListeners();
-      fnUnsubscribe();
+      setConnected(false);
     } else {
-      const unsubscribe = intervalUpdate(async () => {
-        const location = await Location.getCurrentPositionAsync({});
-        const stringLocation = await AsyncStorage.getItem("currentLocation");
-        let currentLocation = JSON.parse(stringLocation || "{}");
-        if (
-          currentLocation.coords.latitude !== location.coords.latitude ||
-          currentLocation.coords.longitude !== location.coords.longitude
-        ) {
-          await AsyncStorage.setItem(
-            "currentLocation",
-            JSON.stringify(location)
-          );
-          setLocation(location);
-          if (reqBooking?.customer.socket_id) {
-            const dataDriverLocation: LocationDriverSocket = {
-              driver_id: reqBooking?.driver_id || "",
-              lat: location.coords.latitude,
-              long: location.coords.longitude,
-              client_socket_id: reqBooking?.customer.socket_id,
-            };
-            socket.emit(
-              SocketEventBooking.BOOKING_DRIVER_LOCATION,
-              dataDriverLocation
-            );
-          }
-        }
-      }, 5000);
-      fnUnsubscribe = unsubscribe;
       setWaitingConnect(true);
       socket.connect();
       socket.on("connect", onConnect);
@@ -136,7 +185,64 @@ export default function TabOneScreen() {
       );
       socket.on("disconnect", onDisconnect);
     }
-  }
+  };
+
+  const renderButtonStatus = () => {
+    if (respBooking?.status === "ACCEPTED") {
+      return (
+        <Button
+          mb="$4"
+          onPress={async () => {
+            try {
+              const resp: BookingStatusSocketResponseWithBookingId = {
+                ...respBooking,
+                driver_id: session?.claims?.driver_id || "",
+                status: "STARTING",
+              };
+              await updateBooking(resp);
+              setRespBooking(resp);
+              socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
+            } catch (error: any) {
+              Alert.alert("Error", error.message);
+            }
+          }}
+        >
+          Pick Up Customer
+        </Button>
+      );
+    }
+    if (respBooking?.status === "STARTING") {
+      return (
+        <Button
+          mb="$4"
+          onPress={async () => {
+            try {
+              const resp: BookingStatusSocketResponseWithBookingId = {
+                ...respBooking,
+                driver_id: session?.claims?.driver_id || "",
+                status: "COMPLETED",
+              };
+              await updateBooking(resp);
+              setRespBooking(resp);
+              socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
+            } catch (error: any) {
+              Alert.alert("Error", error.message);
+            }
+          }}
+        >
+          Drop Off Customer
+        </Button>
+      );
+    }
+    return (
+      <Button
+        mb="$4"
+        icon={waitingConnect ? <Spinner /> : Power}
+        bg={connected ? "$red10Dark" : "$green10Dark"}
+        onPress={handleConnection}
+      >{`Turn ${connected ? "Off" : "On"}`}</Button>
+    );
+  };
 
   const renderBottom = () => {
     return (
@@ -147,12 +253,7 @@ export default function TabOneScreen() {
         right={0}
         justifyContent="center"
       >
-        <Button
-          mb="$4"
-          icon={waitingConnect ? <Spinner /> : Power}
-          bg={connected ? "$red10Dark" : "$green10Dark"}
-          onPress={handleConnection}
-        >{`Turn ${connected ? "Off" : "On"}`}</Button>
+        {renderButtonStatus()}
       </XStack>
     );
   };
@@ -178,7 +279,7 @@ export default function TabOneScreen() {
           pinColor="blue"
         />
 
-        {status === "PICK_UP" ? (
+        {respBooking?.status === "ACCEPTED" ? (
           <>
             <Marker
               coordinate={{
@@ -203,7 +304,7 @@ export default function TabOneScreen() {
           </>
         ) : null}
 
-        {status === "START_TRIP" ? (
+        {respBooking?.status === "STARTING" ? (
           <>
             <Marker
               coordinate={{
@@ -230,20 +331,21 @@ export default function TabOneScreen() {
               }}
               apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
               directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
-              strokeWidth={7}
+              strokeWidth={5}
               strokeColor="#00b0ff"
             />
           </>
         ) : null}
       </MapContainer>
+      {/* Dialog */}
       <DialogInstance
         open={showDialog}
         onOpenChange={(open) => setShowDialog(open)}
         title="New Booking"
       >
         <Dialog.Description>
-          You have new booking from customer at 123 Nguyen Trai, Thanh Xuan, Ha
-          Noi. Phone number is 0123456789.
+          {`You have new booking from customer at ${reqBooking?.address}.
+            Phone number is ${reqBooking?.customer.phone_number}.`}
         </Dialog.Description>
         <Dialog.Description>
           Do you want to accept this booking?
@@ -262,6 +364,7 @@ export default function TabOneScreen() {
           </Button>
         </XStack>
       </DialogInstance>
+      {/* Dialog */}
     </>
   );
 }

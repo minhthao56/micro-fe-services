@@ -20,5 +20,5 @@ export interface LocationDriverSocket {
   driver_id: string
   lat: number
   long: number,
-  client_socket_id: string
+  customer_socket_id: string
 }

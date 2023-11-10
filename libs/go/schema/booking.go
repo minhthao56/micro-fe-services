@@ -9,3 +9,11 @@ type CreateBookingRequest struct {
 	EndLat     float64 `json:"end_lat" required:"true"`
 	Status     string  `json:"status" required:"true"`
 }
+type CreateBookingResponse struct {
+	BookingID string `json:"booking_id"`
+}
+
+type UpdateBookingRequest struct {
+	BookingID string `json:"booking_id" required:"true"`
+	Status    string `json:"status" required:"true"`
+}

@@ -28,5 +28,9 @@ func GetBookingSchema() map[string]interface{} {
 		"VehicleType":              VehicleType{},
 		"GetNearbyDriversRequest":  GetNearbyDriversRequest{},
 		"GetNearbyDriversResponse": GetNearbyDriversResponse{},
+		"CreateBookingResponse":    CreateBookingResponse{},
+		"UpdateBookingRequest":     UpdateBookingRequest{},
+		"UpdateLocationRequest":    UpdateLocationRequest{},
+		"UpdateStatusRequest":      UpdateStatusRequest{},
 	}
 }

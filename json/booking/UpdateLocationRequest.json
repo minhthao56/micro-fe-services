@@ -1,0 +1,19 @@
+{
+ "required": [
+  "driver_id",
+  "current_long",
+  "current_lat"
+ ],
+ "properties": {
+  "current_lat": {
+   "type": "number"
+  },
+  "current_long": {
+   "type": "number"
+  },
+  "driver_id": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

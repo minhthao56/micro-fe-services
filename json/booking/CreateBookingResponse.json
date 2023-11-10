@@ -1,0 +1,8 @@
+{
+ "properties": {
+  "booking_id": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

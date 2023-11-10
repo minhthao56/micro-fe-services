@@ -12,4 +12,5 @@ func NewRouterDriver(r *gin.RouterGroup, conn *sql.DB) {
 	r.GET("/driver/nearby", controller.FindNearByDriver)
 	r.POST("/driver/update-location", controller.UpdateLocation)
 	r.GET("/drivers", controller.GetDrivers)
+	r.POST("/driver/update-status", controller.UpdateStatus)
 }

@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { MapPin, Car, Pin } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
@@ -26,8 +26,6 @@ import { getVehicleTypes } from "../../services/booking/vehicle-type";
 import { socket } from "../../services/communicate/client";
 import { View } from "../../components/Themed";
 
-// import { createBooking } from "../../services/booking/booking"
-
 export default function PickUp() {
   const { lat, long, formattedAddress } = useLocalSearchParams<ParamsAddress>();
   const [locationPickUp, setLocationPickUp] =
@@ -36,7 +34,7 @@ export default function PickUp() {
   const [address, setAddress] = useState("");
   const [origin, setOrigin] = useState<Location.LocationObject>();
   const [position, setPosition] = useState(0);
-  const [open, setOpen] = useState(false);
+  const [openSheet, setOpenSheet] = useState(false);
   const [vehicles, setVehicles] = useState<SchemaVehicleType[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<SchemaVehicleType>();
   const [selectedDriver, setSelectedDriver] =
@@ -44,6 +42,7 @@ export default function PickUp() {
 
   const [isLookingForDriver, setIsLookingForDriver] = useState(false);
   const [respBooking, setRespBooking] = useState<BookingStatusSocketResponse>();
+  const [endPickUp, setEndPickUp] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -65,14 +64,36 @@ export default function PickUp() {
       setVehicles(vehicleTypes.vehicle_types || []);
       setSelectedVehicle(vehicleTypes?.vehicle_types?.[0]);
     })();
+
+    return () => {
+      socket.removeAllListeners();
+      socket.disconnect();
+    };
   }, []);
+
+  useEffect(() => {
+    if (respBooking?.status === "COMPLETED") {
+      Alert.alert("Booking completed", "Thank you for using our service", [
+        {
+          text: "OK",
+          onPress: () => {
+            router.back();
+          },
+        },
+      ]);
+    }
+  }, [respBooking?.status]);
 
   const handlePickUp = async () => {
     setOrigin(locationPickUp);
-    setOpen(true);
+    setOpenSheet(true);
+    setEndPickUp(true);
   };
 
   const onRegionChangeComplete = async (region: Region, _: Details) => {
+    if (endPickUp) {
+      return;
+    }
     setLocationPickUp({
       coords: {
         latitude: region.latitude,
@@ -94,8 +115,7 @@ export default function PickUp() {
     if (socket.disconnected) {
       socket.connect();
     }
-
-    setOpen(false);
+    setOpenSheet(false);
     try {
       setIsLookingForDriver(true);
       const data = await findNearByDriver({
@@ -106,12 +126,12 @@ export default function PickUp() {
         Alert.alert("No driver found");
         return;
       }
-      const drivers = data.drivers;
+      const driver = data.drivers?.[0];
 
       socket.on("connect", () => {
         const newBookingRequest: CreateBookingRequest = {
           customer_id: "",
-          driver_id: "1",
+          driver_id: driver?.driver_id || "",
           end_lat: parseFloat(lat) || 0,
           end_long: parseFloat(long) || 0,
           start_lat: origin?.coords.latitude || 0,
@@ -122,18 +142,27 @@ export default function PickUp() {
       });
       socket.on(
         SocketEventBooking.BOOKING_WAITING_CUSTOMER,
-        (data: BookingStatusSocketResponse) => {
-          if ((data.status = "ACCEPTED")) {
+        async (data: BookingStatusSocketResponse) => {
+          if (data.status === "ACCEPTED") {
             setIsLookingForDriver(false);
-            setSelectedDriver(drivers?.[0]);
+            setSelectedDriver(driver);
           }
           setRespBooking(data);
         }
       );
+
+      // update location of driver
       socket.on(
         SocketEventBooking.BOOKING_DRIVER_LOCATION,
         (data: LocationDriverSocket) => {
           setSelectedDriver((prev) => {
+            if (
+              prev?.current_lat === data.lat &&
+              prev?.current_long === data.long
+            ) {
+              return prev;
+            }
+
             if (prev?.driver_id === data.driver_id) {
               return {
                 ...prev,
@@ -233,6 +262,7 @@ export default function PickUp() {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
+        showFakePin={!endPickUp}
       >
         <Marker
           coordinate={{
@@ -240,36 +270,47 @@ export default function PickUp() {
             longitude: locationPickUp?.coords.longitude || 0,
           }}
         />
-        <Marker
-          coordinate={{
-            latitude: parseFloat(lat) || 0,
-            longitude: parseFloat(long) || 0,
-          }}
-        />
+
         {respBooking?.status === "STARTING" ? (
-          <MapViewDirections
-            origin={{
-              latitude: origin?.coords.latitude || 0,
-              longitude: origin?.coords.longitude || 0,
-            }}
-            destination={{
-              latitude: selectedDriver?.current_lat || 0,
-              longitude: selectedDriver?.current_long || 0,
-            }}
-            apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
-            directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
-            strokeWidth={7}
-            strokeColor="#00b0ff"
-          />
+          <>
+            <Marker
+              coordinate={{
+                latitude: parseFloat(lat) || 0,
+                longitude: parseFloat(long) || 0,
+              }}
+              pinColor="green"
+            />
+            <Marker
+              coordinate={{
+                latitude: selectedDriver?.current_lat || 0,
+                longitude: selectedDriver?.current_long || 0,
+              }}
+              pinColor="blue"
+            />
+            <MapViewDirections
+              origin={{
+                latitude: origin?.coords.latitude || 0,
+                longitude: origin?.coords.longitude || 0,
+              }}
+              destination={{
+                latitude: parseFloat(lat) || 0,
+                longitude: parseFloat(long) || 0,
+              }}
+              apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
+              directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
+              strokeWidth={5}
+              strokeColor="#00b0ff"
+            />
+          </>
         ) : null}
-        {selectedDriver?.driver_id ? (
+        {respBooking?.status === "ACCEPTED" ? (
           <>
             <Marker
               coordinate={{
                 latitude: selectedDriver?.current_lat || 0,
                 longitude: selectedDriver?.current_long || 0,
               }}
-              image={require("../../assets/images/icons8-car-64.png")}
+              pinColor="blue"
             />
 
             <MapViewDirections
@@ -283,7 +324,7 @@ export default function PickUp() {
               }}
               apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
               directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
-              strokeWidth={7}
+              strokeWidth={5}
               strokeColor="#00b0ff"
             />
           </>
@@ -291,10 +332,10 @@ export default function PickUp() {
       </MapContainer>
 
       <Sheet
-        forceRemoveScrollEnabled={open}
+        forceRemoveScrollEnabled={openSheet}
         modal={true}
-        open={open}
-        onOpenChange={setOpen}
+        open={openSheet}
+        onOpenChange={setOpenSheet}
         snapPoints={[50, 50]}
         dismissOnSnapToBottom
         position={position}

@@ -9,5 +9,6 @@ import (
 
 func NewRouterBooking(r *gin.RouterGroup, conn *sql.DB) {
 	controller := controller.NewBookingController(conn)
-	r.POST("/booking/create", controller.CreateBooking)
+	r.POST("/create", controller.CreateBooking)
+	r.POST("/update", controller.UpdateBooking)
 }

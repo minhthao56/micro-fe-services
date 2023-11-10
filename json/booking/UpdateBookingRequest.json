@@ -1,0 +1,15 @@
+{
+ "required": [
+  "booking_id",
+  "status"
+ ],
+ "properties": {
+  "booking_id": {
+   "type": "string"
+  },
+  "status": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

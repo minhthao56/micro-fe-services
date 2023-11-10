@@ -1,0 +1,15 @@
+{
+ "required": [
+  "driver_id",
+  "status"
+ ],
+ "properties": {
+  "driver_id": {
+   "type": "string"
+  },
+  "status": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

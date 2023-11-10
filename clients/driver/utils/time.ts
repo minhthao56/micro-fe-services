@@ -1,5 +1,5 @@
 
-export function intervalUpdate( cb:() => void, interval: number,) {
+export const  intervalUpdate = ( cb:() => void, interval: number,) =>{
   let intervalId: NodeJS.Timeout | null = null;
   const startInterval = () => {
     intervalId = setInterval(cb, interval);

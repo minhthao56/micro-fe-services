@@ -54,3 +54,14 @@ type GetNearbyDriversRequest struct {
 type GetNearbyDriversResponse struct {
 	Drivers []DriverWithDistance `json:"drivers" required:"true"`
 }
+
+type UpdateLocationRequest struct {
+	DriverID    string  `json:"driver_id" required:"true"`
+	CurrentLong float64 `json:"current_long" required:"true"`
+	CurrentLat  float64 `json:"current_lat" required:"true"`
+}
+
+type UpdateStatusRequest struct {
+	DriverID string `json:"driver_id" required:"true"`
+	Status   string `json:"status" required:"true"`
+}

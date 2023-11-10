@@ -18,7 +18,6 @@ export function registerBookingHandlers(
 ) {
   socket.on("booking:new", async (data: CreateBookingRequest) => {
     const { driver_id } = data;
-    console.log("booking:new", data);
     const result = await db.query(
       `
     SELECT socket_id FROM drivers AS d JOIN users AS u ON d.user_id = u.user_id
@@ -30,7 +29,6 @@ export function registerBookingHandlers(
       console.log("Cannot find driver");
       return;
     }
-    console.log({ result });
 
     const { socket_id } = result.rows[0];
 
@@ -62,17 +60,18 @@ export function registerBookingHandlers(
     io.sockets.to(socket_id).emit("booking:waiting:driver", req);
   });
 
-  socket.on("booking:status", async (data: BookingStatusSocketResponse) => {
+  socket.on("booking:status", (data: BookingStatusSocketResponse) => {
     const { customer } = data;
     io.sockets
       .to(customer.socket_id)
       .emit("booking:waiting:customer", data);
   });
 
-  socket.on("booking:driver:location", async (data: LocationDriverSocket) => {
-    if (data.client_socket_id) {
+  socket.on("booking:driver:location", (data: LocationDriverSocket) => {
+    console.log({data});
+    if (data.customer_socket_id) {
       io.sockets
-        .to(data.client_socket_id)
+        .to(data.customer_socket_id)
         .emit("booking:driver:location", data);
     }
   });

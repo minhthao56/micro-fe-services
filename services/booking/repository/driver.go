@@ -12,6 +12,8 @@ type DriverRepository interface {
 	GetDriver(ctx context.Context, driver_id string) (schema.Driver, error)
 	CountDriver(ctx context.Context, req schema.GetDriversRequest) (int, error)
 	GetNearbyDrivers(ctx context.Context, req schema.GetNearbyDriversRequest) ([]schema.DriverWithDistance, error)
+	UpdateLocation(ctx context.Context, req schema.UpdateLocationRequest) error
+	UpdateStatus(ctx context.Context, req schema.UpdateStatusRequest) error
 }
 
 type DriverRepositoryImpl struct {
@@ -135,7 +137,7 @@ func (c *DriverRepositoryImpl) GetNearbyDrivers(ctx context.Context, req schema.
 			ST_MakePoint($1, $2)::geography,
 			ST_MakePoint(d.current_long, d.current_lat)::geography,
 			3000
-		);
+		) AND d.status = 'ONLINE';
 	`, req.RequestLong, req.RequestLat,
 	)
 	if e != nil {
@@ -164,4 +166,44 @@ func (c *DriverRepositoryImpl) GetNearbyDrivers(ctx context.Context, req schema.
 		drivers = append(drivers, driver)
 	}
 	return drivers, nil
+}
+
+func (c *DriverRepositoryImpl) UpdateLocation(ctx context.Context, req schema.UpdateLocationRequest) error {
+	result, e := c.db.Exec(`
+		UPDATE drivers
+		SET current_long = $1, current_lat = $2
+		WHERE driver_id = $3;
+	`, req.CurrentLong, req.CurrentLat, req.DriverID,
+	)
+	if e != nil {
+		return e
+	}
+	r, e := result.RowsAffected()
+	if e != nil {
+		return e
+	}
+	if r == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+func (c *DriverRepositoryImpl) UpdateStatus(ctx context.Context, req schema.UpdateStatusRequest) error {
+	result, e := c.db.Exec(`
+		UPDATE drivers
+		SET status = $1
+		WHERE driver_id = $2;
+	`, req.Status, req.DriverID,
+	)
+	if e != nil {
+		return e
+	}
+	r, e := result.RowsAffected()
+	if e != nil {
+		return e
+	}
+	if r == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
 }

@@ -19,10 +19,12 @@ type AuthController interface {
 type AuthControllerImpl struct {
 	FirebaseManager auth.FirebaseManager
 	db              *sql.DB
+	userRepo        repository.UserRepository
 }
 
 func NewAuthController(client auth.FirebaseManager, db *sql.DB) AuthController {
-	return &AuthControllerImpl{FirebaseManager: client, db: db}
+	userRepo := repository.NewUserRepository(db)
+	return &AuthControllerImpl{FirebaseManager: client, db: db, userRepo: userRepo}
 }
 
 func (a *AuthControllerImpl) CreateCustomTokens(c *gin.Context) {
@@ -48,8 +50,7 @@ func (a *AuthControllerImpl) CreateCustomTokens(c *gin.Context) {
 		})
 	}
 
-	userRepo := repository.NewUserRepository(a.db)
-	userID, err := userRepo.GetUserByUID(c, authToken.UID)
+	user, err := a.userRepo.GetByUIDWithUserGroup(c, authToken.UID, customTokenRequest.UserGroup)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "error getting user by uid",
@@ -58,8 +59,10 @@ func (a *AuthControllerImpl) CreateCustomTokens(c *gin.Context) {
 	}
 
 	claims := map[string]interface{}{
-		"user_group": customTokenRequest.UserGroup,
-		"db_user_id": userID,
+		"user_group":  customTokenRequest.UserGroup,
+		"db_user_id":  user.UserID,
+		"driver_id":   user.DriverID,
+		"customer_id": user.CustomerID,
 	}
 	token, err := a.FirebaseManager.CustomTokenWithClaims(c, authToken.UID, claims)
 	if err != nil {

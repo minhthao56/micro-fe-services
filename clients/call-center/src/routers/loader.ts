@@ -13,6 +13,7 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
       return redirect("/login?" + params.toString());
     }
     const token = await authWeb.getUser()?.getIdToken();
+    console.log( {token });
     if (token) {
       setToken(token);
     }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"database/sql"
+	"encoding/json"
 	"io"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ type DriverController interface {
 	FindNearByDriver(c *gin.Context)
 	UpdateLocation(c *gin.Context)
 	GetDrivers(c *gin.Context)
+	UpdateStatus(c *gin.Context)
 }
 
 type DriverControllerImpl struct {
@@ -68,7 +70,23 @@ func (u *DriverControllerImpl) FindNearByDriver(c *gin.Context) {
 }
 
 func (u *DriverControllerImpl) UpdateLocation(c *gin.Context) {
-	_, err := io.ReadAll(c.Request.Body)
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+
+	var request schema.UpdateLocationRequest
+	if err := json.Unmarshal(body, &request); err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schema.StatusResponse{
@@ -78,8 +96,17 @@ func (u *DriverControllerImpl) UpdateLocation(c *gin.Context) {
 		return
 	}
 
+	err = u.repoDriver.UpdateLocation(c, request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, schema.StatusResponse{
-		Message: "success",
+		Message: "Success",
 		Status:  http.StatusOK,
 	})
 
@@ -128,5 +155,47 @@ func (u *DriverControllerImpl) GetDrivers(c *gin.Context) {
 		Limit:   request.Limit,
 		Offset:  request.Offset,
 		Total:   total,
+	})
+}
+
+func (u *DriverControllerImpl) UpdateStatus(c *gin.Context) {
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+
+	var request schema.UpdateStatusRequest
+	if err := json.Unmarshal(body, &request); err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+
+	err = u.repoDriver.UpdateStatus(c, request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, schema.StatusResponse{
+		Message: "Success",
+		Status:  http.StatusOK,
 	})
 }

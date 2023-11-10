@@ -17,6 +17,7 @@ func main() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(middleware.ValidateJWT())
+	r.Use(gin.Logger())
 	routerGroup := r.Group("/booking")
 	router.NewRouterCustomer(routerGroup, conn)
 	router.NewRouterBooking(routerGroup, conn)
