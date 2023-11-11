@@ -24,7 +24,8 @@ import { updateLocation, updateStatus } from "../../services/booking/driver";
 import { useSession } from "../../providers/SessionProvider";
 
 interface NewBookingSocketRequestWithAddress extends NewBookingSocketRequest {
-  address: string;
+  start_address: string;
+  end_address: string;
 }
 
 interface BookingStatusSocketResponseWithBookingId
@@ -32,7 +33,7 @@ interface BookingStatusSocketResponseWithBookingId
   booking_id: string;
 }
 
-export default function TabOneScreen() {
+export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject>();
   const [connected, setConnected] = useState(socket.connected);
   const [waitingConnect, setWaitingConnect] = useState(false);
@@ -82,7 +83,6 @@ export default function TabOneScreen() {
         });
 
         setLocation(location);
-        console.log({reqBooking});
         if (reqBooking?.customer.socket_id) {
           const dataDriverLocation: LocationDriverSocket = {
             driver_id: reqBooking?.driver_id || "",
@@ -102,12 +102,17 @@ export default function TabOneScreen() {
       unsubscribe();
     };
 
-  }, [reqBooking]);
+  }, [reqBooking?.customer.socket_id]);
 
 
-  const handleCompleteBooking = useCallback(async () => {}, []);
 
-  // Clear all
+  useEffect(() => {
+    if (respBooking?.status === "COMPLETED"){
+      setReqBooking(undefined);
+      setRespBooking(undefined);
+      Alert.alert("Done Trip");
+    }
+  }, [respBooking?.status]);
 
 
   if (!location) {
@@ -152,10 +157,13 @@ export default function TabOneScreen() {
   };
 
   const onBookingWaitingDriver = async (data: NewBookingSocketRequest) => {
-    const addr = await getAddressByLatLng(data.start_lat, data.start_long);
+    const startAddr = await getAddressByLatLng(data.start_lat, data.start_long);
+    const endAddr = await getAddressByLatLng(data.end_lat, data.end_lat);
+
     const req: NewBookingSocketRequestWithAddress = {
       ...data,
-      address: addr.results?.[0]?.formatted_address || "",
+      start_address: startAddr.results?.[0]?.formatted_address || "",
+      end_address: endAddr.results?.[0]?.formatted_address || "",
     };
     setReqBooking(req);
     setShowDialog(true);
@@ -344,7 +352,7 @@ export default function TabOneScreen() {
         title="New Booking"
       >
         <Dialog.Description>
-          {`You have new booking from customer at ${reqBooking?.address}.
+          {`You have new booking from customer at ${reqBooking?.start_address} to  ${reqBooking?.end_address}.
             Phone number is ${reqBooking?.customer.phone_number}.`}
         </Dialog.Description>
         <Dialog.Description>

@@ -18,7 +18,7 @@ import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { LocationCard } from "../../components/LocationCard";
 import { searchAddress } from "../../services/googleapis/place";
 
-export default function TabOneScreen() {
+export default function HomeScreen() {
   const [address, setAddress] = useState([]);
   const onChangeText = async (text: string) => {
     const address = await searchAddress(text);

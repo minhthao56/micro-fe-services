@@ -9,11 +9,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { MapContainer } from "tamagui-shared-ui";
+import { Alert } from "react-native";
 
 
 export default function CurrentPage() {
   const [location, setLocation] = useState<Location.LocationObject>();
-  const [errorMsg, setErrorMsg] = useState("");
   const [address, setAddress] = useState("");
   const insets = useSafeAreaInsets();
 
@@ -21,7 +21,7 @@ export default function CurrentPage() {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
+        Alert.alert("Permission to access location was denied");
         return;
       }
 
@@ -41,9 +41,20 @@ export default function CurrentPage() {
       setLocation(location);
     })();
   }, []);
-  const onRegionChangeComplete = (region: Region, details: Details) => {
-    console.log(region);
-    console.log(details);
+
+  const onRegionChangeComplete = (region: Region, _: Details) => {
+    setLocation({
+      coords: {
+        latitude: region.latitude,
+        longitude: region.longitude,
+        altitude: null,
+        accuracy: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      },
+      timestamp: Date.now(),
+    })
   };
 
   if (!location) {

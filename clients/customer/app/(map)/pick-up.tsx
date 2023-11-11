@@ -3,7 +3,15 @@ import { MapPin, Car, Pin } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { Alert } from "react-native";
-import { XStack, Button, YStack, Text, Card, Spinner, Avatar } from "tamagui";
+import {
+  XStack,
+  Button,
+  YStack,
+  Text,
+  Card,
+  Spinner,
+  H3,
+} from "tamagui";
 import { Sheet } from "@tamagui/sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Details, Marker, Region } from "react-native-maps";
@@ -146,8 +154,12 @@ export default function PickUp() {
           if (data.status === "ACCEPTED") {
             setIsLookingForDriver(false);
             setSelectedDriver(driver);
+            setRespBooking(data);
           }
-          setRespBooking(data);
+          if (data.status === "REJECTED") {
+            setIsLookingForDriver(false);
+            Alert.alert("Booking rejected", "Please try again");
+          }
         }
       );
 
@@ -199,7 +211,6 @@ export default function PickUp() {
               alignItems="center"
               py="$3"
               px="$4"
-              mb={insets.bottom + 8}
             >
               <XStack>
                 <Spinner size="small" />
@@ -233,13 +244,19 @@ export default function PickUp() {
               px="$4"
               mb={insets.bottom + 8}
             >
+              <Card.Header padded>
+                <H3>Your Driver</H3>
+              </Card.Header>
               <Text>
-                Name:{" "}
-                {selectedDriver.last_name + " " + selectedDriver.first_name}
+                {`Name: ${
+                  selectedDriver.last_name + " " + selectedDriver.first_name
+                }`}
               </Text>
-              <Text>Phone Number: {selectedDriver.phone_number}</Text>
-              <Text>Email: {selectedDriver.email}</Text>
-              <Text>Distance: {selectedDriver.distance + " KM"}</Text>
+              <Text>{`Phone Number: ${selectedDriver.phone_number}`}</Text>
+              <Text>{`Email: ${selectedDriver.email}`}</Text>
+              <Text>{`Distance: ${Math.floor(
+                selectedDriver.distance / 1000
+              )} KM`}</Text>
             </Card>
           ) : (
             <Button mb={insets.bottom + 8} onPress={handlePickUp}>
