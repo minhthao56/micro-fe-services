@@ -46,7 +46,6 @@ export function registerBookingHandlers(
       return;
     }
 
-    console.log({ customers });
     const customer = customers.rows[0];
 
     const req: NewBookingSocketRequest = {
@@ -55,7 +54,6 @@ export function registerBookingHandlers(
       customer,
     };
 
-    console.log({ req });
 
     io.sockets.to(socket_id).emit("booking:waiting:driver", req);
   });

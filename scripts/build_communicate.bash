@@ -42,4 +42,4 @@ for srcPaths in libs/ts/schema/*; do
     cp -R "$srcPaths" "$SCHEMA_PATH"
 done
 
-cd tmp && yarn install --production=true
+cd tmp && yarn install --production=true && cd services/communicate && yarn build
