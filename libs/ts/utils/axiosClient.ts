@@ -23,8 +23,8 @@ export class Client implements IClient {
       timeout: 60000,
       params: {},
       headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
+        // "Content-Type": "application/json",
+        // "Accept": "application/json",
       }
     });
     this.baseURL = baseURLName;
@@ -52,6 +52,9 @@ export class Client implements IClient {
 
   setToken(token: string) {
     this.axiosInstance.defaults.headers.common["Authorization"] =  `Bearer ${token}`;
+  }
+  setBasicAuth(username: string, password: string) {
+    this.axiosInstance.defaults.headers.common["Authorization"] =  'Basic ' + btoa(username + ':' + password)
   }
   async post<T, R>(path: string, data: T) {
     const response = await this.axiosInstance.post<R>(path, data);

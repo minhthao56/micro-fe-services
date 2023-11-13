@@ -12,10 +12,6 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 
-import { useEffect } from "react";
-
-import { socketClient } from "../services/communicate/client";
-
 export default function CustomerPage() {
   const { isPending, error, data } = useQuery({
     queryKey: ["getCustomers"],
@@ -24,27 +20,6 @@ export default function CustomerPage() {
   });
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
-  useEffect(() => {
-    const socket = socketClient.getSocket();
-
-    socket.connect();
-
-    socket.on("connect", () => {
-      console.log("connect");
-    });
-
-    socket.on("data", () => {
-      console.log("data");
-    });
-
-    socket.on("disconnect", (reason) => {
-      console.log({reason});
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>{error.message}</div>;

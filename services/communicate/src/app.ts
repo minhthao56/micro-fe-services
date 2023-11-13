@@ -10,6 +10,8 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 import notiRouter from "./routers/notification";
 import phoneRouter from "./routers/phone";
+import phoneBooking from "./routers/phone-booking"
+
 import { firebaseApp } from "./firebase/init";
 import { TwilioService } from "./twilio/init";
 import { validateJWT, validateSocketJWT } from "./middleware/validate-jwt"
@@ -41,6 +43,7 @@ export async function startServer() {
     privateRouter.use(validateJWT);
     app.use("/communicate/private", privateRouter);
     privateRouter.use("/notification", notiRouter);
+    privateRouter.use("/phone-booking", phoneBooking);
 
     const publicRouter = Router();
     app.use("/communicate/public", publicRouter);

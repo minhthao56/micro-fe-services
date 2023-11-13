@@ -23,15 +23,15 @@ export default function PrivateLayout() {
   const isLoggingOut = fetcher.formData != null;
 
   return (
-    <div>
-      <>
-        <Navbar>
+    <>
+        <Navbar className="mb-6">
           <NavbarBrand>
             <p className="font-bold text-inherit">CALL CENTER</p>
           </NavbarBrand>
 
           <NavbarContent className="hidden sm:flex gap-4" justify="center">
-            <RouterNavLink to="/">Customers</RouterNavLink>
+            <RouterNavLink to="/">Phone Booking</RouterNavLink>
+            <RouterNavLink to="/customer">Customers</RouterNavLink>
             <RouterNavLink to="/driver">Drivers</RouterNavLink>
           </NavbarContent>
           <NavbarContent as="div" justify="end">
@@ -70,10 +70,11 @@ export default function PrivateLayout() {
             />
           </NavbarContent>
         </Navbar>
-      </>
-      <div className="mx-3">
+      <div className="mx-3 flex flex-col items-center">
+        <div className="max-w-7xl w-full">
         <Outlet />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

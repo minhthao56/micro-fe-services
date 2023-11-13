@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import CustomerPage from "../pages/CustomerPage";
 import DriverPage from "../pages/DriverPage";
+import PhoneBooking from "../pages/PhoneBookingPage";
 import PublicLayout from "../layouts/PublicLayout";
 import PrivateLayout from "../layouts/PrivateLayout";
 import {loginLoader, protectedLoader} from "./loader";
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
+        element: <PhoneBooking />,
+      },
+      {
+        path: "/customer",
         element: <CustomerPage />,
       },
       {
