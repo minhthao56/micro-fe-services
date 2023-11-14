@@ -12,6 +12,7 @@ import {
   useDisclosure,
   Chip,
 } from "@nextui-org/react";
+import Loading from "../components/Loading";
 
 export default function DriversPage() {
   const { isPending, error, data } = useQuery({
@@ -21,7 +22,8 @@ export default function DriversPage() {
 
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) return <Loading/>
+
   if (error) return <div>{error.message}</div>;
 
   return (

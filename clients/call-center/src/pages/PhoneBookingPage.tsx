@@ -12,6 +12,7 @@ import {
 } from "@nextui-org/react";
 import { getPhoneBookingList } from "../services/communicate/phone-booking";
 import TwilioAudio from "../components/TwilioAudio";
+import Loading from "../components/Loading";
 
 export default function PhoneBookingPage() {
   const { isPending, error, data } = useQuery({
@@ -20,9 +21,9 @@ export default function PhoneBookingPage() {
       await getPhoneBookingList({ limit: 10, page: 0, search: "" }),
   });
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) return <Loading/>
   if (error) return <div>{error.message}</div>;
-
+  
   return (
     <>
       <div className="flex justify-between mb-6">

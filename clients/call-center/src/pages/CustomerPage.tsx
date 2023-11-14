@@ -11,6 +11,7 @@ import {
   Button,
   useDisclosure,
 } from "@nextui-org/react";
+import Loading from "../components/Loading";
 
 export default function CustomerPage() {
   const { isPending, error, data } = useQuery({
@@ -21,7 +22,8 @@ export default function CustomerPage() {
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
 
-  if (isPending) return <div>Loading...</div>;
+  if (isPending) return <Loading/>
+
   if (error) return <div>{error.message}</div>;
 
   return (
