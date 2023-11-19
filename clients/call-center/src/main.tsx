@@ -6,6 +6,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import router from "./routers/root";
 import "./index.css";
+import "vercel-toast/css";
 
 const queryClient = new QueryClient();
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

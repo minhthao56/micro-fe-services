@@ -1,4 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { FaBook } from "react-icons/fa"
+import { ImCancelCircle } from "react-icons/im"
 import {
   Table,
   TableHeader,
@@ -9,10 +12,15 @@ import {
   Button,
   useDisclosure,
   Chip,
+  Tooltip
 } from "@nextui-org/react";
+import { PhoneBooking } from "schema/communicate/phone-booking";
+
+
 import { getPhoneBookingList } from "../services/communicate/phone-booking";
 import TwilioAudio from "../components/TwilioAudio";
 import Loading from "../components/Loading";
+import CreateBooking from "./CreateBooking";
 
 export default function PhoneBookingPage() {
   const { isPending, error, data } = useQuery({
@@ -21,14 +29,19 @@ export default function PhoneBookingPage() {
       await getPhoneBookingList({ limit: 10, page: 0, search: "" }),
   });
 
-  if (isPending) return <Loading/>
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+
+  const [phoneBooking, setPhoneBooking] = useState<PhoneBooking>();
+
+
+
+  if (isPending) return <Loading />;
   if (error) return <div>{error.message}</div>;
-  
+
   return (
     <>
       <div className="flex justify-between mb-6">
         <p className="text-xl">Management Phone Booking</p>
-        {/* <Button onPress={onOpen}>Add</Button> */}
       </div>
       <Table aria-label="Example static collection table">
         <TableHeader>
@@ -38,7 +51,6 @@ export default function PhoneBookingPage() {
           <TableColumn>END ADDRESS</TableColumn>
           <TableColumn>STATUS</TableColumn>
           <TableColumn>ACTION</TableColumn>
-
         </TableHeader>
         <TableBody>
           {data.phone_booking ? (
@@ -58,14 +70,41 @@ export default function PhoneBookingPage() {
                       item.status === "PENDING"
                         ? "warning"
                         : item.status === "COMPLETED"
-                        ? "success"
-                        : "danger"
+                          ? "success"
+                          : "danger"
                     }
-                  
-                  >{item.status}</Chip>{" "}
+                  >
+                    {item.status}
+                  </Chip>{" "}
                 </TableCell>
                 <TableCell>
-                  <Button>Create Booking</Button>
+                  <Tooltip content="Booking for customer">
+                    <Button
+                      onPress={() => {
+                        onOpen();
+                        const booking = data.phone_booking.find((booking) => {
+                          return booking.call_sid === item.call_sid;
+                        });
+                        setPhoneBooking(booking);
+                      }}
+                      disabled={item.status !== "PENDING"}
+                      isIconOnly
+                      color="primary"
+                    >
+                      <FaBook />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Cancel booking">
+                    <Button
+                      disabled={item.status !== "PENDING"}
+                      isIconOnly
+                      className="ml-1"
+                      color="danger"
+                    >
+                      <ImCancelCircle />
+                    </Button>
+                  </Tooltip>
+
                 </TableCell>
               </TableRow>
             ))
@@ -74,6 +113,11 @@ export default function PhoneBookingPage() {
           )}
         </TableBody>
       </Table>
+      <CreateBooking
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        phoneBooking={phoneBooking}
+      />
     </>
   );
 }

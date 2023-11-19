@@ -41,6 +41,8 @@ kubectl apply -f deployment/common/common-configmap.yml
 
 kubectl apply -f deployment/config/firebase.yml
 
+kubectl apply -f deployment/config/twilio.yml
+
 kubectl apply -f deployment/local/ingress/default-ingress.yml
 
 kubectl apply -f deployment/local/jobs/migration-db.yaml

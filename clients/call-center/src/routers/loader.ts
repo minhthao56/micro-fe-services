@@ -3,6 +3,7 @@ import { redirect } from "react-router-dom";
 import { authWeb } from "utils/firebase/web";
 import { setToken } from "../services/initClient";
 import { whoami } from "../services/usermgmt/user";
+import { socket } from "../services/communicate/client";
 
 export async function protectedLoader({ request }: LoaderFunctionArgs) {
   try {
@@ -16,6 +17,13 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
     console.log( {token });
     if (token) {
       setToken(token);
+      socket.connect();
+      socket.on("connect", () => {
+        console.log("socket connected");
+      });
+      socket.on("disconnect", () => {
+        console.log("socket disconnected");
+      });
     }
 
     const user = await whoami();
@@ -24,6 +32,8 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
   } catch (error) {
     authWeb.signOut();
     console.error("error protectedLoader", error);
+    socket.disconnect();
+    socket.removeAllListeners();
     throw error;
   }
 }

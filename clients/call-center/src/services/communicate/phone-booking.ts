@@ -1,5 +1,5 @@
 import { communicateClient } from "./client";
-import { GetManyPhoneBookingRequest , GetManyPhoneBookingResponse} from "schema/communicate/phone-booking"
+import { GetManyPhoneBookingRequest , GetManyPhoneBookingResponse } from "schema/communicate/phone-booking"
 
 
 export const getPhoneBookingList = async (params: GetManyPhoneBookingRequest) => {
