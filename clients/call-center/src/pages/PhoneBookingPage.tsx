@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaBook } from "react-icons/fa"
 import { ImCancelCircle } from "react-icons/im"
 import {
@@ -15,12 +15,16 @@ import {
   Tooltip
 } from "@nextui-org/react";
 import { PhoneBooking } from "schema/communicate/phone-booking";
+import { BookingStatusSocketResponse } from "schema/socket/booking";
+import { SocketEventBooking } from "schema/constants/event";
 
 
 import { getPhoneBookingList } from "../services/communicate/phone-booking";
 import TwilioAudio from "../components/TwilioAudio";
 import Loading from "../components/Loading";
 import CreateBooking from "./CreateBooking";
+import { socket } from "../services/communicate/client";
+
 
 export default function PhoneBookingPage() {
   const { isPending, error, data } = useQuery({
@@ -33,6 +37,26 @@ export default function PhoneBookingPage() {
 
   const [phoneBooking, setPhoneBooking] = useState<PhoneBooking>();
 
+
+  useEffect(() => {
+    const handleResponseDriver = (data: BookingStatusSocketResponse) => {
+      if (data.status === "ACCEPTED") {
+        console.log({data});
+        // Send sms
+        alert("Booking accepted");
+
+      }
+      if (data.status === "REJECTED") {
+        alert("Booking rejected please try again");
+      }
+    }
+    socket.on(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
+    console.log("mount");
+    return () => {
+      console.log("unmount");
+      socket.off(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
+    }
+  }, []);
 
 
   if (isPending) return <Loading />;
@@ -113,11 +137,14 @@ export default function PhoneBookingPage() {
           )}
         </TableBody>
       </Table>
-      <CreateBooking
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        phoneBooking={phoneBooking}
-      />
+      {
+        isOpen ? <CreateBooking
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          phoneBooking={phoneBooking}
+        /> : null
+      }
+
     </>
   );
 }

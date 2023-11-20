@@ -6,18 +6,23 @@ import {
   ModalFooter,
   Button,
   UseDisclosureProps,
-  Input,
   Divider
 } from "@nextui-org/react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import { useCallback, useEffect, useState } from "react";
-import ReactMapGL, {MapRef} from "@goongmaps/goong-map-react";
+import { useEffect, useState } from "react";
+import ReactMapGL  from "@goongmaps/goong-map-react";
 
 import { createBooking } from "../services/booking/booking";
+import { findNearByDriver } from "../services/booking/customer";
 import { PhoneBooking } from "schema/communicate/phone-booking";
 import SearchAddress from "../components/inputs/SearchAddress";
 import InputHF from "../components/inputs/InputHF";
+import { socket } from "../services/communicate/client";
+import { CreateBookingRequest } from "schema/booking/CreateBookingRequest";
+import { SocketEventBooking } from "schema/constants/event";
+import { BookingSocketRequest } from "schema/socket/booking";
+
 
 export interface CreateBookingProps extends UseDisclosureProps {
   onOpenChange: () => void;
@@ -30,12 +35,12 @@ export default function CreateBooking({
   phoneBooking,
 }: CreateBookingProps) {
 
-  const [addressStart, setAddressStart] = useState({
+  const [startAddress, setStartAddress] = useState({
     address: "",
     lat: 0,
     long: 0
   });
-  const [addressEnd, setAddressEnd] = useState({
+  const [endAddress, setEndAddress] = useState({
     address: "",
     lat: 0,
     long: 0
@@ -60,8 +65,8 @@ export default function CreateBooking({
   });
   const onSubmit = (data: any) => {
     console.log({ data });
-    console.log({ addressStart });
-    console.log({ addressEnd });
+    console.log({ startAddress });
+    console.log({ endAddress });
     // createBooking({
     //   customer_id: phoneBooking?.customer_id.toString() || "",
     //   driver_id: "",
@@ -73,7 +78,38 @@ export default function CreateBooking({
     //   start_long: 0,
     //   status: "",
     // });
+
+    // const newBookingRequest: CreateBookingRequest = {
+    //   customer_id: "",
+    //   driver_id: driver?.driver_id || "",
+    //   end_lat: parseFloat(lat) || 0,
+    //   end_long: parseFloat(long) || 0,
+    //   start_lat: origin?.coords.latitude || 0,
+    //   start_long: origin?.coords.longitude || 0,
+    //   status: "",
+    // };
+    // socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
   };
+
+  const handleFindDriver = async () => {
+    const data = await findNearByDriver({
+      vehicle_type_id: 1,
+      request_lat: startAddress.lat,
+      request_long: startAddress.long
+    });
+    const driver = data.drivers?.[0];
+    const newBookingRequest: BookingSocketRequest = {
+      customer_id: phoneBooking?.customer_id.toString() || "",
+      driver_id: driver?.driver_id || "",
+      end_lat: endAddress.lat || 0,
+      end_long: endAddress.long || 0,
+      start_lat: startAddress.lat || 0,
+      start_long: startAddress.long || 0,
+      status: "",
+      from_call_center: true
+    };
+    socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
+  }
 
   useEffect(() => {
     reset({
@@ -88,6 +124,8 @@ export default function CreateBooking({
     });
 
   }, [phoneBooking?.first_name, phoneBooking?.last_name, phoneBooking?.phone_number, reset]);
+
+
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl"
@@ -138,15 +176,10 @@ export default function CreateBooking({
                   label="Start Address"
                   onBlur={(e: any) => {
                     const address = e.currentTarget.defaultValue.split("-");
-                    setAddressStart({
+                    setStartAddress({
                       address: address[0],
                       lat: parseFloat(address[1]),
                       long: parseFloat(address[2]),
-                    });
-                    setViewState({
-                      ...viewState,
-                      latitude: parseFloat(address[1]),
-                      longitude: parseFloat(address[2])
                     });
                   }}
 
@@ -156,7 +189,7 @@ export default function CreateBooking({
                   label="End Address"
                   onBlur={(e: any) => {
                     const address = e.currentTarget.defaultValue.split("-");
-                    setAddressEnd({
+                    setEndAddress({
                       address: address[0],
                       lat: parseFloat(address[1]),
                       long: parseFloat(address[2]),
@@ -170,7 +203,7 @@ export default function CreateBooking({
                   width="100%"
                   height="300px"
                   {...viewState}
-                  
+
                 />
               </div>
               <span className="text-base text-default-500">
@@ -214,7 +247,7 @@ export default function CreateBooking({
                 Close
               </Button>
               <div>
-                <Button color="primary" variant="light" onPress={onClose}>
+                <Button color="primary" variant="light" onPress={handleFindDriver}>
                   Find Driver
                 </Button>
                 <Button color="primary" onClick={handleSubmit(onSubmit)}>

@@ -7,12 +7,18 @@ export interface CustomerSocket extends Customer {
     socket_id: string
 }
 
-export interface NewBookingSocketRequest extends CreateBookingRequest {
-  customer: CustomerSocket
+export interface BookingSocketRequest extends CreateBookingRequest {
+  from_call_center: boolean
 }
 
-export interface BookingStatusSocketResponse extends CreateBookingRequest {
+export interface NewBookingSocketRequest extends BookingSocketRequest {
   customer: CustomerSocket
+  admin_socket_id?: string
+}
+
+export interface BookingStatusSocketResponse extends BookingSocketRequest {
+  customer: CustomerSocket
+  admin_socket_id?: string
   status: keyof typeof BookingStatus
 }
 
