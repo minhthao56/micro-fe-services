@@ -5,4 +5,5 @@ export enum SocketEventBooking {
     BOOKING_WAITING_CUSTOMER = "booking:waiting:customer",
     BOOKING_DRIVER_LOCATION = "booking:driver:location",
     BOOKING_WAITING_ADMIN = "booking:waiting:admin",
+    PHONE_BOOKING_NEW = "phone-booking:new",
 }

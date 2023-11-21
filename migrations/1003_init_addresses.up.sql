@@ -8,8 +8,5 @@ CREATE TABLE IF NOT EXISTS public.addresses(
     PRIMARY KEY (long, lat)
 );
 
-
-ALTER TABLE public.customers DROP CONSTRAINT IF EXISTS fk_addresses_customers;
-
 INSERT INTO public.addresses (long, lat, name)
 VALUES (106.629662, 10.823099, 'Ho Chi Minh');

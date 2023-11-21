@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import CustomerPage from "../pages/CustomerPage";
 import DriverPage from "../pages/DriverPage";
 import PhoneBooking from "../pages/PhoneBookingPage";
+import Booking from "../pages/BookingPage";
 import PublicLayout from "../layouts/PublicLayout";
 import PrivateLayout from "../layouts/PrivateLayout";
 import {loginLoader, protectedLoader} from "./loader";
@@ -27,7 +28,11 @@ const router = createBrowserRouter([
       {
         path: "/driver",
         element: <DriverPage />,
-      }
+      },
+      {
+        path: "/booking",
+        element: <Booking />,
+      },
     ],
   },
   {

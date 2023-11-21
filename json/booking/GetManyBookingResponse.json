@@ -1,0 +1,145 @@
+{
+ "required": [
+  "booking",
+  "limit",
+  "offset",
+  "total"
+ ],
+ "definitions": {
+  "SchemaBooking": {
+   "properties": {
+    "booking_id": {
+     "type": "string"
+    },
+    "created_at": {
+     "type": "string"
+    },
+    "customer": {
+     "$ref": "#/definitions/SchemaCustomer"
+    },
+    "customer_id": {
+     "type": "string"
+    },
+    "driver": {
+     "$ref": "#/definitions/SchemaDriver"
+    },
+    "driver_id": {
+     "type": "string"
+    },
+    "end_lat": {
+     "type": "number"
+    },
+    "end_long": {
+     "type": "number"
+    },
+    "start_lat": {
+     "type": "number"
+    },
+    "start_long": {
+     "type": "number"
+    },
+    "status": {
+     "type": "string"
+    }
+   },
+   "type": "object"
+  },
+  "SchemaCustomer": {
+   "required": [
+    "customer_id",
+    "first_name",
+    "last_name",
+    "phone_number"
+   ],
+   "properties": {
+    "customer_id": {
+     "type": "string"
+    },
+    "email": {
+     "type": "string"
+    },
+    "first_name": {
+     "type": "string"
+    },
+    "last_name": {
+     "type": "string"
+    },
+    "lat": {
+     "type": "number"
+    },
+    "long": {
+     "type": "number"
+    },
+    "phone_number": {
+     "type": "string"
+    }
+   },
+   "type": "object"
+  },
+  "SchemaDriver": {
+   "required": [
+    "driver_id",
+    "first_name",
+    "last_name",
+    "phone_number",
+    "vehicle_name",
+    "vehicle_type_id",
+    "status"
+   ],
+   "properties": {
+    "current_lat": {
+     "type": "number"
+    },
+    "current_long": {
+     "type": "number"
+    },
+    "driver_id": {
+     "type": "string"
+    },
+    "email": {
+     "type": "string"
+    },
+    "first_name": {
+     "type": "string"
+    },
+    "last_name": {
+     "type": "string"
+    },
+    "phone_number": {
+     "type": "string"
+    },
+    "status": {
+     "type": "string"
+    },
+    "vehicle_name": {
+     "type": "string"
+    },
+    "vehicle_type_id": {
+     "type": "string"
+    }
+   },
+   "type": "object"
+  }
+ },
+ "properties": {
+  "booking": {
+   "items": {
+    "$ref": "#/definitions/SchemaBooking"
+   },
+   "type": [
+    "array",
+    "null"
+   ]
+  },
+  "limit": {
+   "type": "integer"
+  },
+  "offset": {
+   "type": "integer"
+  },
+  "total": {
+   "type": "integer"
+  }
+ },
+ "type": "object"
+}

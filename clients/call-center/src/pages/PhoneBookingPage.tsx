@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaBook } from "react-icons/fa"
 import { ImCancelCircle } from "react-icons/im"
 import {
@@ -15,19 +15,18 @@ import {
   Tooltip
 } from "@nextui-org/react";
 import { PhoneBooking } from "schema/communicate/phone-booking";
-import { BookingStatusSocketResponse } from "schema/socket/booking";
-import { SocketEventBooking } from "schema/constants/event";
+import moment from "moment";
 
 
-import { getPhoneBookingList } from "../services/communicate/phone-booking";
+import { getPhoneBookingList, updatePhoneBookingStatus } from "../services/communicate/phone-booking";
 import TwilioAudio from "../components/TwilioAudio";
 import Loading from "../components/Loading";
 import CreateBooking from "./CreateBooking";
-import { socket } from "../services/communicate/client";
+import { YesNo } from "../components/modals/YesNo"
 
 
 export default function PhoneBookingPage() {
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, refetch } = useQuery({
     queryKey: ["getPhoneBookingList"],
     queryFn: async () =>
       await getPhoneBookingList({ limit: 10, page: 0, search: "" }),
@@ -35,28 +34,10 @@ export default function PhoneBookingPage() {
 
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
+  const { isOpen: isOpenYesNo, onOpenChange: onOpenChangeYesNo, onOpen:onOpenYesNo  } = useDisclosure();
+
+
   const [phoneBooking, setPhoneBooking] = useState<PhoneBooking>();
-
-
-  useEffect(() => {
-    const handleResponseDriver = (data: BookingStatusSocketResponse) => {
-      if (data.status === "ACCEPTED") {
-        console.log({data});
-        // Send sms
-        alert("Booking accepted");
-
-      }
-      if (data.status === "REJECTED") {
-        alert("Booking rejected please try again");
-      }
-    }
-    socket.on(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
-    console.log("mount");
-    return () => {
-      console.log("unmount");
-      socket.off(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
-    }
-  }, []);
 
 
   if (isPending) return <Loading />;
@@ -74,6 +55,7 @@ export default function PhoneBookingPage() {
           <TableColumn>START ADDRESS</TableColumn>
           <TableColumn>END ADDRESS</TableColumn>
           <TableColumn>STATUS</TableColumn>
+          <TableColumn>CREATED AT</TableColumn>
           <TableColumn>ACTION</TableColumn>
         </TableHeader>
         <TableBody>
@@ -102,6 +84,9 @@ export default function PhoneBookingPage() {
                   </Chip>{" "}
                 </TableCell>
                 <TableCell>
+                  {moment(item.created_at).format("DD/MM/YYYY")}
+                </TableCell>
+                <TableCell>
                   <Tooltip content="Booking for customer">
                     <Button
                       onPress={() => {
@@ -111,7 +96,7 @@ export default function PhoneBookingPage() {
                         });
                         setPhoneBooking(booking);
                       }}
-                      disabled={item.status !== "PENDING"}
+                      isDisabled={item.status !== "PENDING"}
                       isIconOnly
                       color="primary"
                     >
@@ -120,10 +105,17 @@ export default function PhoneBookingPage() {
                   </Tooltip>
                   <Tooltip content="Cancel booking">
                     <Button
-                      disabled={item.status !== "PENDING"}
+                      isDisabled={item.status !== "PENDING"}
                       isIconOnly
                       className="ml-1"
                       color="danger"
+                      onClick={ () => {
+                        onOpenYesNo();
+                        const booking = data.phone_booking.find((booking) => {
+                          return booking.call_sid === item.call_sid;
+                        });
+                        setPhoneBooking(booking);
+                      }}
                     >
                       <ImCancelCircle />
                     </Button>
@@ -142,9 +134,23 @@ export default function PhoneBookingPage() {
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           phoneBooking={phoneBooking}
+          refetch = {refetch}
         /> : null
       }
-
+      <YesNo
+        isOpen={isOpenYesNo}
+        onOpenChange={onOpenChangeYesNo}
+        onYes={async () => {
+          await updatePhoneBookingStatus(
+            phoneBooking?.call_sid || "",
+            "CANCELED"
+          );
+          onOpenChangeYesNo();
+          refetch?.();
+        }}
+      >
+        Are you sure to cancel this booking?
+      </YesNo>
     </>
   );
 }

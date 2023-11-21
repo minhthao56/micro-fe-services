@@ -51,7 +51,7 @@ export default function DriversPage() {
                 <TableCell>{driver.email}</TableCell>
                 <TableCell>{driver.vehicle_name}</TableCell>
                 <TableCell>
-                  <Chip color=  {driver.status === "ONLINE"? "success" :"danger"}> {driver.status}</Chip>
+                  <Chip color=  {driver.status === "ONLINE"? "success" : driver.status === "BUSY"?"warning" : "danger"}> {driver.status}</Chip>
                 </TableCell>
               </TableRow>
             ))

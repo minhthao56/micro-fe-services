@@ -3,7 +3,6 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -16,6 +15,7 @@ import (
 type BookingController interface {
 	CreateBooking(c *gin.Context)
 	UpdateBooking(c *gin.Context)
+	GetManyBooking(c *gin.Context)
 }
 
 type BookingControllerImpl struct {
@@ -49,7 +49,6 @@ func (u *BookingControllerImpl) CreateBooking(c *gin.Context) {
 		return
 	}
 	bookingID, err := u.repoBooking.CreateBooking(c, request)
-	fmt.Println("--err--", err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
 			Message: err.Error(),
@@ -85,9 +84,7 @@ func (u *BookingControllerImpl) UpdateBooking(c *gin.Context) {
 		return
 	}
 
-	repoBooking := repository.NewBookingRepository(u.db)
-
-	if err := repoBooking.UpdateBooking(c, request); err != nil {
+	if err := u.repoBooking.UpdateBooking(c, request); err != nil {
 		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
 			Message: err.Error(),
 			Status:  http.StatusInternalServerError,
@@ -98,5 +95,55 @@ func (u *BookingControllerImpl) UpdateBooking(c *gin.Context) {
 	c.JSON(http.StatusOK, schema.StatusResponse{
 		Message: "success",
 		Status:  http.StatusOK,
+	})
+}
+
+func (u *BookingControllerImpl) GetManyBooking(c *gin.Context) {
+
+	query := c.Request.URL.Query()
+	stringLimit := query.Get("limit")
+	limit, err := strconv.Atoi(stringLimit)
+	if err != nil {
+		limit = 10
+	}
+	stringOffset := query.Get("offset")
+	offset, err := strconv.Atoi(stringOffset)
+	if err != nil {
+		offset = 0
+	}
+
+	search := query.Get("search")
+
+	request := schema.GetManyBookingRequest{
+		Limit:  limit,
+		Offset: offset,
+		Search: search,
+	}
+
+	booking, err := u.repoBooking.GetManyBooking(c, request)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	total, err := u.repoBooking.CountBooking(c, request)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, schema.GetManyBookingResponse{
+		Booking: booking,
+		Limit:   limit,
+		Offset:  offset,
+		Total:   total,
 	})
 }

@@ -11,7 +11,7 @@ import {
 import { useForm } from "react-hook-form";
 
 import { useEffect, useState } from "react";
-import ReactMapGL  from "@goongmaps/goong-map-react";
+import ReactMapGL from "@goongmaps/goong-map-react";
 
 import { createBooking } from "../services/booking/booking";
 import { findNearByDriver } from "../services/booking/customer";
@@ -19,20 +19,24 @@ import { PhoneBooking } from "schema/communicate/phone-booking";
 import SearchAddress from "../components/inputs/SearchAddress";
 import InputHF from "../components/inputs/InputHF";
 import { socket } from "../services/communicate/client";
-import { CreateBookingRequest } from "schema/booking/CreateBookingRequest";
 import { SocketEventBooking } from "schema/constants/event";
-import { BookingSocketRequest } from "schema/socket/booking";
+import { BookingSocketRequest, BookingStatusSocketResponse } from "schema/socket/booking";
+import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
+import { sendSMS } from "../services/communicate/sms";
+import { updatePhoneBookingStatus } from "../services/communicate/phone-booking";
 
 
 export interface CreateBookingProps extends UseDisclosureProps {
   onOpenChange: () => void;
   phoneBooking?: PhoneBooking;
+  refetch?: () => void;
 }
 
 export default function CreateBooking({
   isOpen,
   onOpenChange,
   phoneBooking,
+  refetch
 }: CreateBookingProps) {
 
   const [startAddress, setStartAddress] = useState({
@@ -45,6 +49,9 @@ export default function CreateBooking({
     lat: 0,
     long: 0
   });
+
+  const [driver, setDriver] = useState<SchemaDriverWithDistance>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { register, handleSubmit, reset, control } = useForm({
     defaultValues: {
@@ -65,39 +72,7 @@ export default function CreateBooking({
   });
   const onSubmit = (data: any) => {
     console.log({ data });
-    console.log({ startAddress });
-    console.log({ endAddress });
-    // createBooking({
-    //   customer_id: phoneBooking?.customer_id.toString() || "",
-    //   driver_id: "",
-    //   start_address: "string",
-    //   end_address: "string",
-    //   end_lat: 0,
-    //   end_long: 0,
-    //   start_lat: 0,
-    //   start_long: 0,
-    //   status: "",
-    // });
-
-    // const newBookingRequest: CreateBookingRequest = {
-    //   customer_id: "",
-    //   driver_id: driver?.driver_id || "",
-    //   end_lat: parseFloat(lat) || 0,
-    //   end_long: parseFloat(long) || 0,
-    //   start_lat: origin?.coords.latitude || 0,
-    //   start_long: origin?.coords.longitude || 0,
-    //   status: "",
-    // };
-    // socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
-  };
-
-  const handleFindDriver = async () => {
-    const data = await findNearByDriver({
-      vehicle_type_id: 1,
-      request_lat: startAddress.lat,
-      request_long: startAddress.long
-    });
-    const driver = data.drivers?.[0];
+    setIsLoading(true);
     const newBookingRequest: BookingSocketRequest = {
       customer_id: phoneBooking?.customer_id.toString() || "",
       driver_id: driver?.driver_id || "",
@@ -109,6 +84,26 @@ export default function CreateBooking({
       from_call_center: true
     };
     socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
+  };
+
+  const handleFindDriver = async () => {
+    const data = await findNearByDriver({
+      vehicle_type_id: 1,
+      request_lat: startAddress.lat,
+      request_long: startAddress.long
+    });
+
+    if (data.drivers?.length === 0){
+      alert("No driver found")
+      return;
+    }
+
+    const driver = data.drivers?.[0];
+
+    if (driver) {
+      setDriver(driver);
+    }
+
   }
 
   useEffect(() => {
@@ -117,15 +112,51 @@ export default function CreateBooking({
       "firstName:c": phoneBooking?.first_name || "",
       "phoneNumber:c": phoneBooking?.phone_number || "",
       "email:c": "",
-      "lastName:d": "",
-      "firstName:d": "",
-      "phoneNumber:d": "",
-      "email:d": "",
+      "lastName:d": driver?.last_name || "",
+      "firstName:d": driver?.first_name || "",
+      "phoneNumber:d": driver?.phone_number || "",
+      "email:d": driver?.email || "",
     });
 
-  }, [phoneBooking?.first_name, phoneBooking?.last_name, phoneBooking?.phone_number, reset]);
+  }, 
+  [driver?.email, 
+  driver?.first_name,
+  driver?.last_name, 
+  driver?.phone_number,
+  phoneBooking?.first_name,
+  phoneBooking?.last_name,
+  phoneBooking?.phone_number, 
+  reset]);
 
+  useEffect(() => {
+    const handleResponseDriver = async (data: BookingStatusSocketResponse) => {
+      if (data.status === "ACCEPTED") {
+        alert("Booking accepted");
 
+        await updatePhoneBookingStatus(
+        phoneBooking?.call_sid || "",
+         "COMPLETED"
+        )
+        await sendSMS({
+          phone_number: phoneBooking?.phone_number || "",
+          message: `Your booking has been accepted by ${driver?.last_name + " " + driver?.first_name}. Phone number: ${driver?.phone_number}`
+        })
+        setIsLoading(false);
+        onOpenChange();
+        refetch?.();
+      }
+      if (data.status === "REJECTED") {
+        alert("Booking rejected re fill driver and try again");
+        setIsLoading(false);
+      }
+    }
+    socket.on(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
+    console.log("mount");
+    return () => {
+      console.log("unmount");
+      socket.off(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
+    }
+  }, [driver?.first_name, driver?.last_name, driver?.phone_number, endAddress.address, onOpenChange, phoneBooking?.call_sid, phoneBooking?.phone_number, refetch, startAddress.address]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl"
@@ -248,10 +279,10 @@ export default function CreateBooking({
               </Button>
               <div>
                 <Button color="primary" variant="light" onPress={handleFindDriver}>
-                  Find Driver
+                  Fill Driver
                 </Button>
-                <Button color="primary" onClick={handleSubmit(onSubmit)}>
-                  Add
+                <Button color="primary" onClick={handleSubmit(onSubmit)} isDisabled={!driver?.driver_id} isLoading ={isLoading}>
+                  Book
                 </Button>
               </div>
 

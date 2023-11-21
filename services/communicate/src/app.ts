@@ -11,6 +11,7 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import notiRouter from "./routers/notification";
 import phoneRouter from "./routers/phone";
 import phoneBooking from "./routers/phone-booking"
+import smsRouter from "./routers/sms";
 
 import { firebaseApp } from "./firebase/init";
 import { TwilioService } from "./twilio/init";
@@ -44,13 +45,14 @@ export async function startServer() {
     app.use("/communicate/private", privateRouter);
     privateRouter.use("/notification", notiRouter);
     privateRouter.use("/phone-booking", phoneBooking);
+    privateRouter.use("/sms", smsRouter);
 
     const publicRouter = Router();
     app.use("/communicate/public", publicRouter);
     publicRouter.use("/phone", phoneRouter);
 
 
-   
+
 
 
     // Socket.io
@@ -63,16 +65,21 @@ export async function startServer() {
       },
     });
 
+    // Set app variables
+    app.set("io", io);
+
     io.use((socket, next) => {
       validateSocketJWT(socket, next, firebaseAuth)
     });
+
+
 
 
     function onConnection(socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
       const { decodedIdToken } = socket.data;
 
       registerConnectionHandlers(socket, conn, decodedIdToken);
-      
+
       registerDisconnectionHandlers(socket, conn, decodedIdToken);
 
       registerBookingHandlers(io, socket, conn, decodedIdToken);

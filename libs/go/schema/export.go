@@ -32,5 +32,7 @@ func GetBookingSchema() map[string]interface{} {
 		"UpdateBookingRequest":     UpdateBookingRequest{},
 		"UpdateLocationRequest":    UpdateLocationRequest{},
 		"UpdateStatusRequest":      UpdateStatusRequest{},
+		"GetManyBookingRequest":    GetManyBookingRequest{},
+		"GetManyBookingResponse":   GetManyBookingResponse{},
 	}
 }

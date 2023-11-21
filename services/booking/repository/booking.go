@@ -11,6 +11,8 @@ import (
 type BookingRepository interface {
 	CreateBooking(ctx context.Context, booking schema.CreateBookingRequest) (int, error)
 	UpdateBooking(ctx context.Context, booking schema.UpdateBookingRequest) error
+	GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.Booking, error)
+	CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error)
 }
 
 type BookingRepositoryImpl struct {
@@ -60,4 +62,69 @@ func (c *BookingRepositoryImpl) UpdateBooking(ctx context.Context, booking schem
 		return sql.ErrNoRows
 	}
 	return nil
+}
+
+func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.Booking, error) {
+	rows, err := c.db.Query(
+		`SELECT b.booking_id, b.customer_id, b.driver_id, b.start_long, b.start_lat, b.end_long, b.end_lat, b.status, u.first_name, u.last_name,u.phone_number, u2.first_name, u2.last_name, u2.phone_number, b.created_at
+		FROM booking AS b 
+		JOIN customers AS c ON b.customer_id = c.customer_id
+		JOIN drivers AS d ON b.driver_id = d.driver_id
+		JOIN users AS u ON c.user_id = u.user_id
+		JOIN users AS u2 ON d.user_id = u2.user_id
+		WHERE u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%'
+		LIMIT $2 
+		OFFSET $3`,
+		booking.Search,
+		booking.Limit,
+		booking.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var bookings []schema.Booking
+	for rows.Next() {
+		var booking schema.Booking
+		err := rows.Scan(
+			&booking.BookingID,
+			&booking.CustomerID,
+			&booking.DriverID,
+			&booking.StartLong,
+			&booking.StartLat,
+			&booking.EndLong,
+			&booking.EndLat,
+			&booking.Status,
+			&booking.Customer.FirstName,
+			&booking.Customer.LastName,
+			&booking.Customer.PhoneNumber,
+			&booking.Driver.FirstName,
+			&booking.Driver.LastName,
+			&booking.Driver.PhoneNumber,
+			&booking.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+	return bookings, nil
+}
+
+func (c *BookingRepositoryImpl) CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error) {
+	row := c.db.QueryRow(
+		`SELECT COUNT(*) FROM booking AS b 
+		JOIN customers AS c ON b.customer_id = c.customer_id
+		JOIN drivers AS d ON b.driver_id = d.driver_id
+		JOIN users AS u ON c.user_id = u.user_id
+		JOIN users AS u2 ON d.user_id = u2.user_id
+		WHERE u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%'`,
+		booking.Search,
+	)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

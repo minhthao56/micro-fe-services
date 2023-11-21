@@ -2,6 +2,8 @@ import express, { Router } from "express";
 import { twiml } from "twilio";
 import type { PoolClient } from "pg";
 import { Customer } from "schema/booking/Customer";
+import { Server } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 const router: Router = express.Router();
 
@@ -73,6 +75,18 @@ router.post("/starting-address", async (req, res) => {
         timeout: 3,
         recordingStatusCallback: BASE_PATH + "/ending-address",
     });
+
+    const io = req.app.get("io") as  Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+    const admins = await db.query<{ socket_id: string }>(`
+    SELECT socket_id FROM users WHERE user_group = 'ADMIN_GROUP';
+    `);
+
+    if (admins.rowCount !== 0) {
+        admins.rows.forEach((admin) => {
+            io.to(admin.socket_id).emit("phone-booking:new", {caller, callSid});
+        });
+    }
+    
 
     res.type("text/xml");
     res.send(twimlResponse.toString());

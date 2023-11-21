@@ -33,6 +33,7 @@ export default function PrivateLayout() {
             <RouterNavLink to="/">Phone Booking</RouterNavLink>
             <RouterNavLink to="/customer">Customers</RouterNavLink>
             <RouterNavLink to="/driver">Drivers</RouterNavLink>
+            <RouterNavLink to="/booking">Bookings</RouterNavLink>
           </NavbarContent>
           <NavbarContent as="div" justify="end">
             <Dropdown placement="bottom-end">

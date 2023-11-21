@@ -11,4 +11,5 @@ func NewRouterBooking(r *gin.RouterGroup, conn *sql.DB) {
 	controller := controller.NewBookingController(conn)
 	r.POST("/create", controller.CreateBooking)
 	r.POST("/update", controller.UpdateBooking)
+	r.GET("/", controller.GetManyBooking)
 }

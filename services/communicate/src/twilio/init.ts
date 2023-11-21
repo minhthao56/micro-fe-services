@@ -1,4 +1,4 @@
-import twilioClient, { twiml } from "twilio";
+import twilioClient from "twilio";
 
 export class TwilioService {
   private client: twilioClient.Twilio;
@@ -22,6 +22,7 @@ export class TwilioService {
       return message;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   }
   getTwilioClient() {

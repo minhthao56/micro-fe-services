@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import router from "./routers/root";
 import "./index.css";
 import "vercel-toast/css";
+import FullLoadingPage from "./pages/FullLoadingPage";
 
 const queryClient = new QueryClient();
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -17,7 +18,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <QueryClientProvider client={queryClient}>
           <RouterProvider
             router={router}
-            fallbackElement={<p>Initial Load...</p>}
+            fallbackElement={<FullLoadingPage/>}
           />
         </QueryClientProvider>
       </NextThemesProvider>

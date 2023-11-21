@@ -8,6 +8,7 @@ export interface PhoneBooking {
     last_name: string,
     first_name: string,
     phone_number: string,
+    created_at: string,
 }
 
 
@@ -20,4 +21,8 @@ export interface GetManyPhoneBookingRequest {
 export interface GetManyPhoneBookingResponse {
     phone_booking: PhoneBooking[],
     total: number,
+}
+
+export interface UpdatePhoneBookingStatusRequest {
+    status: string,
 }
