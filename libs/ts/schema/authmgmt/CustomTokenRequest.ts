@@ -1,6 +1,6 @@
 export interface CustomTokenRequest {
-    firebaseToken: string;
-    uid:           string;
-    userGroup:     string;
+    expo_push_token?: string;
+    firebaseToken:    string;
+    userGroup:        string;
     [property: string]: any;
 }

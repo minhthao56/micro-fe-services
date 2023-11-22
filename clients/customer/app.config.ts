@@ -1,5 +1,7 @@
-{
-  "expo": {
+import {ExpoConfig, ConfigContext} from 'expo/config';
+
+export default ({config}: ConfigContext): ExpoConfig =>({
+    ...config,
     "name": "customer",
     "slug": "customer",
     "version": "1.0.0",
@@ -50,5 +52,4 @@
         "projectId": "e3610ac8-fa1d-4746-96f6-02ee6374eac4"
       }
     }
-  }
-}
+});

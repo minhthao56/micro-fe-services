@@ -6,7 +6,8 @@
   "phone_number",
   "vehicle_name",
   "vehicle_type_id",
-  "status"
+  "status",
+  "user_id"
  ],
  "properties": {
   "current_lat": {
@@ -31,6 +32,9 @@
    "type": "string"
   },
   "status": {
+   "type": "string"
+  },
+  "user_id": {
    "type": "string"
   },
   "vehicle_name": {

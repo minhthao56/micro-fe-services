@@ -13,6 +13,7 @@ type UserEntity struct {
 
 type UserRepository interface {
 	GetByUIDWithUserGroup(ctx context.Context, firebaseUID string, userGroup string) (UserEntity, error)
+	UpdateExpoPushToken(ctx context.Context, userID string, expoPushToken string) error
 }
 
 type UserRepositoryImpl struct {
@@ -56,4 +57,12 @@ func (u *UserRepositoryImpl) GetByUIDWithUserGroup(ctx context.Context, firebase
 	}
 
 	return userEntity, nil
+}
+
+func (u *UserRepositoryImpl) UpdateExpoPushToken(ctx context.Context, userID string, expoPushToken string) error {
+	_, err := u.db.Exec("UPDATE users SET expo_push_token = $1 WHERE user_id = $2", expoPushToken, userID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

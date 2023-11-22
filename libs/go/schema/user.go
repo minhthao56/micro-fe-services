@@ -11,7 +11,7 @@ type CreateFirebaseUserResponse struct {
 }
 
 type CustomTokenRequest struct {
-	UID           string `json:"uid" required:"true"`
+	ExpoPushToken string `json:"expo_push_token"`
 	FirebaseToken string `json:"firebaseToken" required:"true"`
 	UserGroup     string `json:"userGroup" required:"true"`
 }

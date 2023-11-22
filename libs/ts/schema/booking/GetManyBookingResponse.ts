@@ -29,6 +29,7 @@ export interface SchemaCustomer {
     lat?:         number;
     long?:        number;
     phone_number: string;
+    user_id:      string;
     [property: string]: any;
 }
 
@@ -41,6 +42,7 @@ export interface SchemaDriver {
     last_name:       string;
     phone_number:    string;
     status:          string;
+    user_id:         string;
     vehicle_name:    string;
     vehicle_type_id: string;
     [property: string]: any;

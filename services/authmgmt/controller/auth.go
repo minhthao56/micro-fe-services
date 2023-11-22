@@ -58,11 +58,22 @@ func (a *AuthControllerImpl) CreateCustomTokens(c *gin.Context) {
 		})
 	}
 
+	if customTokenRequest.ExpoPushToken != "" {
+		err = a.userRepo.UpdateExpoPushToken(c, user.UserID, customTokenRequest.ExpoPushToken)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "error updating expo push token",
+				"error":   err.Error(),
+			})
+		}
+	}
+
 	claims := map[string]interface{}{
-		"user_group":  customTokenRequest.UserGroup,
-		"db_user_id":  user.UserID,
-		"driver_id":   user.DriverID,
-		"customer_id": user.CustomerID,
+		"user_group":      customTokenRequest.UserGroup,
+		"db_user_id":      user.UserID,
+		"driver_id":       user.DriverID,
+		"customer_id":     user.CustomerID,
+		"expo_push_token": customTokenRequest.ExpoPushToken,
 	}
 	token, err := a.FirebaseManager.CustomTokenWithClaims(c, authToken.UID, claims)
 	if err != nil {

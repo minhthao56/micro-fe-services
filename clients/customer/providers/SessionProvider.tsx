@@ -5,6 +5,8 @@ import { AuthWithFirebase } from "utils/firebase/provider";
 import { setToken } from "../services/initClient";
 import { whoami } from "../services/usermgmt/user";
 import { Alert } from "react-native";
+import { router } from "expo-router";
+
 
 interface CustomClaims extends ParsedToken {
   customer_id: string;
@@ -51,11 +53,8 @@ export function SessionProvider(props: {
   const [user, setUser] = useState<User | null>(null);
   const [claims, setClaims] = useState<CustomClaims | null>(null);
 
-  const checkAuth = useCallback(async () => {}, []);
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
+  const checkAuthenticated = useCallback(async () => {
+    setLoading(true);
       try {
         const isAuthenticated = await authMobile.getIsAuthenticated();
         if (isAuthenticated) {
@@ -63,7 +62,8 @@ export function SessionProvider(props: {
           console.log("User is authenticated", isAuthenticated);
           const user = authMobile.getUser();
           console.log("uid: ", user?.uid);
-         
+          setUser(user);
+
           const token = await user?.getIdToken();
           console.log("token: ", token);
           setToken(token || "");
@@ -81,8 +81,11 @@ export function SessionProvider(props: {
       } finally {
         setLoading(false);
       }
-    })();
   }, []);
+
+  useEffect(() => {
+    checkAuthenticated();
+  }, [checkAuthenticated]);
 
   return (
     <AuthContext.Provider
@@ -107,6 +110,8 @@ export function SessionProvider(props: {
             await authMobile.signOut();
             setIsAuthenticated(false);
             setUser(null);
+            setClaims(null);
+            router.replace("/sign-in");
           } catch (error) {
             console.error(error);
             throw error;
@@ -117,7 +122,7 @@ export function SessionProvider(props: {
             const userCredential = await authMobile.signInWithCustomToken(
               token
             );
-            setIsAuthenticated(true);
+             await checkAuthenticated();
             return userCredential;
           } catch (error) {
             setIsAuthenticated(false);

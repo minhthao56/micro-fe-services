@@ -1,14 +1,13 @@
 {
  "required": [
-  "uid",
   "firebaseToken",
   "userGroup"
  ],
  "properties": {
-  "firebaseToken": {
+  "expo_push_token": {
    "type": "string"
   },
-  "uid": {
+  "firebaseToken": {
    "type": "string"
   },
   "userGroup": {

@@ -8,6 +8,7 @@ type Customer struct {
 	LastName    string  `json:"last_name" required:"true"`
 	Email       string  `json:"email"`
 	PhoneNumber string  `json:"phone_number" required:"true"`
+	UserID      string  `json:"user_id" required:"true"`
 }
 
 type SetLocationRequest struct {

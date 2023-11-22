@@ -20,11 +20,11 @@ import MapViewDirections from "react-native-maps-directions";
 import { MapContainer } from "tamagui-shared-ui";
 import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse";
 import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
-import { CreateBookingRequest } from "schema/booking/CreateBookingRequest";
 import { SocketEventBooking } from "schema/constants/event";
 import {
   BookingStatusSocketResponse,
   LocationDriverSocket,
+  BookingSocketRequest
 } from "schema/socket/booking";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
@@ -33,6 +33,7 @@ import { findNearByDriver } from "../../services/booking/customer";
 import { getVehicleTypes } from "../../services/booking/vehicle-type";
 import { socket } from "../../services/communicate/client";
 import { View } from "../../components/Themed";
+import { useSession } from "../../providers/SessionProvider";
 
 export default function PickUp() {
   const { lat, long, formattedAddress } = useLocalSearchParams<ParamsAddress>();
@@ -51,6 +52,7 @@ export default function PickUp() {
   const [isLookingForDriver, setIsLookingForDriver] = useState(false);
   const [respBooking, setRespBooking] = useState<BookingStatusSocketResponse>();
   const [endPickUp, setEndPickUp] = useState(false);
+  const session = useSession();
 
   useEffect(() => {
     (async () => {
@@ -78,19 +80,6 @@ export default function PickUp() {
       socket.disconnect();
     };
   }, []);
-
-  useEffect(() => {
-    if (respBooking?.status === "COMPLETED") {
-      Alert.alert("Booking completed", "Thank you for using our service", [
-        {
-          text: "OK",
-          onPress: () => {
-            router.back();
-          },
-        },
-      ]);
-    }
-  }, [respBooking?.status]);
 
   const handlePickUp = async () => {
     setOrigin(locationPickUp);
@@ -137,14 +126,16 @@ export default function PickUp() {
       const driver = data.drivers?.[0];
 
       socket.on("connect", () => {
-        const newBookingRequest: CreateBookingRequest = {
-          customer_id: "",
+        const newBookingRequest: BookingSocketRequest = {
+          customer_id: session?.claims?.customer_id || "",
           driver_id: driver?.driver_id || "",
           end_lat: parseFloat(lat) || 0,
           end_long: parseFloat(long) || 0,
           start_lat: origin?.coords.latitude || 0,
           start_long: origin?.coords.longitude || 0,
           status: "",
+          from_call_center: false,
+
         };
         socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
       });
@@ -156,9 +147,21 @@ export default function PickUp() {
             setSelectedDriver(driver);
             setRespBooking(data);
           }
+
           if (data.status === "REJECTED") {
             setIsLookingForDriver(false);
             Alert.alert("Booking rejected", "Please try again");
+          }
+
+          if (data.status === "COMPLETED") {
+            Alert.alert("Booking completed", "Thank you for using our service", [
+              {
+                text: "OK",
+                onPress: () => {
+                  router.back();
+                },
+              },
+            ]);
           }
         }
       );
@@ -358,7 +361,7 @@ export default function PickUp() {
         position={position}
         onPositionChange={setPosition}
         zIndex={100_000}
-        animation="medium"
+        animation="bouncy"
       >
         <Sheet.Overlay
           animation="lazy"

@@ -21,7 +21,6 @@ export default function SignIn() {
       if (user?.uid) {
         const firebaseToken = await user.getIdToken();
         const token = await createCustomToken({
-          uid: user.uid,
           firebaseToken,
           userGroup: UserGroup.DRIVER_GROUP,
         });

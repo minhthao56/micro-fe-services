@@ -6,6 +6,7 @@ import { Server, Socket } from "socket.io";
 import { Database } from "database";
 import morgan from "morgan";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { Expo } from 'expo-server-sdk';
 
 
 import notiRouter from "./routers/notification";
@@ -27,11 +28,13 @@ export async function startServer() {
     const conn = await Database.getConnection();
     const firebaseAuth = firebaseApp.auth();
     const twilioService = new TwilioService();
+    const expo = new Expo();
 
     // Set app variables
     app.set("firebaseAuth", firebaseAuth);
     app.set("db", conn);
     app.set("twilioService", twilioService);
+    app.set("expo", expo);
 
     // Middleware
     app.use(morgan("combined"));
@@ -50,8 +53,6 @@ export async function startServer() {
     const publicRouter = Router();
     app.use("/communicate/public", publicRouter);
     publicRouter.use("/phone", phoneRouter);
-
-
 
 
 
@@ -82,7 +83,7 @@ export async function startServer() {
 
       registerDisconnectionHandlers(socket, conn, decodedIdToken);
 
-      registerBookingHandlers(io, socket, conn, decodedIdToken);
+      registerBookingHandlers(io, socket, conn, decodedIdToken, expo);
 
     }
 

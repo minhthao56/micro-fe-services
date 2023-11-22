@@ -12,6 +12,7 @@ export interface SchemaDriver {
     last_name:       string;
     phone_number:    string;
     status:          string;
+    user_id:         string;
     vehicle_name:    string;
     vehicle_type_id: string;
     [property: string]: any;

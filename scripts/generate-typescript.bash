@@ -12,10 +12,12 @@ for subdir in "$base_dir"/*; do
             # Extract the filename without extension
             file_name=$(basename -- "$json_file")
             file_name_no_extension="${file_name%.*}"
+            echo "Generating TypeScript for $subdir_name/$file_name_no_extension"
             quicktype \
-            -s schema "$json_file" \
-            -o "libs/ts/schema/${subdir_name}/${file_name_no_extension}.ts" \
-            --just-types
+            --src-lang schema "$json_file" \
+            --out "libs/ts/schema/${subdir_name}/${file_name_no_extension}.ts" \
+            --just-types \
+            --runtime-typecheck
         done
     fi
 done

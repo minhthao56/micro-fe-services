@@ -6,5 +6,6 @@ export interface Customer {
     lat?:         number;
     long?:        number;
     phone_number: string;
+    user_id:      string;
     [property: string]: any;
 }

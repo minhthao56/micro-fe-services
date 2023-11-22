@@ -9,10 +9,13 @@ import { createCustomToken } from "../../services/authmgmt/customToken";
 import { setToken } from "../../services/initClient";
 import { UserGroup } from "schema/constants/user-group";
 import { Alert } from "react-native";
-import { whoami } from "../../services/usermgmt/user";
+import { useExpoNotification } from "../../hooks/useExpoNotification";
 
 export default function SignIn() {
   const session = useSession();
+
+  const { expoPushToken } = useExpoNotification();
+
   const onSubmit = useCallback(async (data: LoginFormData) => {
     try {
       const userCredential = await session?.signIn(data.email, data.password);
@@ -20,9 +23,9 @@ export default function SignIn() {
       if (user?.uid) {
         const firebaseToken = await user.getIdToken();
         const token = await createCustomToken({
-          uid: user.uid,
           firebaseToken,
           userGroup: UserGroup.CUSTOMER_GROUP,
+          expo_push_token: expoPushToken,
         });
         const  userCredential = await session?.signInWithCustomToken(token.customToken);
         const customToken = await userCredential?.user?.getIdToken();
@@ -32,19 +35,18 @@ export default function SignIn() {
         }
         setToken(customToken || "");
         router.replace("/");
-        await whoami();
       } else {
-        await session?.signOut();
         console.log("No user id");
+        await session?.signOut();
         throw new Error("No user id");
       }
     } catch (error: any) {
-      await session?.signOut();
       console.error(error);
       Alert.alert("Error", error.message);
+      await session?.signOut();
 
     }
-  }, []);
+  }, [expoPushToken]);
   return (
     <SafeAreaView
       style={{ flex: 1, justifyContent: "center", alignItems: "center" }}

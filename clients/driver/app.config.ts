@@ -1,5 +1,7 @@
-{
-  "expo": {
+import {ExpoConfig, ConfigContext} from 'expo/config';
+
+export default ({config}: ConfigContext): ExpoConfig =>({
+    ...config,
     "name": "driver",
     "slug": "driver",
     "version": "1.0.0",
@@ -35,5 +37,4 @@
     "experiments": {
       "typedRoutes": true
     }
-  }
-}
+});

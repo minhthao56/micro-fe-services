@@ -14,5 +14,6 @@ export interface SchemaCustomer {
     lat?:         number;
     long?:        number;
     phone_number: string;
+    user_id:      string;
     [property: string]: any;
 }
