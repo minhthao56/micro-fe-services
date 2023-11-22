@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { FaBook } from "react-icons/fa"
-import { ImCancelCircle } from "react-icons/im"
+import { FaBook } from "react-icons/fa";
+import { ImCancelCircle } from "react-icons/im";
 import {
   Table,
   TableHeader,
@@ -12,18 +12,19 @@ import {
   Button,
   useDisclosure,
   Chip,
-  Tooltip
+  Tooltip,
 } from "@nextui-org/react";
 import { PhoneBooking } from "schema/communicate/phone-booking";
 import moment from "moment";
 
-
-import { getPhoneBookingList, updatePhoneBookingStatus } from "../services/communicate/phone-booking";
+import {
+  getPhoneBookingList,
+  updatePhoneBookingStatus,
+} from "../services/communicate/phone-booking";
 import TwilioAudio from "../components/TwilioAudio";
 import Loading from "../components/Loading";
 import CreateBooking from "./CreateBooking";
-import { YesNo } from "../components/modals/YesNo"
-
+import { YesNo } from "../components/modals/YesNo";
 
 export default function PhoneBookingPage() {
   const { isPending, error, data, refetch } = useQuery({
@@ -34,14 +35,16 @@ export default function PhoneBookingPage() {
 
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
-  const { isOpen: isOpenYesNo, onOpenChange: onOpenChangeYesNo, onOpen:onOpenYesNo  } = useDisclosure();
-
+  const {
+    isOpen: isOpenYesNo,
+    onOpenChange: onOpenChangeYesNo,
+    onOpen: onOpenYesNo,
+  } = useDisclosure();
 
   const [phoneBooking, setPhoneBooking] = useState<PhoneBooking>();
 
-
   if (isPending) return <Loading />;
-  if (error) return <div>{error.message}</div>;
+  if (error) return <div>{JSON.stringify(error)}</div>;
 
   return (
     <>
@@ -58,9 +61,9 @@ export default function PhoneBookingPage() {
           <TableColumn>CREATED AT</TableColumn>
           <TableColumn>ACTION</TableColumn>
         </TableHeader>
-        <TableBody>
-          {data.phone_booking ? (
-            data.phone_booking.map((item, index) => (
+        {data.phone_booking.length > 0 ? (
+          <TableBody>
+            {data.phone_booking.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>{item.last_name + " " + item.first_name}</TableCell>
                 <TableCell>{item.phone_number}</TableCell>
@@ -76,8 +79,8 @@ export default function PhoneBookingPage() {
                       item.status === "PENDING"
                         ? "warning"
                         : item.status === "COMPLETED"
-                          ? "success"
-                          : "danger"
+                        ? "success"
+                        : "danger"
                     }
                   >
                     {item.status}
@@ -109,7 +112,7 @@ export default function PhoneBookingPage() {
                       isIconOnly
                       className="ml-1"
                       color="danger"
-                      onClick={ () => {
+                      onClick={() => {
                         onOpenYesNo();
                         const booking = data.phone_booking.find((booking) => {
                           return booking.call_sid === item.call_sid;
@@ -120,23 +123,22 @@ export default function PhoneBookingPage() {
                       <ImCancelCircle />
                     </Button>
                   </Tooltip>
-
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <div>No data</div>
-          )}
-        </TableBody>
+            ))}
+          </TableBody>
+        ) : (
+          <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
+        )}
       </Table>
-      {
-        isOpen ? <CreateBooking
+      {isOpen ? (
+        <CreateBooking
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           phoneBooking={phoneBooking}
-          refetch = {refetch}
-        /> : null
-      }
+          refetch={refetch}
+        />
+      ) : null}
       <YesNo
         isOpen={isOpenYesNo}
         onOpenChange={onOpenChangeYesNo}

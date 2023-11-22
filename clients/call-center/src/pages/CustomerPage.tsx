@@ -21,10 +21,9 @@ export default function CustomerPage() {
   });
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
+  if (isPending) return <Loading />;
 
-  if (isPending) return <Loading/>
-
-  if (error) return <div>{error.message}</div>;
+  if (error) return <div>{JSON.stringify(error)}</div>;
 
   return (
     <>
@@ -38,9 +37,9 @@ export default function CustomerPage() {
           <TableColumn>PHONE NUMBER</TableColumn>
           <TableColumn>EMAIL</TableColumn>
         </TableHeader>
-        <TableBody>
-          {data.customers ? (
-            data.customers.map((customer, index) => (
+        {data.customers && data.customers.length > 0 ? (
+          <TableBody>
+            {data.customers.map((customer, index) => (
               <TableRow key={index}>
                 <TableCell>
                   {customer.last_name + " " + customer.first_name}
@@ -48,11 +47,11 @@ export default function CustomerPage() {
                 <TableCell>{customer.phone_number}</TableCell>
                 <TableCell>{customer.email}</TableCell>
               </TableRow>
-            ))
-          ) : (
-            <div>No data</div>
-          )}
-        </TableBody>
+            ))}
+          </TableBody>
+        ) : (
+          <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
+        )}
       </Table>
       <CreateCustomer isOpen={isOpen} onOpenChange={onOpenChange} />
     </>

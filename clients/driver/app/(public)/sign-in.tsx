@@ -10,7 +10,6 @@ import { Alert } from "react-native";
 import { useSession } from "../../providers/SessionProvider";
 import { createCustomToken } from "../../services/authmgmt/customToken";
 import { setToken } from "../../services/initClient";
-import { whoami } from "../../services/usermgmt/user"
 
 export default function SignIn() {
   const session = useSession();
@@ -31,17 +30,16 @@ export default function SignIn() {
           throw new Error("Token is null");
         }
         setToken(customToken || "");
-        await whoami();
         router.replace("/");
       } else {
-        await session?.signOut();
         console.log("No user id");
+        await session?.signOut();
         throw new Error("No user id");
       }
     } catch (error: any) {
-      await session?.signOut();
       console.error(error);
       Alert.alert("Error", error.message);
+      await session?.signOut();
 
     }
   }, []);

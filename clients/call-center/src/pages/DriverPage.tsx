@@ -22,9 +22,9 @@ export default function DriversPage() {
 
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
-  if (isPending) return <Loading/>
+  if (isPending) return <Loading />;
 
-  if (error) return <div>{error.message}</div>;
+  if (error) return <div>{JSON.stringify(error)}</div>;
 
   return (
     <>
@@ -40,9 +40,9 @@ export default function DriversPage() {
           <TableColumn>VEHICLE</TableColumn>
           <TableColumn>STATUS</TableColumn>
         </TableHeader>
-        <TableBody>
-          {data.drivers ? (
-            data.drivers.map((driver, index) => (
+        {data.drivers ? (
+          <TableBody>
+            {data.drivers.map((driver, index) => (
               <TableRow key={index}>
                 <TableCell>
                   {driver.last_name + " " + driver.first_name}
@@ -51,14 +51,25 @@ export default function DriversPage() {
                 <TableCell>{driver.email}</TableCell>
                 <TableCell>{driver.vehicle_name}</TableCell>
                 <TableCell>
-                  <Chip color=  {driver.status === "ONLINE"? "success" : driver.status === "BUSY"?"warning" : "danger"}> {driver.status}</Chip>
+                  <Chip
+                    color={
+                      driver.status === "ONLINE"
+                        ? "success"
+                        : driver.status === "BUSY"
+                        ? "warning"
+                        : "danger"
+                    }
+                  >
+                    {" "}
+                    {driver.status}
+                  </Chip>
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <div>No data</div>
-          )}
-        </TableBody>
+            ))}
+          </TableBody>
+        ) : (
+          <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
+        )}
       </Table>
       <CreateDriver isOpen={isOpen} onOpenChange={onOpenChange} />
     </>

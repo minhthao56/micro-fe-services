@@ -43,15 +43,16 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
         } });
       });
     }
-
     const user = await whoami();
     localStorage.setItem("whoami", JSON.stringify(user.results));
+
     return { user: authWeb.getUser() };
+
   } catch (error) {
-    authWeb.signOut();
     console.error("error protectedLoader", error);
     socket.disconnect();
     socket.removeAllListeners();
+    await authWeb.signOut();
     throw error;
   }
 }

@@ -1,10 +1,11 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext, useCallback } from "react";
 import { authMobile } from "utils/firebase/mobile";
 import type { User, ParsedToken } from "firebase/auth";
 import { AuthWithFirebase } from "utils/firebase/provider";
 import { setToken } from "../services/initClient";
 import { whoami } from "../services/usermgmt/user";
 import { Alert } from "react-native";
+import { router } from "expo-router";
 
 interface CustomClaims extends ParsedToken {
   customer_id: string;
@@ -51,35 +52,42 @@ export function SessionProvider(props: {
   const [user, setUser] = useState<User | null>(null);
   const [claims, setClaims] = useState<CustomClaims | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const isAuthenticated = await authMobile.getIsAuthenticated();
-        if (isAuthenticated) {
-          setIsAuthenticated(true);
-          console.log("User is authenticated", isAuthenticated);
-          const user = authMobile.getUser();
-          console.log("uid: ", user?.uid);
-         
-          const token = await user?.getIdToken();
-          console.log("token: ", token);
-          setToken(token || "");
 
-          const getIdTokenResult = await user?.getIdTokenResult();
-          const claims = getIdTokenResult?.claims as CustomClaims
-          setClaims(claims);
-          console.log("driver_id: ", claims.driver_id);
-          await whoami();
-        }
-      } catch (error: any) {
-        console.log(error);
-        Alert.alert("Error", error.message);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
+  const checkAuthenticated = useCallback(async () => {
+    setLoading(true);
+    try {
+      const isAuthenticated = await authMobile.getIsAuthenticated();
+      if (isAuthenticated) {
+        setIsAuthenticated(true);
+        console.log("User is authenticated", isAuthenticated);
+        const user = authMobile.getUser();
+        console.log("uid: ", user?.uid);
+
+        setUser(user);
+        
+        const token = await user?.getIdToken();
+        console.log("token: ", token);
+        
+        setToken(token || "");
+
+        const getIdTokenResult = await user?.getIdTokenResult();
+        const claims = getIdTokenResult?.claims as CustomClaims
+        setClaims(claims);
+        console.log("driver_id: ", claims.driver_id);
+        await whoami();
       }
-    })();
+    } catch (error: any) {
+      console.log(error);
+      Alert.alert("Error", error.message);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+
+  }, []);
+
+  useEffect(() => {
+    checkAuthenticated();
   }, []);
 
   return (
@@ -105,6 +113,7 @@ export function SessionProvider(props: {
             await authMobile.signOut();
             setIsAuthenticated(false);
             setUser(null);
+            router.replace("/sign-in");
           } catch (error) {
             console.error(error);
             throw error;
@@ -115,7 +124,7 @@ export function SessionProvider(props: {
             const userCredential = await authMobile.signInWithCustomToken(
               token
             );
-            setIsAuthenticated(true);
+            await checkAuthenticated();
             return userCredential;
           } catch (error) {
             setIsAuthenticated(false);
