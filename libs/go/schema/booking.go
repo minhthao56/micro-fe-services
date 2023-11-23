@@ -8,6 +8,7 @@ type CreateBookingRequest struct {
 	EndLong    float64 `json:"end_long" required:"true"`
 	EndLat     float64 `json:"end_lat" required:"true"`
 	Status     string  `json:"status" required:"true"`
+	Distance   float64 `json:"distance" required:"true"`
 }
 
 type Booking struct {
@@ -22,6 +23,7 @@ type Booking struct {
 	Customer   Customer `json:"customer"`
 	Driver     Driver   `json:"driver"`
 	CreatedAt  string   `json:"created_at"`
+	Distance   float64  `json:"distance"`
 }
 
 type Address struct {
@@ -29,6 +31,12 @@ type Address struct {
 	Long             float64 `json:"long"`
 	FormattedAddress string  `json:"formatted_address"`
 	DisplayName      string  `json:"display_name"`
+}
+
+type BookingWithAddress struct {
+	Booking
+	StartAddress Address `json:"start_address"`
+	EndAddress   Address `json:"end_address"`
 }
 
 type GetFrequentlyAddressResponse struct {
@@ -41,6 +49,11 @@ type GetManyBookingResponse struct {
 	Offset  int       `json:"offset" required:"true"`
 	Total   int       `json:"total" required:"true"`
 }
+
+type GetHistoryBookingResponse struct {
+	BookingWithAddress []BookingWithAddress `json:"booking" required:"true"`
+}
+
 type GetManyBookingRequest struct {
 	Limit  int    `json:"limit" required:"true"`
 	Offset int    `json:"offset" required:"true"`

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,20 +38,6 @@ func ValidateJWT() gin.HandlerFunc {
 			})
 			c.Abort()
 		}
-
-		u, err := firebaseManager.GetUser(c, token.UID)
-
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, schema.StatusResponse{
-				Message: err.Error(),
-				Status:  http.StatusUnauthorized,
-			})
-			c.Abort()
-		}
-
-		timestamp := u.TokensValidAfterMillis / 1000
-
-		log.Printf("the refresh tokens were revoked at: %d (UTC seconds) ", timestamp)
 		// Set user id
 		c.Set("user_uid", token.UID)
 		c.Set("user_id", token.Claims["db_user_id"])

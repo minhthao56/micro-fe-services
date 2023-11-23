@@ -13,4 +13,5 @@ func NewRouterBooking(r *gin.RouterGroup, conn *sql.DB) {
 	r.POST("/update", controller.UpdateBooking)
 	r.GET("/", controller.GetManyBooking)
 	r.GET("/frequently-addresses", controller.GetFrequentlyAddresses)
+	r.GET("/history", controller.GetHistoryBookingByUserID)
 }

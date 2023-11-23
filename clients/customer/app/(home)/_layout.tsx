@@ -6,6 +6,7 @@ import { useColorScheme } from "react-native";
 import Colors from "../../constants/Colors";
 
 import { useSession } from "../../providers/SessionProvider";
+import { FullLoading } from "tamagui-shared-ui";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -19,7 +20,7 @@ export default function HomeLayout() {
   const colorScheme = useColorScheme();
 
   if (val?.isLoading) {
-    return <Text>Loading...</Text>;
+    return <FullLoading />;
   }
 
   if (!val?.isAuthenticated) {

@@ -1,12 +1,26 @@
 {
  "required": [
-  "booking",
-  "limit",
-  "offset",
-  "total"
+  "booking"
  ],
  "definitions": {
-  "SchemaBooking": {
+  "SchemaAddress": {
+   "properties": {
+    "display_name": {
+     "type": "string"
+    },
+    "formatted_address": {
+     "type": "string"
+    },
+    "lat": {
+     "type": "number"
+    },
+    "long": {
+     "type": "number"
+    }
+   },
+   "type": "object"
+  },
+  "SchemaBookingWithAddress": {
    "properties": {
     "booking_id": {
      "type": "string"
@@ -29,11 +43,17 @@
     "driver_id": {
      "type": "string"
     },
+    "end_address": {
+     "$ref": "#/definitions/SchemaAddress"
+    },
     "end_lat": {
      "type": "number"
     },
     "end_long": {
      "type": "number"
+    },
+    "start_address": {
+     "$ref": "#/definitions/SchemaAddress"
     },
     "start_lat": {
      "type": "number"
@@ -135,21 +155,12 @@
  "properties": {
   "booking": {
    "items": {
-    "$ref": "#/definitions/SchemaBooking"
+    "$ref": "#/definitions/SchemaBookingWithAddress"
    },
    "type": [
     "array",
     "null"
    ]
-  },
-  "limit": {
-   "type": "integer"
-  },
-  "offset": {
-   "type": "integer"
-  },
-  "total": {
-   "type": "integer"
   }
  },
  "type": "object"

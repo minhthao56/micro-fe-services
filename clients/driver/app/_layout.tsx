@@ -12,6 +12,7 @@ import { TamaguiProvider, Theme } from "tamagui";
 import { SessionProvider } from "../providers/SessionProvider";
 
 import config from "../tamagui.config";
+import { FullLoading } from "tamagui-shared-ui";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -35,7 +36,7 @@ export default function Root() {
   return (
     // @ts-ignore
     <TamaguiProvider config={config} defaultTheme="dark">
-      <Suspense fallback={<Text>Loading...</Text>}>
+      <Suspense fallback={<FullLoading/>}>
         <Theme name={colorScheme}>
           <ThemeProvider
             value={colorScheme === "light" ? DefaultTheme : DarkTheme}

@@ -129,7 +129,7 @@ export default function HomeScreen() {
       const resp = {
         ...reqBooking,
         customer_id: String(reqBooking?.customer.customer_id) || "",
-        status: "ACCEPTED",
+        status: "ACCEPTED"
       } as BookingStatusSocketResponse;
 
       const { booking_id } = await createBooking(resp);

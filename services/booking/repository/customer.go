@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/minhthao56/monorepo-taxi/libs/go/schema"
+	"github.com/pkg/errors"
 )
 
 type CustomerRepository interface {
@@ -23,12 +24,12 @@ func NewCustomerRepository(db *sql.DB) CustomerRepository {
 }
 
 func (c *CustomerRepositoryImpl) SerCurrentLocation(ctx context.Context, req schema.SetLocationRequest, customer_id string) error {
-	r, e := c.db.Exec("UPDATE customers SET long = $1, lat = $2 WHERE customer_id = $3", req.Long, req.Lat, customer_id)
+	r, e := c.db.Exec("UPDATE customers SET long = $1, lat = $2 WHERE user_id = $3", req.Long, req.Lat, customer_id)
 	if e != nil {
 		return e
 	}
 	if n, _ := r.RowsAffected(); n == 0 {
-		return sql.ErrNoRows
+		return errors.Wrap(sql.ErrNoRows, "customer not found")
 	}
 	return nil
 }

@@ -135,6 +135,7 @@ export default function PickUp() {
           start_long: origin?.coords.longitude || 0,
           status: "",
           from_call_center: false,
+          distance: driver?.distance || 0,
 
         };
         socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);

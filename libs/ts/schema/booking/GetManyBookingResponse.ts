@@ -11,6 +11,7 @@ export interface SchemaBooking {
     created_at?:  string;
     customer?:    SchemaCustomer;
     customer_id?: string;
+    distance?:    number;
     driver?:      SchemaDriver;
     driver_id?:   string;
     end_lat?:     number;

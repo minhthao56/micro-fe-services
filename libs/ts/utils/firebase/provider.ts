@@ -52,12 +52,11 @@ export class AuthWithFirebase implements AuthProvider {
       throw error;
     }
   }
-  private onAuthStateChangedPromise(): Promise<User | null> {
+  private async onAuthStateChangedPromise(): Promise<User | null> {
     return new Promise((resolve, reject) => {
       const unsubscribe = this.auth.onAuthStateChanged(
         (user) => {
           resolve(user);
-          unsubscribe();
         },
         (error) => {
           reject(error);
@@ -75,6 +74,11 @@ export class AuthWithFirebase implements AuthProvider {
     }
     return this.isAuthenticated;
   }
+
+  getAuth(): Auth {
+    return this.auth;
+  }
+
   getUser(): User | null {
     return this.auth.currentUser;
   }

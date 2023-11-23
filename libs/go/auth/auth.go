@@ -93,9 +93,9 @@ func (u *FirebaseManagerImpl) CustomTokenWithClaims(ctx context.Context, uid str
 }
 
 func (f *FirebaseManagerImpl) VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error) {
-	token, err := f.client.VerifyIDToken(ctx, idToken)
+	token, err := f.client.VerifyIDTokenAndCheckRevoked(ctx, idToken)
 	if err != nil {
-		return nil, fmt.Errorf("error VerifyIDToken: %v", err)
+		return nil, fmt.Errorf("error VerifyIDTokenAndCheckRevoked: %v", err)
 	}
 	return token, nil
 }

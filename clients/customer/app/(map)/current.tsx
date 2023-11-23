@@ -8,6 +8,7 @@ import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alert } from "react-native";
 import { MapContainer } from "tamagui-shared-ui";
+import { useToast } from "react-native-toast-notifications";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { updateCurrentLocation } from "../../services/booking/customer";
@@ -17,6 +18,7 @@ export default function CurrentPage() {
     useState<Location.LocationObject>();
   const [address, setAddress] = useState("");
   const insets = useSafeAreaInsets();
+  const toast = useToast();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,8 +71,10 @@ export default function CurrentPage() {
         lat: currentLocation?.coords.latitude || 0,
         long: currentLocation?.coords.longitude || 0,
       });
-    } catch (error) {
+      toast.show("Your location has been updated!", {type: "success"});
+    } catch (error: any) {
       console.log(error);
+      toast.show(error.message, {type: "danger"});
     }finally{
       setIsLoading(false);
     }

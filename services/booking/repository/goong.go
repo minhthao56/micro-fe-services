@@ -27,8 +27,6 @@ func GetGeocodeGoong(lat string, long string) (schema.GeocodeGoongResponse, erro
 		return geocodeGoongResponse, err
 	}
 
-	fmt.Println("body", string(body))
-
 	err = json.Unmarshal(body, &geocodeGoongResponse)
 
 	if err != nil {

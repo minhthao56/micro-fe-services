@@ -1,5 +1,6 @@
 export interface CreateBookingRequest {
     customer_id: string;
+    distance:    number;
     driver_id:   string;
     end_lat:     number;
     end_long:    number;

@@ -9,6 +9,7 @@ export interface CustomerSocket extends Customer {
 
 export interface BookingSocketRequest extends CreateBookingRequest {
   from_call_center: boolean
+  distance: number
 }
 
 export interface NewBookingSocketRequest extends BookingSocketRequest {

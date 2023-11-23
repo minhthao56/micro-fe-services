@@ -6,11 +6,15 @@
   "start_lat",
   "end_long",
   "end_lat",
-  "status"
+  "status",
+  "distance"
  ],
  "properties": {
   "customer_id": {
    "type": "string"
+  },
+  "distance": {
+   "type": "number"
   },
   "driver_id": {
    "type": "string"
