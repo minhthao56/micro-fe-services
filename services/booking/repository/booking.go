@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/minhthao56/monorepo-taxi/libs/go/schema"
+	"github.com/pkg/errors"
 )
 
 type BookingRepository interface {
@@ -13,6 +15,8 @@ type BookingRepository interface {
 	UpdateBooking(ctx context.Context, booking schema.UpdateBookingRequest) error
 	GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.Booking, error)
 	CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error)
+	GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error)
+	UpdateAddresses(ctx context.Context, addresses []schema.Address) error
 }
 
 type BookingRepositoryImpl struct {
@@ -127,4 +131,128 @@ func (c *BookingRepositoryImpl) CountBooking(ctx context.Context, booking schema
 		return 0, err
 	}
 	return count, nil
+}
+
+func (c *BookingRepositoryImpl) GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error) {
+	address := schema.Address{}
+	rows, err := c.db.Query(
+		`SELECT DISTINCT b.end_lat, b.end_long FROM booking AS b
+		JOIN customers AS c ON  b.customer_id = c.customer_id
+		JOIN users AS u ON c.user_id = u.user_id
+		WHERE c.user_id = $1`,
+		userID,
+	)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "query booking")
+	}
+	defer rows.Close()
+
+	var addresses []schema.Address
+
+	for rows.Next() {
+		err := rows.Scan(
+			&address.Lat,
+			&address.Long,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "scan booking")
+		}
+		addresses = append(addresses, address)
+	}
+
+	var latlogs []string
+	for _, address := range addresses {
+		latlogs = append(latlogs, fmt.Sprintf("(%f,%f)", address.Lat, address.Long))
+	}
+
+	query := fmt.Sprintf(`SELECT lat, long, formatted_address, display_name FROM addresses WHERE (lat::double precision, long::double precision) IN (%s)`, strings.Join(latlogs, ", "))
+
+	addressRow, err := c.db.Query(query)
+	if err != nil {
+		return nil, errors.Wrap(err, "query address")
+	}
+	defer addressRow.Close()
+
+	var addressList []schema.Address
+
+	for addressRow.Next() {
+		addressNull := sql.NullString{}
+		displayNull := sql.NullString{}
+		err := addressRow.Scan(
+			&address.Lat,
+			&address.Long,
+			&addressNull,
+			&displayNull,
+		)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "scan address")
+		}
+		address.FormattedAddress = addressNull.String
+		address.DisplayName = displayNull.String
+		addressList = append(addressList, address)
+	}
+
+	for i, address := range addresses {
+		if len(addressList) == 0 {
+			geocode, err := GetGeocodeGoong(fmt.Sprintf("%f", address.Lat), fmt.Sprintf("%f", address.Long))
+
+			if err != nil {
+				return nil, errors.Wrap(err, "get geocode")
+			}
+
+			if (len(geocode.Results)) == 0 || geocode.Status != "OK" {
+				continue
+			}
+
+			addresses[i].FormattedAddress = geocode.Results[0].FormattedAddress
+			addresses[i].DisplayName = geocode.Results[0].Name
+		}
+		for _, address2 := range addressList {
+			if address.Lat == address2.Lat && address.Long == address2.Long && address.FormattedAddress != "" && address.DisplayName != "" {
+				addresses[i].FormattedAddress = address2.FormattedAddress
+				addresses[i].DisplayName = address2.DisplayName
+			} else {
+				geocode, err := GetGeocodeGoong(fmt.Sprintf("%f", address.Lat), fmt.Sprintf("%f", address.Long))
+
+				if err != nil {
+					return nil, errors.Wrap(err, "get geocode 2")
+				}
+
+				if (len(geocode.Results)) == 0 || geocode.Status != "OK" {
+					continue
+				}
+				addresses[i].FormattedAddress = geocode.Results[0].FormattedAddress
+				addresses[i].DisplayName = geocode.Results[0].Name
+			}
+		}
+	}
+
+	err = c.UpdateAddresses(ctx, addresses)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "update addresses")
+	}
+
+	return addresses, nil
+}
+
+func (c *BookingRepositoryImpl) UpdateAddresses(ctx context.Context, addresses []schema.Address) error {
+	for _, address := range addresses {
+		_, err := c.db.Exec(
+			`INSERT INTO addresses (lat, long, formatted_address, display_name)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (lat, long)
+			DO UPDATE SET formatted_address = EXCLUDED.formatted_address, display_name = EXCLUDED.display_name;`,
+			address.Lat,
+			address.Long,
+			address.FormattedAddress,
+			address.DisplayName,
+		)
+		if err != nil {
+			return errors.Wrap(err, "insert address")
+		}
+	}
+	return nil
 }

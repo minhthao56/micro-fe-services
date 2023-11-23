@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT user_id, email, firebase_uid, first_name, last_name, user_group FROM users WHERE firebase_uid = $1 AND user_group = $2 AND user_id = $3",
+  "query": "SELECT user_id, email, firebase_uid, first_name, last_name, user_group, phone_number FROM users WHERE firebase_uid = $1 AND user_group = $2 AND user_id = $3",
   "describe": {
     "columns": [
       {
@@ -32,6 +32,11 @@
         "ordinal": 5,
         "name": "user_group",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "phone_number",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -47,8 +52,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "3677009a1176666d5b3704c6478ead0ab8d1b9969fbda005296db12e9ec65eb3"
+  "hash": "3c81e2499b97bc902aae8462da86359d5f31d9b68eeda52a9fef639ff70459e2"
 }

@@ -34,7 +34,7 @@ async fn whoami(
 
     let query_result = sqlx::query_as!(
         UserEntity,
-        "SELECT user_id, email, firebase_uid, first_name, last_name, user_group FROM users WHERE firebase_uid = $1 AND user_group = $2 AND user_id = $3",
+        "SELECT user_id, email, firebase_uid, first_name, last_name, user_group, phone_number FROM users WHERE firebase_uid = $1 AND user_group = $2 AND user_id = $3",
         user_id,
         user_group,
         db_user_id,
@@ -69,7 +69,7 @@ async fn get_all_user(
 
     let query_result = sqlx::query_as!(
         UserEntity,
-        "SELECT user_id, email, firebase_uid, first_name, last_name, user_group FROM users",
+        "SELECT user_id, email, firebase_uid, first_name, last_name, user_group, phone_number FROM users",
     )
     .fetch_all(&data.db)
     .await;

@@ -1,7 +1,9 @@
 import React from "react";
-import { Stack } from "expo-router";
+import { Stack, router, Redirect } from "expo-router";
 
 export default function PublicLayout() {
+
+  if(!router.canGoBack()) return <Redirect href={"/"}/>
   return (
     <Stack
       screenOptions={{
@@ -9,6 +11,7 @@ export default function PublicLayout() {
       }}
     >
       <Stack.Screen name="current" />
+      <Stack.Screen name="pick-up" />
     </Stack>
   );
 }

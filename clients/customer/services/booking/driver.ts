@@ -1,6 +1,16 @@
 import { bookingClient } from "./client";
-import type { CreateBookingRequest } from "schema/booking/CreateBookingRequest";
+import { GetNearbyDriversRequest } from "schema/booking/GetNearbyDriversRequest";
+import { GetNearbyDriversResponse } from "schema/booking/GetNearbyDriversResponse";
 
-export async function createBooking (req: CreateBookingRequest) {
-  return await bookingClient.post<any, CreateBookingRequest>("booking", req);
+export async function findNearByDriver(req: GetNearbyDriversRequest) {
+  console.log("findNearByDriver", req);
+  return await bookingClient.get<
+    GetNearbyDriversResponse
+  >("driver/nearby",{
+    params:{
+        lat: `${req.request_lat}`,
+        long: `${req.request_long}`,
+    },
+  });
 }
+

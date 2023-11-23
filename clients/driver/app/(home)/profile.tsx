@@ -4,7 +4,7 @@ import { useSession } from "../../providers/SessionProvider";
 import { Text, View } from "../../components/Themed";
 import { Button } from "tamagui";
 
-export default function TabTwoScreen() {
+export default function ProfileScreen() {
   const session = useSession();
 
   return (

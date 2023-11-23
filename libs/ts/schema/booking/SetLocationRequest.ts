@@ -1,5 +1,5 @@
 export interface SetLocationRequest {
-    lat:  string;
-    long: string;
+    lat:  number;
+    long: number;
     [property: string]: any;
 }

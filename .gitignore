@@ -17,3 +17,5 @@ server.key
 yarn-error.log
 tmp
 yarn-error.log
+
+test.go

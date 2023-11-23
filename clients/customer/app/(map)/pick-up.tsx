@@ -29,7 +29,7 @@ import {
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { ParamsAddress } from "../../types/app";
-import { findNearByDriver } from "../../services/booking/customer";
+import { findNearByDriver } from "../../services/booking/driver";
 import { getVehicleTypes } from "../../services/booking/vehicle-type";
 import { socket } from "../../services/communicate/client";
 import { View } from "../../components/Themed";

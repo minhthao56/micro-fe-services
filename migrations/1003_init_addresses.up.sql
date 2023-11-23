@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS public.addresses(
     long DOUBLE PRECISION,
     lat DOUBLE PRECISION,
-    name VARCHAR(255),
+    name TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP,

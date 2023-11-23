@@ -1,15 +1,7 @@
 import { bookingClient } from "./client";
-import { GetNearbyDriversRequest } from "schema/booking/GetNearbyDriversRequest";
-import { GetNearbyDriversResponse } from "schema/booking/GetNearbyDriversResponse";
+import { SetLocationRequest } from "schema/booking/SetLocationRequest";
 
-export async function findNearByDriver(req: GetNearbyDriversRequest) {
-  console.log("findNearByDriver", req);
-  return await bookingClient.get<
-    GetNearbyDriversResponse
-  >("driver/nearby",{
-    params:{
-        lat: `${req.request_lat}`,
-        long: `${req.request_long}`,
-    },
-  });
+export async function updateCurrentLocation(req: SetLocationRequest) {
+    return await bookingClient.post<SetLocationRequest, any>("/customer/set-location", req);
 }
+

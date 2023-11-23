@@ -1,49 +1,54 @@
-import React from "react";
-import { Details, Marker, Region } from "react-native-maps";
+import React, { useCallback } from "react";
+import { Details, Region } from "react-native-maps";
 import { XStack, Button, YStack, Text, Card, Spinner } from "tamagui";
 import { MapPin } from "@tamagui/lucide-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Alert } from "react-native";
+import { MapContainer } from "tamagui-shared-ui";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
-import { MapContainer } from "tamagui-shared-ui";
-import { Alert } from "react-native";
-
+import { updateCurrentLocation } from "../../services/booking/customer";
 
 export default function CurrentPage() {
-  const [location, setLocation] = useState<Location.LocationObject>();
+  const [currentLocation, setCurrentLocation] =
+    useState<Location.LocationObject>();
   const [address, setAddress] = useState("");
   const insets = useSafeAreaInsets();
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCurrentLocation = useCallback(async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission to access location was denied");
+      return;
+    }
+
+    const stringLocation = await AsyncStorage.getItem("currentLocation");
+    let location = JSON.parse(stringLocation || "{}");
+
+    if (!stringLocation) {
+      location = await Location.getCurrentPositionAsync({});
+      await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
+    }
+
+    const address = await getAddressByLatLng(
+      location.coords.latitude,
+      location.coords.longitude
+    );
+    setAddress(address.results?.[0]?.formatted_address);
+    setCurrentLocation(location);
+  }, []);
+
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission to access location was denied");
-        return;
-      }
-
-      const stringLocation = await AsyncStorage.getItem("currentLocation");
-      let location = JSON.parse(stringLocation || "{}");
-
-      if (!stringLocation) {
-        location = await Location.getCurrentPositionAsync({});
-        await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
-      }
-
-      const address = await getAddressByLatLng(
-        location.coords.latitude,
-        location.coords.longitude
-      );
-      setAddress(address.results?.[0]?.formatted_address);
-      setLocation(location);
-    })();
+    handleCurrentLocation();
   }, []);
 
   const onRegionChangeComplete = (region: Region, _: Details) => {
-    setLocation({
+    setCurrentLocation({
       coords: {
         latitude: region.latitude,
         longitude: region.longitude,
@@ -54,10 +59,24 @@ export default function CurrentPage() {
         speed: null,
       },
       timestamp: Date.now(),
-    })
+    });
   };
 
-  if (!location) {
+  const handleConfirmDestination = async () => {
+    setIsLoading(true);
+    try {
+      await updateCurrentLocation({
+        lat: currentLocation?.coords.latitude || 0,
+        long: currentLocation?.coords.longitude || 0,
+      });
+    } catch (error) {
+      console.log(error);
+    }finally{
+      setIsLoading(false);
+    }
+  };
+
+  if (!currentLocation) {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center">
         <Spinner size="large" />
@@ -82,11 +101,14 @@ export default function CurrentPage() {
               <Text ml="$2">{address}</Text>
             </XStack>
           </Card>
-          <Button mb={insets.bottom + 8} onPress={async ()=>{
-
-           await  AsyncStorage.clear();
-
-          }}>Confirm Destination</Button>
+          <Button
+            mb={insets.bottom + 6}
+            onPress={handleConfirmDestination}
+            disabled={isLoading}
+            icon={ isLoading ? <Spinner size="small"/> : undefined}
+          >
+            Confirm Destination
+          </Button>
         </YStack>
       </XStack>
     );
@@ -97,18 +119,18 @@ export default function CurrentPage() {
       renderBottom={renderBottom}
       onRegionChangeComplete={onRegionChangeComplete}
       initialRegion={{
-        latitude: location?.coords.latitude || 0,
-        longitude: location?.coords.longitude || 0,
+        latitude: currentLocation?.coords.latitude || 0,
+        longitude: currentLocation?.coords.longitude || 0,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       }}
     >
-      <Marker
+      {/* <Marker
         coordinate={{
-          latitude: location?.coords.latitude || 0,
-          longitude: location?.coords.longitude || 0,
+          latitude: currentLocation?.coords.latitude || 0,
+          longitude: currentLocation?.coords.longitude || 0,
         }}
-      />
+      /> */}
     </MapContainer>
   );
 }

@@ -16,6 +16,7 @@ type BookingController interface {
 	CreateBooking(c *gin.Context)
 	UpdateBooking(c *gin.Context)
 	GetManyBooking(c *gin.Context)
+	GetFrequentlyAddresses(c *gin.Context)
 }
 
 type BookingControllerImpl struct {
@@ -145,5 +146,24 @@ func (u *BookingControllerImpl) GetManyBooking(c *gin.Context) {
 		Limit:   limit,
 		Offset:  offset,
 		Total:   total,
+	})
+}
+
+func (u *BookingControllerImpl) GetFrequentlyAddresses(c *gin.Context) {
+
+	stringUserID := c.GetString("user_id")
+
+	addresses, err := u.repoBooking.GetAddressesByUserID(c, stringUserID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, schema.GetFrequentlyAddressResponse{
+		Addresses: addresses,
 	})
 }

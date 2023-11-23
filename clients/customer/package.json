@@ -17,11 +17,15 @@
     "@expo/vector-icons": "^13.0.0",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-navigation/native": "^6.0.2",
+    "@tamagui/babel-plugin": "^1.79.0",
     "@tamagui/font-inter": "^1.79.0",
     "@tamagui/font-silkscreen": "^1.79.0",
     "@tamagui/lucide-icons": "^1.79.0",
     "@tamagui/themes": "^1.79.0",
+    "@tamagui/toast": "^1.79.1",
     "@tanstack/react-query": "^5.0.5",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
+    "burnt": "^0.12.1",
     "expo": "~49.0.13",
     "expo-constants": "~14.4.2",
     "expo-device": "~5.4.0",
@@ -52,9 +56,7 @@
     "schema": "*",
     "tamagui": "^1.79.0",
     "tamagui-shared-ui": "*",
-    "utils": "*",
-    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
-    "@tamagui/babel-plugin": "^1.79.0"
+    "utils": "*"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

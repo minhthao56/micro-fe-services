@@ -12,8 +12,8 @@ type Customer struct {
 }
 
 type SetLocationRequest struct {
-	Long string `json:"long" required:"true"`
-	Lat  string `json:"lat" required:"true"`
+	Long float64 `json:"long" required:"true"`
+	Lat  float64 `json:"lat" required:"true"`
 }
 type StatusResponse struct {
 	Message string `json:"message" required:"true"`

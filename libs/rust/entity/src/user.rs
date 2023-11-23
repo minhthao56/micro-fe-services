@@ -10,4 +10,5 @@ pub struct UserEntity {
     pub last_name: String,
     pub user_group: String,
     pub firebase_uid: String,
+    pub phone_number: String,
 }

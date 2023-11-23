@@ -1,5 +1,6 @@
 import { Redirect, Tabs } from "expo-router";
 import { Text } from "react-native";
+import { Home, User, Clock3 } from "@tamagui/lucide-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useColorScheme } from "react-native";
 import Colors from "../../constants/Colors";
@@ -34,15 +35,25 @@ export default function HomeLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: "Home",
+          tabBarIcon: ({ color }) => <Home color={color}/>,
+          headerShown: false,
+        }}
+      />
+        <Tabs.Screen
+        name="history"
+        options={{
+          title: "History",
+          tabBarIcon: ({ color }) => <Clock3 color={color}/>,
           headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="profile"
         options={{
-          title: "Tab Two",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: "Profile",
+          tabBarIcon: ({ color }) => <User color={color} />,
+          headerShown: false,
         }}
       />
     </Tabs>

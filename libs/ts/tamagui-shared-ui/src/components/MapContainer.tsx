@@ -57,7 +57,7 @@ export function MapContainer({
           marginTop: -20,
         }}
       >
-        {showFakePin ? <MapPin size={24} color="black" /> : null}
+        {showFakePin ? <MapPin size={24} color="black" fill="black"/> : null}
       </View>
     </YStack>
   );
