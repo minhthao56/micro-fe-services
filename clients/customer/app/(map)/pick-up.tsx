@@ -3,28 +3,28 @@ import { MapPin, Car, Pin } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { Alert } from "react-native";
-import {
-  XStack,
-  Button,
-  YStack,
-  Text,
-  Card,
-  Spinner,
-  H3,
-} from "tamagui";
+import { XStack, Button, YStack, Text, Card, Spinner, H3 } from "tamagui";
+import { StatusBar } from "expo-status-bar";
+
 import { Sheet } from "@tamagui/sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Details, Marker, Region } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MapViewDirections from "react-native-maps-directions";
-import { MapContainer } from "tamagui-shared-ui";
+import { useToast } from "react-native-toast-notifications";
+import {
+  MapContainer,
+  userInitialPosition,
+  useMovePosition,
+} from "tamagui-shared-ui";
+
 import { SchemaVehicleType } from "schema/booking/GetVehicleTypesResponse";
 import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
 import { SocketEventBooking } from "schema/constants/event";
 import {
   BookingStatusSocketResponse,
   LocationDriverSocket,
-  BookingSocketRequest
+  BookingSocketRequest,
 } from "schema/socket/booking";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
@@ -34,6 +34,7 @@ import { getVehicleTypes } from "../../services/booking/vehicle-type";
 import { socket } from "../../services/communicate/client";
 import { View } from "../../components/Themed";
 import { useSession } from "../../providers/SessionProvider";
+import DriverCard from "../../components/DriverCard";
 
 export default function PickUp() {
   const { lat, long, formattedAddress } = useLocalSearchParams<ParamsAddress>();
@@ -54,6 +55,11 @@ export default function PickUp() {
   const [endPickUp, setEndPickUp] = useState(false);
   const session = useSession();
 
+  const toast = useToast();
+
+  const { latitudeDelta, longitudeDelta } = userInitialPosition();
+  const { mapRef, moveTo, fitToCoordinates } = useMovePosition();
+
   useEffect(() => {
     (async () => {
       const stringLocation = await AsyncStorage.getItem("currentLocation");
@@ -67,7 +73,7 @@ export default function PickUp() {
         currentLocation.coords.latitude,
         currentLocation.coords.longitude
       );
-      setAddress(address.results?.[0]?.formatted_address);
+      setAddress(address.results?.[0]?.formatted_address || "");
       setLocationPickUp(currentLocation);
 
       const vehicleTypes = await getVehicleTypes();
@@ -105,7 +111,7 @@ export default function PickUp() {
     });
 
     const address = await getAddressByLatLng(region.latitude, region.longitude);
-    setAddress(address.results?.[0]?.formatted_address);
+    setAddress(address.results?.[0]?.formatted_address || "");
   };
 
   const handleBooking = async () => {
@@ -136,8 +142,10 @@ export default function PickUp() {
           status: "",
           from_call_center: false,
           distance: driver?.distance || 0,
-
         };
+
+        toast.show(`Asking driver ${driver?.last_name}`, { type: "info" });
+
         socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
       });
       socket.on(
@@ -147,15 +155,29 @@ export default function PickUp() {
             setIsLookingForDriver(false);
             setSelectedDriver(driver);
             setRespBooking(data);
+            await moveTo({
+              latitude: driver?.current_lat || 0,
+              longitude: driver?.current_long || 0,
+            });
+          }
+
+          if (data.status === "STARTING") {
+            setRespBooking(data);
+            fitToCoordinates({
+              origin: {
+                latitude: origin?.coords.latitude || 0,
+                longitude: origin?.coords.longitude || 0,
+              },
+              destination: {
+                latitude: parseFloat(lat) || 0,
+                longitude: parseFloat(long) || 0,
+              },
+            });
           }
 
           if (data.status === "REJECTED") {
             setIsLookingForDriver(false);
-            Alert.alert("Booking rejected", "Please try again");
-          }
-
-          if (data.status === "COMPLETED") {
-            Alert.alert("Booking completed", "Thank you for using our service", [
+            Alert.alert("Booking rejected", "Please try again", [
               {
                 text: "OK",
                 onPress: () => {
@@ -164,13 +186,27 @@ export default function PickUp() {
               },
             ]);
           }
+          if (data.status === "COMPLETED") {
+            Alert.alert(
+              "Booking completed",
+              "Thank you for using our service",
+              [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    router.back();
+                  },
+                },
+              ]
+            );
+          }
         }
       );
 
       // update location of driver
       socket.on(
         SocketEventBooking.BOOKING_DRIVER_LOCATION,
-        (data: LocationDriverSocket) => {
+        async (data: LocationDriverSocket) => {
           setSelectedDriver((prev) => {
             if (
               prev?.current_lat === data.lat &&
@@ -187,6 +223,11 @@ export default function PickUp() {
               };
             }
             return prev;
+          });
+
+          await moveTo({
+            latitude: data.lat,
+            longitude: data.long,
           });
         }
       );
@@ -208,64 +249,43 @@ export default function PickUp() {
     return (
       <XStack position="absolute" bottom={0} left={0} right={0}>
         <YStack flex={1} p="$2">
-          {isLookingForDriver ? (
-            <Card
-              flex={1}
-              justifyContent="center"
-              alignItems="center"
-              py="$3"
-              px="$4"
-            >
-              <XStack>
-                <Spinner size="small" />
-                <Text ml="$2">Looking for driver</Text>
-              </XStack>
-            </Card>
-          ) : null}
-          <Card justifyContent="center" mb="$2" py="$3" px="$4">
-            <XStack>
-              <MapPin size="$1" />
-              <Text>{address}</Text>
-            </XStack>
-            <View
-              style={{
-                marginVertical: 15,
-                height: 1,
-              }}
-              lightColor="#eee"
-              darkColor="rgba(255,255,255,0.3)"
-            />
-            <XStack>
-              <Pin size="$1" />
-              <Text>{formattedAddress}</Text>
-            </XStack>
-          </Card>
           {selectedDriver?.driver_id ? (
-            <Card
-              flex={1}
-              justifyContent="center"
-              py="$3"
-              px="$4"
-              mb={insets.bottom + 8}
-            >
-              <Card.Header padded>
-                <H3>Your Driver</H3>
-              </Card.Header>
-              <Text>
-                {`Name: ${
-                  selectedDriver.last_name + " " + selectedDriver.first_name
-                }`}
-              </Text>
-              <Text>{`Phone Number: ${selectedDriver.phone_number}`}</Text>
-              <Text>{`Email: ${selectedDriver.email}`}</Text>
-              <Text>{`Distance: ${Math.floor(
-                selectedDriver.distance / 1000
-              )} KM`}</Text>
-            </Card>
+            <DriverCard driver={selectedDriver} insetsBottom={insets.bottom} />
           ) : (
-            <Button mb={insets.bottom + 8} onPress={handlePickUp}>
-              Choose This Pick-Up
-            </Button>
+            <>
+              <Card justifyContent="center" mb="$2" py="$3" px="$4">
+                <XStack>
+                  <MapPin size="$1" color="$red10Dark" />
+                  <Text flex={1} ml="$2">
+                    {address}
+                  </Text>
+                </XStack>
+                <View
+                  style={{
+                    marginVertical: 15,
+                    height: 1,
+                  }}
+                  lightColor="#eee"
+                  darkColor="rgba(255,255,255,0.3)"
+                />
+                <XStack>
+                  <Pin size="$1" color="$blue10Dark" />
+                  <Text flex={1} ml="$2">
+                    {formattedAddress}
+                  </Text>
+                </XStack>
+              </Card>
+              <Button
+                mb={insets.bottom + 8}
+                onPress={handlePickUp}
+                icon={isLookingForDriver ? <Spinner size="small" /> : undefined}
+                disabled={isLookingForDriver}
+              >
+                {isLookingForDriver
+                  ? "Looking for driver"
+                  : "Choose This Pick-Up"}
+              </Button>
+            </>
           )}
         </YStack>
       </XStack>
@@ -274,23 +294,27 @@ export default function PickUp() {
 
   return (
     <>
+      <StatusBar style="dark" />
       <MapContainer
         renderBottom={renderBottom}
         onRegionChangeComplete={onRegionChangeComplete}
         initialRegion={{
           latitude: locationPickUp?.coords.latitude || 0,
           longitude: locationPickUp?.coords.longitude || 0,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta,
+          longitudeDelta,
         }}
+        ref={mapRef}
         showFakePin={!endPickUp}
       >
-        <Marker
-          coordinate={{
-            latitude: locationPickUp?.coords.latitude || 0,
-            longitude: locationPickUp?.coords.longitude || 0,
-          }}
-        />
+        {endPickUp ? (
+          <Marker
+            coordinate={{
+              latitude: locationPickUp?.coords.latitude || 0,
+              longitude: locationPickUp?.coords.longitude || 0,
+            }}
+          />
+        ) : null}
 
         {respBooking?.status === "STARTING" ? (
           <>

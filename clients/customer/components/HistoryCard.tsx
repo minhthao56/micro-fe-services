@@ -45,7 +45,7 @@ export default function HistoryCard({ history }: HistoryCardProps) {
           <XStack alignItems="center" flex={1}>
             <Clock3 size={10} />
             <Text flex={1} ml="$2" theme="alt1" fontSize="$1">
-              {moment(history.created_at).format("DD/MM/YYYY")} - { history.distance && history.distance/1000 } km
+              {moment(history.created_at).format("DD/MM/YYYY")} - { history.distance && Math.round((history.distance/1000)*100)/100 } km
             </Text>
           </XStack>
         </XStack>

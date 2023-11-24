@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, forwardRef } from "react";
 import MapView, { PROVIDER_GOOGLE, MapViewProps } from "react-native-maps";
 import { Button, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,17 +8,23 @@ import { View } from "react-native";
 
 interface MapContainerProps extends Omit<MapViewProps, "provider" | "style"> {
   renderBottom?: () => React.ReactNode;
+  renderRight?: () => React.ReactNode;
   showBackButton?: boolean;
   showFakePin?: boolean;
 }
 
-export function MapContainer({
-  children,
-  renderBottom,
-  showFakePin = true,
-  showBackButton = true,
-  ...props
-}: PropsWithChildren<MapContainerProps>) {
+export const MapContainer = forwardRef<
+  any,
+  PropsWithChildren<MapContainerProps>
+>((props, ref) => {
+  const {
+    children,
+    renderBottom,
+    showFakePin = true,
+    showBackButton = true,
+    renderRight,
+    ...rest
+  } = props;
   const insets = useSafeAreaInsets();
 
   return (
@@ -27,7 +33,8 @@ export function MapContainer({
         style={{ width: "100%", height: "100%" }}
         provider={PROVIDER_GOOGLE}
         mapType="terrain"
-        {...props}
+        {...rest}
+        ref={ref}
       >
         {children}
       </MapView>
@@ -48,6 +55,7 @@ export function MapContainer({
       ) : null}
 
       {renderBottom && renderBottom()}
+      {renderRight && renderRight()}
       <View
         style={{
           left: "50%",
@@ -57,8 +65,8 @@ export function MapContainer({
           marginTop: -20,
         }}
       >
-        {showFakePin ? <MapPin size={24} color="black" fill="black"/> : null}
+        {showFakePin ? <MapPin size={24} color="black" fill="black" /> : null}
       </View>
     </YStack>
   );
-}
+});

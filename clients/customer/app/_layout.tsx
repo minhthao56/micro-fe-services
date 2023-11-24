@@ -54,8 +54,8 @@ export default function Root() {
         <ThemeProvider
           value={colorScheme === "light" ? DefaultTheme : DarkTheme}
         >
-         {/* @ts-ignore */}
-          <ToastProvider placement="top" style = {{borderRadius:"50px"}}>
+        
+          <ToastProvider placement="top" style = {{borderRadius:50}}>
           <Suspense fallback={<FullLoading/>}>
               <SessionProvider>
                 <Slot />

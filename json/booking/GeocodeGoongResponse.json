@@ -1,0 +1,102 @@
+{
+ "properties": {
+  "results": {
+   "items": {
+    "properties": {
+     "address": {
+      "type": "string"
+     },
+     "address_components": {
+      "items": {
+       "properties": {
+        "long_name": {
+         "type": "string"
+        },
+        "short_name": {
+         "type": "string"
+        }
+       },
+       "type": "object"
+      },
+      "type": [
+       "array",
+       "null"
+      ]
+     },
+     "compound": {
+      "properties": {
+       "commune": {
+        "type": "string"
+       },
+       "district": {
+        "type": "string"
+       },
+       "province": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "formatted_address": {
+      "type": "string"
+     },
+     "geometry": {
+      "properties": {
+       "boundary": {},
+       "location": {
+        "properties": {
+         "lat": {
+          "type": "number"
+         },
+         "lng": {
+          "type": "number"
+         }
+        },
+        "type": "object"
+       }
+      },
+      "type": "object"
+     },
+     "name": {
+      "type": "string"
+     },
+     "place_id": {
+      "type": "string"
+     },
+     "plus_code": {
+      "properties": {
+       "compound_code": {
+        "type": "string"
+       },
+       "global_code": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "reference": {
+      "type": "string"
+     },
+     "types": {
+      "items": {
+       "type": "string"
+      },
+      "type": [
+       "array",
+       "null"
+      ]
+     }
+    },
+    "type": "object"
+   },
+   "type": [
+    "array",
+    "null"
+   ]
+  },
+  "status": {
+   "type": "string"
+  }
+ },
+ "type": "object"
+}

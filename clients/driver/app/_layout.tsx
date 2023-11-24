@@ -14,6 +14,9 @@ import { SessionProvider } from "../providers/SessionProvider";
 import config from "../tamagui.config";
 import { FullLoading } from "tamagui-shared-ui";
 
+import { ToastProvider } from 'react-native-toast-notifications'
+
+
 export { ErrorBoundary } from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
@@ -41,9 +44,11 @@ export default function Root() {
           <ThemeProvider
             value={colorScheme === "light" ? DefaultTheme : DarkTheme}
           >
+          <ToastProvider placement="top" style = {{borderRadius:50}}>
             <SessionProvider>
                 <Slot />
             </SessionProvider>
+          </ToastProvider>
           </ThemeProvider>
         </Theme>
       </Suspense>

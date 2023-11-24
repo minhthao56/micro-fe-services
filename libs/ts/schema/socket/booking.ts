@@ -15,6 +15,7 @@ export interface BookingSocketRequest extends CreateBookingRequest {
 export interface NewBookingSocketRequest extends BookingSocketRequest {
   customer: CustomerSocket
   admin_socket_id?: string
+
 }
 
 export interface BookingStatusSocketResponse extends BookingSocketRequest {

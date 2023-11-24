@@ -6,6 +6,7 @@ import { setToken } from "../services/initClient";
 import { whoami } from "../services/usermgmt/user";
 import { Alert } from "react-native";
 import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface CustomClaims extends ParsedToken {
   customer_id: string;
@@ -74,7 +75,8 @@ export function SessionProvider(props: {
         const claims = getIdTokenResult?.claims as CustomClaims
         setClaims(claims);
         console.log("driver_id: ", claims.driver_id);
-        await whoami();
+        const userDB = await whoami();
+        await AsyncStorage.setItem("userDB", JSON.stringify(userDB.results));
       }
     } catch (error: any) {
       console.log(error);

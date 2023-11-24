@@ -37,7 +37,7 @@ export default function SignIn() {
         throw new Error("No user id");
       }
     } catch (error: any) {
-      console.error(error);
+      console.log(error);
       Alert.alert("Error", error.message);
       await session?.signOut();
 

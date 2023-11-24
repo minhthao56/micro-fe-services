@@ -12,7 +12,7 @@ import (
 func GetGeocodeGoong(lat string, long string) (schema.GeocodeGoongResponse, error) {
 	geocodeGoongResponse := schema.GeocodeGoongResponse{}
 
-	requestURL := fmt.Sprintf("https://rsapi.goong.io/Geocode?latlng=%s,%s&api_key=%s", lat, long, "L5tIJpSCeilp7Guuti0y5NTPtrDctmgI8dDYBh1N")
+	requestURL := fmt.Sprintf("https://rsapi.goong.io/Geocode?latlng=%s,%s&api_key=%s", lat, long, "rdKOo9UELt1uGyOKYwvPd1ZhD8fAs81GLa1ua8d4")
 	res, err := http.Get(requestURL)
 
 	if err != nil {

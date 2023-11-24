@@ -7,8 +7,9 @@ import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alert } from "react-native";
-import { MapContainer } from "tamagui-shared-ui";
+import { MapContainer , userInitialPosition,  useMovePosition} from "tamagui-shared-ui";
 import { useToast } from "react-native-toast-notifications";
+import { StatusBar } from "expo-status-bar";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { updateCurrentLocation } from "../../services/booking/customer";
@@ -19,6 +20,8 @@ export default function CurrentPage() {
   const [address, setAddress] = useState("");
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  const { latitudeDelta, longitudeDelta } = userInitialPosition()
+
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,7 +44,7 @@ export default function CurrentPage() {
       location.coords.latitude,
       location.coords.longitude
     );
-    setAddress(address.results?.[0]?.formatted_address);
+    setAddress(address.results?.[0]?.formatted_address || "");
     setCurrentLocation(location);
   }, []);
 
@@ -49,7 +52,7 @@ export default function CurrentPage() {
     handleCurrentLocation();
   }, []);
 
-  const onRegionChangeComplete = (region: Region, _: Details) => {
+  const onRegionChangeComplete = async (region: Region, _: Details) => {
     setCurrentLocation({
       coords: {
         latitude: region.latitude,
@@ -62,6 +65,10 @@ export default function CurrentPage() {
       },
       timestamp: Date.now(),
     });
+
+    const address = await getAddressByLatLng(region.latitude, region.longitude);
+
+    setAddress(address.results?.[0]?.formatted_address || "");
   };
 
   const handleConfirmDestination = async () => {
@@ -71,11 +78,15 @@ export default function CurrentPage() {
         lat: currentLocation?.coords.latitude || 0,
         long: currentLocation?.coords.longitude || 0,
       });
-      toast.show("Your location has been updated!", {type: "success"});
+      await AsyncStorage.setItem(
+        "currentLocation",
+        JSON.stringify(currentLocation)
+      );
+      toast.show("Your location has been updated!", { type: "success" });
     } catch (error: any) {
       console.log(error);
-      toast.show(error.message, {type: "danger"});
-    }finally{
+      toast.show(error.message, { type: "danger" });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -109,7 +120,7 @@ export default function CurrentPage() {
             mb={insets.bottom + 6}
             onPress={handleConfirmDestination}
             disabled={isLoading}
-            icon={ isLoading ? <Spinner size="small"/> : undefined}
+            icon={isLoading ? <Spinner size="small" /> : undefined}
           >
             Confirm Destination
           </Button>
@@ -119,22 +130,25 @@ export default function CurrentPage() {
   };
 
   return (
-    <MapContainer
-      renderBottom={renderBottom}
-      onRegionChangeComplete={onRegionChangeComplete}
-      initialRegion={{
-        latitude: currentLocation?.coords.latitude || 0,
-        longitude: currentLocation?.coords.longitude || 0,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}
-    >
-      {/* <Marker
+    <>
+      <StatusBar style="dark" />
+      <MapContainer
+        renderBottom={renderBottom}
+        onRegionChangeComplete={onRegionChangeComplete}
+        initialRegion={{
+          latitude: currentLocation?.coords.latitude || 0,
+          longitude: currentLocation?.coords.longitude || 0,
+          latitudeDelta,
+          longitudeDelta,
+        }}
+      >
+        {/* <Marker
         coordinate={{
           latitude: currentLocation?.coords.latitude || 0,
           longitude: currentLocation?.coords.longitude || 0,
         }}
       /> */}
-    </MapContainer>
+      </MapContainer>
+    </>
   );
 }

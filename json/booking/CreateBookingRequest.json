@@ -9,6 +9,25 @@
   "status",
   "distance"
  ],
+ "definitions": {
+  "SchemaAddress": {
+   "properties": {
+    "display_name": {
+     "type": "string"
+    },
+    "formatted_address": {
+     "type": "string"
+    },
+    "lat": {
+     "type": "number"
+    },
+    "long": {
+     "type": "number"
+    }
+   },
+   "type": "object"
+  }
+ },
  "properties": {
   "customer_id": {
    "type": "string"
@@ -19,11 +38,17 @@
   "driver_id": {
    "type": "string"
   },
+  "end_address": {
+   "$ref": "#/definitions/SchemaAddress"
+  },
   "end_lat": {
    "type": "number"
   },
   "end_long": {
    "type": "number"
+  },
+  "start_address": {
+   "$ref": "#/definitions/SchemaAddress"
   },
   "start_lat": {
    "type": "number"

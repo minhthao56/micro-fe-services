@@ -1,10 +1,10 @@
-import React, { useCallback } from "react";
-import { Marker } from "react-native-maps";
+import React from "react";
+import MapView, { Marker } from "react-native-maps";
 import { XStack, Button, YStack, Spinner, Dialog } from "tamagui";
 import { Power } from "@tamagui/lucide-icons";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
-import { MapContainer } from "tamagui-shared-ui";
+import { MapContainer, useMovePosition, userInitialPosition } from "tamagui-shared-ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import MapViewDirections from "react-native-maps-directions";
@@ -14,6 +14,9 @@ import {
   LocationDriverSocket,
   NewBookingSocketRequest,
 } from "schema/socket/booking";
+import { StatusBar } from "expo-status-bar";
+
+import { useToast } from "react-native-toast-notifications"
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { socket } from "../../services/communicate/client";
@@ -22,11 +25,7 @@ import { intervalUpdate } from "../../utils/time";
 import { createBooking, updateBooking } from "../../services/booking/booking";
 import { updateLocation, updateStatus } from "../../services/booking/driver";
 import { useSession } from "../../providers/SessionProvider";
-
-interface NewBookingSocketRequestWithAddress extends NewBookingSocketRequest {
-  start_address: string;
-  end_address: string;
-}
+import RenderRight from "../../components/RenderRight";
 
 interface BookingStatusSocketResponseWithBookingId
   extends BookingStatusSocketResponse {
@@ -38,11 +37,14 @@ export default function HomeScreen() {
   const [connected, setConnected] = useState(socket.connected);
   const [waitingConnect, setWaitingConnect] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const [reqBooking, setReqBooking] =
-    useState<NewBookingSocketRequestWithAddress>();
+  const [reqBooking, setReqBooking] = useState<NewBookingSocketRequest>();
   const [respBooking, setRespBooking] =
     useState<BookingStatusSocketResponseWithBookingId>();
   const session = useSession();
+  const toast = useToast()
+  const { latitudeDelta, longitudeDelta } = userInitialPosition();
+
+  const { mapRef, moveTo, fitToCoordinates } = useMovePosition();
 
 
   useEffect(() => {
@@ -63,7 +65,6 @@ export default function HomeScreen() {
       setLocation(location);
     })();
   }, []);
-
 
   useEffect(() => {
     const unsubscribe = intervalUpdate(async () => {
@@ -95,25 +96,25 @@ export default function HomeScreen() {
             dataDriverLocation
           );
         }
+        await moveTo({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
       }
     }, 5000);
 
     return () => {
       unsubscribe();
     };
-
   }, [reqBooking?.customer.socket_id]);
 
-
-
   useEffect(() => {
-    if (respBooking?.status === "COMPLETED"){
+    if (respBooking?.status === "COMPLETED") {
       setReqBooking(undefined);
       setRespBooking(undefined);
       Alert.alert("Done Trip");
     }
   }, [respBooking?.status]);
-
 
   if (!location) {
     return (
@@ -129,7 +130,7 @@ export default function HomeScreen() {
       const resp = {
         ...reqBooking,
         customer_id: String(reqBooking?.customer.customer_id) || "",
-        status: "ACCEPTED"
+        status: "ACCEPTED",
       } as BookingStatusSocketResponse;
 
       const { booking_id } = await createBooking(resp);
@@ -138,10 +139,44 @@ export default function HomeScreen() {
         booking_id: booking_id || "",
       });
 
-      await updateStatus({driver_id: session?.claims?.driver_id || "", status: "BUSY" });
+      await updateStatus({
+        driver_id: session?.claims?.driver_id || "",
+        status: "BUSY",
+      });
+
+      fitToCoordinates({
+        origin: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+        destination: {
+          latitude: reqBooking?.start_lat || 0,
+          longitude: reqBooking?.start_long || 0,
+        },
+      })
 
       socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
     } catch (error: any) {
+      console.log(error);
+      Alert.alert("Error", error.message);
+    }
+  };
+
+  const handleRejectBooking = async () => {
+    try {
+      setShowDialog(false);
+      const resp = {
+        ...reqBooking,
+        customer_id: String(reqBooking?.customer.customer_id) || "",
+        status: "REJECTED",
+      } as BookingStatusSocketResponse;
+
+      await createBooking(resp);
+      setReqBooking(undefined);
+      setRespBooking(undefined);
+      socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
+    } catch (error: any) {
+      console.log(error);
       Alert.alert("Error", error.message);
     }
   };
@@ -149,7 +184,9 @@ export default function HomeScreen() {
   const onConnect = async () => {
     setWaitingConnect(false);
     setConnected(true);
-    Alert.alert("Connected");
+    toast.show("Connected", {
+      type: "success",
+    })
     await updateStatus({
       driver_id: session?.claims?.driver_id || "",
       status: "ONLINE",
@@ -158,12 +195,22 @@ export default function HomeScreen() {
 
   const onBookingWaitingDriver = async (data: NewBookingSocketRequest) => {
     const startAddr = await getAddressByLatLng(data.start_lat, data.start_long);
-    const endAddr = await getAddressByLatLng(data.end_lat, data.end_lat);
+    const endAddr = await getAddressByLatLng(data.end_lat, data.end_long);
 
-    const req: NewBookingSocketRequestWithAddress = {
+    const req: NewBookingSocketRequest = {
       ...data,
-      start_address: startAddr.results?.[0]?.formatted_address || "",
-      end_address: endAddr.results?.[0]?.formatted_address || "",
+      start_address: {
+        formatted_address: startAddr.results?.[0]?.formatted_address || "",
+        lat: data.start_lat,
+        long: data.start_long,
+        display_name: startAddr.results?.[0]?.name || "",
+      },
+      end_address: {
+        formatted_address: endAddr.results?.[0]?.formatted_address || "",
+        lat: data.end_lat,
+        long: data.end_long,
+        display_name: endAddr.results?.[0]?.name || "",
+      },
     };
     setReqBooking(req);
     setShowDialog(true);
@@ -171,7 +218,9 @@ export default function HomeScreen() {
 
   const onDisconnect = async () => {
     setConnected(false);
-    Alert.alert("Disconnected");
+    toast.show("Disconnected", {
+      type:"danger",
+    })
     await updateStatus({
       driver_id: session?.claims?.driver_id || "",
       status: "OFFLINE",
@@ -210,6 +259,16 @@ export default function HomeScreen() {
               await updateBooking(resp);
               setRespBooking(resp);
               socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
+              fitToCoordinates({
+                origin: {
+                  latitude: reqBooking?.start_lat || 0,
+                  longitude: reqBooking?.start_long || 0,
+                },
+                destination:{
+                  latitude: reqBooking?.end_lat || 0,
+                  longitude: reqBooking?.end_long || 0,
+                }
+              })
             } catch (error: any) {
               Alert.alert("Error", error.message);
             }
@@ -231,6 +290,10 @@ export default function HomeScreen() {
                 status: "COMPLETED",
               };
               await updateBooking(resp);
+              await updateStatus({
+                driver_id: session?.claims?.driver_id || "",
+                status: "ONLINE",
+              });
               setRespBooking(resp);
               socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
             } catch (error: any) {
@@ -268,16 +331,21 @@ export default function HomeScreen() {
 
   return (
     <>
+      <StatusBar style="dark" />
       <MapContainer
         renderBottom={renderBottom}
+        renderRight={() => {
+          return <RenderRight />;
+        }}
         initialRegion={{
           latitude: location?.coords.latitude || 0,
           longitude: location?.coords.longitude || 0,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta,
+          longitudeDelta,
         }}
         showBackButton={false}
         showFakePin={false}
+        ref={mapRef}
       >
         <Marker
           coordinate={{
@@ -352,19 +420,19 @@ export default function HomeScreen() {
         title="New Booking"
       >
         <Dialog.Description>
-          {`You have new booking from customer at ${reqBooking?.start_address} to  ${reqBooking?.end_address}.
-            Phone number is ${reqBooking?.customer.phone_number}.`}
+          {`New booking at ${reqBooking?.start_address?.formatted_address} to ${
+            reqBooking?.end_address?.formatted_address
+          }.
+            Phone number is ${reqBooking?.customer.phone_number}. Distance is ${
+            reqBooking?.distance &&
+            Math.round((reqBooking?.distance / 1000) * 100) / 100
+          } km.`}
         </Dialog.Description>
         <Dialog.Description>
           Do you want to accept this booking?
         </Dialog.Description>
         <XStack justifyContent="space-around">
-          <Button
-            onPress={() => {
-              setShowDialog(false);
-            }}
-            bg="$red10Dark"
-          >
+          <Button onPress={handleRejectBooking} bg="$red10Dark">
             Reject
           </Button>
           <Button onPress={handleAcceptBooking} bg="$green10Dark">

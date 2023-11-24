@@ -50,7 +50,20 @@ func (u *BookingControllerImpl) CreateBooking(c *gin.Context) {
 		})
 		return
 	}
+
 	bookingID, err := u.repoBooking.CreateBooking(c, request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	err = u.repoBooking.UpdateAddresses(c, []schema.Address{
+		request.EndAddress,
+		request.StartAddress,
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
 			Message: err.Error(),
