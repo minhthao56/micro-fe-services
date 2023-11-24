@@ -1,5 +1,5 @@
 # System Booking
-## Install dependencies
+## Install dependencies (Only support for Linux and MacOS)
 ### Backend
 - Node.js: https://nodejs.org/en/
 - Yarn: https://yarnpkg.com/en/docs/install
