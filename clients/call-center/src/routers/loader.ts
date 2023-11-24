@@ -38,7 +38,7 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
         createToast(`You have new booking from ${data.caller}`, { type: "dark", action:{
           text: "View",
           callback: () => {
-            redirect(`/`)
+            window.location.href = `/`;
           }
         } });
       });
