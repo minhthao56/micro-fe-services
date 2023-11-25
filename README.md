@@ -15,11 +15,13 @@
 
 ## Environment variables
 ### Customer app and Driver app
+Create `.env` in folder `clients/customer` and `clients/driver` and fill in the following variables:
 - `EXPO_PUBLIC_GOOGLE_API_KEY`=your_google_api_key
 - `EXPO_PUBLIC_BASE_URL`=http://api.cheap-taxi.me/
 - `EXPO_PUBLIC_GOONG_KEY`=your_goong_key
 
 ### Call center web app
+Create `.env` in `clients/call-center` and fill in the following variables:
 - `REACT_APP_BASE_URL`=http://api.cheap-taxi.me/
 - `REACT_APP_TWILIO_ACCOUNT_SID`=your_twilio_account_sid
 - `REACT_APP_TWILIO_AUTH_TOKEN`=your_twilio_auth_token
