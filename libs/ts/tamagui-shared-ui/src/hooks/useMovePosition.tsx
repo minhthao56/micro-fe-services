@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import MapView, { LatLng } from "react-native-maps";
 
-type FitToCoordinatesProps = {
+export type FitToCoordinatesProps = {
   origin: LatLng;
   destination: LatLng;
 };

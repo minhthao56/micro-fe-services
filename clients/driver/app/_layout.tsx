@@ -1,6 +1,6 @@
 import { Slot, SplashScreen } from "expo-router";
 import { Suspense, useEffect } from "react";
-import { useColorScheme, Text } from "react-native";
+import { useColorScheme } from "react-native";
 import { useFonts } from "expo-font";
 import {
   DarkTheme,
@@ -12,10 +12,7 @@ import { TamaguiProvider, Theme } from "tamagui";
 import { SessionProvider } from "../providers/SessionProvider";
 
 import config from "../tamagui.config";
-import { FullLoading } from "tamagui-shared-ui";
-
-import { ToastProvider } from 'react-native-toast-notifications'
-
+import { FullLoading, ToastProviderCustom } from "tamagui-shared-ui";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -39,16 +36,16 @@ export default function Root() {
   return (
     // @ts-ignore
     <TamaguiProvider config={config} defaultTheme="dark">
-      <Suspense fallback={<FullLoading/>}>
+      <Suspense fallback={<FullLoading />}>
         <Theme name={colorScheme}>
           <ThemeProvider
             value={colorScheme === "light" ? DefaultTheme : DarkTheme}
           >
-          <ToastProvider placement="top" style = {{borderRadius:50}}>
-            <SessionProvider>
+            <ToastProviderCustom>
+              <SessionProvider>
                 <Slot />
-            </SessionProvider>
-          </ToastProvider>
+              </SessionProvider>
+            </ToastProviderCustom>
           </ThemeProvider>
         </Theme>
       </Suspense>

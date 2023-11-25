@@ -11,13 +11,10 @@ import { TamaguiProvider, Theme } from "tamagui";
 
 import * as Notifications from "expo-notifications";
 
-import { FullLoading } from "tamagui-shared-ui"
+import { FullLoading, ToastProviderCustom } from "tamagui-shared-ui"
 
 import { SessionProvider } from "../providers/SessionProvider";
 import config from "../tamagui.config";
-
-import { ToastProvider } from 'react-native-toast-notifications'
-
 
 export { ErrorBoundary } from "expo-router";
 
@@ -55,13 +52,13 @@ export default function Root() {
           value={colorScheme === "light" ? DefaultTheme : DarkTheme}
         >
         
-          <ToastProvider placement="top" style = {{borderRadius:50}}>
+          <ToastProviderCustom >
           <Suspense fallback={<FullLoading/>}>
               <SessionProvider>
                 <Slot />
               </SessionProvider>
           </Suspense>
-          </ToastProvider>
+          </ToastProviderCustom>
         </ThemeProvider>
       </Theme>
     </TamaguiProvider>

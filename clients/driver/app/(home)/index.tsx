@@ -1,10 +1,14 @@
 import React from "react";
-import MapView, { Marker } from "react-native-maps";
+import { Marker } from "react-native-maps";
 import { XStack, Button, YStack, Spinner, Dialog } from "tamagui";
-import { Power } from "@tamagui/lucide-icons";
+// import { Power } from "@tamagui/lucide-icons";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
-import { MapContainer, useMovePosition, userInitialPosition } from "tamagui-shared-ui";
+import {
+  MapContainer,
+  useMovePosition,
+  userInitialPosition,
+} from "tamagui-shared-ui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import MapViewDirections from "react-native-maps-directions";
@@ -16,16 +20,14 @@ import {
 } from "schema/socket/booking";
 import { StatusBar } from "expo-status-bar";
 
-import { useToast } from "react-native-toast-notifications"
-
-import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { socket } from "../../services/communicate/client";
 import { DialogInstance } from "../../components/DialogInstance";
 import { intervalUpdate } from "../../utils/time";
-import { createBooking, updateBooking } from "../../services/booking/booking";
+import { createBooking } from "../../services/booking/booking";
 import { updateLocation, updateStatus } from "../../services/booking/driver";
 import { useSession } from "../../providers/SessionProvider";
 import RenderRight from "../../components/RenderRight";
+import RenderBottom from "../../components/RenderBottom";
 
 interface BookingStatusSocketResponseWithBookingId
   extends BookingStatusSocketResponse {
@@ -34,18 +36,15 @@ interface BookingStatusSocketResponseWithBookingId
 
 export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject>();
-  const [connected, setConnected] = useState(socket.connected);
-  const [waitingConnect, setWaitingConnect] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [reqBooking, setReqBooking] = useState<NewBookingSocketRequest>();
   const [respBooking, setRespBooking] =
     useState<BookingStatusSocketResponseWithBookingId>();
   const session = useSession();
-  const toast = useToast()
+  // const toast = useToast();
   const { latitudeDelta, longitudeDelta } = userInitialPosition();
 
   const { mapRef, moveTo, fitToCoordinates } = useMovePosition();
-
 
   useEffect(() => {
     (async () => {
@@ -153,7 +152,7 @@ export default function HomeScreen() {
           latitude: reqBooking?.start_lat || 0,
           longitude: reqBooking?.start_long || 0,
         },
-      })
+      });
 
       socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
     } catch (error: any) {
@@ -181,159 +180,23 @@ export default function HomeScreen() {
     }
   };
 
-  const onConnect = async () => {
-    setWaitingConnect(false);
-    setConnected(true);
-    toast.show("Connected", {
-      type: "success",
-    })
-    await updateStatus({
-      driver_id: session?.claims?.driver_id || "",
-      status: "ONLINE",
-    });
-  };
-
-  const onBookingWaitingDriver = async (data: NewBookingSocketRequest) => {
-    const startAddr = await getAddressByLatLng(data.start_lat, data.start_long);
-    const endAddr = await getAddressByLatLng(data.end_lat, data.end_long);
-
-    const req: NewBookingSocketRequest = {
-      ...data,
-      start_address: {
-        formatted_address: startAddr.results?.[0]?.formatted_address || "",
-        lat: data.start_lat,
-        long: data.start_long,
-        display_name: startAddr.results?.[0]?.name || "",
-      },
-      end_address: {
-        formatted_address: endAddr.results?.[0]?.formatted_address || "",
-        lat: data.end_lat,
-        long: data.end_long,
-        display_name: endAddr.results?.[0]?.name || "",
-      },
-    };
-    setReqBooking(req);
-    setShowDialog(true);
-  };
-
-  const onDisconnect = async () => {
-    setConnected(false);
-    toast.show("Disconnected", {
-      type:"danger",
-    })
-    await updateStatus({
-      driver_id: session?.claims?.driver_id || "",
-      status: "OFFLINE",
-    });
-  };
-
-  const handleConnection = async () => {
-    if (connected) {
-      socket.disconnect();
-      socket.removeAllListeners();
-      setConnected(false);
-    } else {
-      setWaitingConnect(true);
-      socket.connect();
-      socket.on("connect", onConnect);
-      socket.on(
-        SocketEventBooking.BOOKING_WAITING_DRIVER,
-        onBookingWaitingDriver
-      );
-      socket.on("disconnect", onDisconnect);
-    }
-  };
-
-  const renderButtonStatus = () => {
-    if (respBooking?.status === "ACCEPTED") {
-      return (
-        <Button
-          mb="$4"
-          onPress={async () => {
-            try {
-              const resp: BookingStatusSocketResponseWithBookingId = {
-                ...respBooking,
-                driver_id: session?.claims?.driver_id || "",
-                status: "STARTING",
-              };
-              await updateBooking(resp);
-              setRespBooking(resp);
-              socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
-              fitToCoordinates({
-                origin: {
-                  latitude: reqBooking?.start_lat || 0,
-                  longitude: reqBooking?.start_long || 0,
-                },
-                destination:{
-                  latitude: reqBooking?.end_lat || 0,
-                  longitude: reqBooking?.end_long || 0,
-                }
-              })
-            } catch (error: any) {
-              Alert.alert("Error", error.message);
-            }
-          }}
-        >
-          Pick Up Customer
-        </Button>
-      );
-    }
-    if (respBooking?.status === "STARTING") {
-      return (
-        <Button
-          mb="$4"
-          onPress={async () => {
-            try {
-              const resp: BookingStatusSocketResponseWithBookingId = {
-                ...respBooking,
-                driver_id: session?.claims?.driver_id || "",
-                status: "COMPLETED",
-              };
-              await updateBooking(resp);
-              await updateStatus({
-                driver_id: session?.claims?.driver_id || "",
-                status: "ONLINE",
-              });
-              setRespBooking(resp);
-              socket.emit(SocketEventBooking.BOOKING_STATUS, resp);
-            } catch (error: any) {
-              Alert.alert("Error", error.message);
-            }
-          }}
-        >
-          Drop Off Customer
-        </Button>
-      );
-    }
-    return (
-      <Button
-        mb="$4"
-        icon={waitingConnect ? <Spinner /> : Power}
-        bg={connected ? "$red10Dark" : "$green10Dark"}
-        onPress={handleConnection}
-      >{`Turn ${connected ? "Off" : "On"}`}</Button>
-    );
-  };
-
-  const renderBottom = () => {
-    return (
-      <XStack
-        position="absolute"
-        bottom={0}
-        left={0}
-        right={0}
-        justifyContent="center"
-      >
-        {renderButtonStatus()}
-      </XStack>
-    );
-  };
-
   return (
     <>
       <StatusBar style="dark" />
       <MapContainer
-        renderBottom={renderBottom}
+        renderBottom={() => {
+          return (
+            <RenderBottom
+              respBooking={respBooking}
+              fitToCoordinates={fitToCoordinates}
+              reqBooking={reqBooking}
+              setReqBooking={setReqBooking}
+              setRespBooking={setRespBooking}
+              setShowDialog={setShowDialog}
+              driverId={session?.claims?.driver_id || ""}
+            />
+          );
+        }}
         renderRight={() => {
           return <RenderRight />;
         }}
