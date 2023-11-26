@@ -15,7 +15,6 @@ type BookingRepository interface {
 	GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.Booking, error)
 	CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error)
 	GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error)
-	UpdateAddresses(ctx context.Context, addresses []schema.Address) error
 	GetBookingByUserID(ctx context.Context, userID string) ([]schema.BookingWithAddress, error)
 }
 
@@ -168,25 +167,6 @@ func (c *BookingRepositoryImpl) GetAddressesByUserID(ctx context.Context, userID
 		addresses = append(addresses, address)
 	}
 	return addresses, nil
-}
-
-func (c *BookingRepositoryImpl) UpdateAddresses(ctx context.Context, addresses []schema.Address) error {
-	for _, address := range addresses {
-		_, err := c.db.Exec(
-			`INSERT INTO addresses (lat, long, formatted_address, display_name)
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (lat, long)
-			DO UPDATE SET formatted_address = EXCLUDED.formatted_address, display_name = EXCLUDED.display_name;`,
-			address.Lat,
-			address.Long,
-			address.FormattedAddress,
-			address.DisplayName,
-		)
-		if err != nil {
-			return errors.Wrap(err, " address")
-		}
-	}
-	return nil
 }
 
 func (c *BookingRepositoryImpl) GetBookingByUserID(ctx context.Context, userID string) ([]schema.BookingWithAddress, error) {

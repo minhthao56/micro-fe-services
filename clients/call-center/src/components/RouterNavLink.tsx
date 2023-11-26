@@ -12,7 +12,7 @@ export default function RouterNavLink({
   return (
     <NavLink {...props}>
       {({ isActive }) => (
-        <NavbarItem isActive={isActive}>
+        <NavbarItem isActive={isActive} className="flex justify-center items-center">
          {children}
         </NavbarItem>
       )}

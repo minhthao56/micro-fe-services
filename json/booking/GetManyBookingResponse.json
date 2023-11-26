@@ -6,6 +6,23 @@
   "total"
  ],
  "definitions": {
+  "SchemaAddress": {
+   "properties": {
+    "display_name": {
+     "type": "string"
+    },
+    "formatted_address": {
+     "type": "string"
+    },
+    "lat": {
+     "type": "number"
+    },
+    "long": {
+     "type": "number"
+    }
+   },
+   "type": "object"
+  },
   "SchemaBooking": {
    "properties": {
     "booking_id": {
@@ -56,6 +73,9 @@
     "user_id"
    ],
    "properties": {
+    "address": {
+     "$ref": "#/definitions/SchemaAddress"
+    },
     "customer_id": {
      "type": "string"
     },
@@ -64,6 +84,9 @@
     },
     "first_name": {
      "type": "string"
+    },
+    "is_vip": {
+     "type": "boolean"
     },
     "last_name": {
      "type": "string"

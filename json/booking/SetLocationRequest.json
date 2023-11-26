@@ -4,6 +4,12 @@
   "lat"
  ],
  "properties": {
+  "display_name": {
+   "type": "string"
+  },
+  "formatted_address": {
+   "type": "string"
+  },
   "lat": {
    "type": "number"
   },

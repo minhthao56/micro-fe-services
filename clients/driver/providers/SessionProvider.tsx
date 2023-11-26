@@ -66,12 +66,12 @@ export function SessionProvider(props: {
 
         setUser(user);
         
-        const token = await user?.getIdToken();
-        console.log("token: ", token);
-        
-        setToken(token || "");
-
         const getIdTokenResult = await user?.getIdTokenResult();
+
+        console.log("token: ", getIdTokenResult?.token);
+        
+        setToken(getIdTokenResult?.token || "");
+
         const claims = getIdTokenResult?.claims as CustomClaims
         setClaims(claims);
         console.log("driver_id: ", claims.driver_id);

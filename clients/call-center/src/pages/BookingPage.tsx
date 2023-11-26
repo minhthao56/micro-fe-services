@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   Table,
   TableHeader,
@@ -7,18 +7,32 @@ import {
   TableRow,
   TableCell,
   Chip,
+  Pagination,
 } from "@nextui-org/react";
 
 import { getManyBooking } from "../services/booking/booking";
 import Loading from "../components/Loading";
 import moment from "moment";
+import { useMemo, useState } from "react";
+
+const rowsPerPage = 10;
 
 export default function PhoneBookingPage() {
+  const [page, setPage] = useState(1);
   const { isPending, error, data } = useQuery({
-    queryKey: ["getManyBooking"],
+    queryKey: ["getManyBooking", page],
     queryFn: async () =>
-      await getManyBooking({ limit: 10, offset: 0, search: "" }),
+      await getManyBooking({
+        limit: 10,
+        offset: page * rowsPerPage - rowsPerPage,
+        search: "",
+      }),
+      placeholderData: keepPreviousData
   });
+
+  const pages = useMemo(() => {
+    return data?.total ? Math.ceil(data.total / rowsPerPage) : 0;
+  }, [data?.total]);
 
   if (isPending) return <Loading />;
   if (error) return <div>{JSON.stringify(error)}</div>;
@@ -28,8 +42,26 @@ export default function PhoneBookingPage() {
       <div className="flex justify-between mb-6">
         <p className="text-xl">Management Booking</p>
       </div>
-      <Table aria-label="Example static collection table">
+      <Table
+        aria-label="Example static collection table"
+        bottomContent={
+          pages > 0 ? (
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color="primary"
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
+          ) : null
+        }
+      >
         <TableHeader>
+          <TableColumn>STT</TableColumn>
           <TableColumn>NAME CUSTOMER</TableColumn>
           <TableColumn>PHONE NUMBER CUSTOMER</TableColumn>
           <TableColumn>NAME DRIVER</TableColumn>
@@ -42,6 +74,7 @@ export default function PhoneBookingPage() {
           <TableBody>
             {data.booking.map((item, index) => (
               <TableRow key={index}>
+                <TableCell>{index + 1}</TableCell>
                 <TableCell>
                   {item?.customer?.last_name + " " + item?.customer?.first_name}
                 </TableCell>
@@ -59,6 +92,8 @@ export default function PhoneBookingPage() {
                         ? "success"
                         : "default"
                     }
+                    size="sm"
+                    variant="flat"
                   >
                     {item.status}
                   </Chip>

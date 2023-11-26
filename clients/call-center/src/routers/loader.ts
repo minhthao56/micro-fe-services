@@ -19,8 +19,8 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
       params.set("from", new URL(request.url).pathname);
       return redirect("/login?" + params.toString());
     }
-    const token = await authWeb.getUser()?.getIdToken();
-    console.log( {token });
+    const token = await authWeb.getUser()?.getIdToken(true);
+    console.log({ token });
     if (token) {
       setToken(token);
       socket.connect();
@@ -35,12 +35,13 @@ export async function protectedLoader({ request }: LoaderFunctionArgs) {
       });
 
       socket.on(SocketEventBooking.PHONE_BOOKING_NEW, (data: NewPhoneBookingSocket) => {
-        createToast(`You have new booking from ${data.caller}`, { type: "dark", action:{
-          text: "View",
-          callback: () => {
-            window.location.href = `/`;
+        createToast(`You have new booking from ${data.caller}`, {
+          type: "dark",
+          action: {
+            text: "View",
+            callback: () => redirect(`/phone-booking`)
           }
-        } });
+        });
       });
     }
     const user = await whoami();

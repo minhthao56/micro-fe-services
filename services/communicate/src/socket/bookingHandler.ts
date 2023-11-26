@@ -112,12 +112,12 @@ export function registerBookingHandlers(
       WHERE u.user_id = $1 AND u.user_group = $2 AND u.expo_push_token IS NOT NULL`,
         [customer.user_id, "CUSTOMER_GROUP"]);
 
-        console.log("expoPushToken.rows: ", expoPushToken.rows);
       if (expoPushToken.rowCount > 0) {
         const messages: ExpoPushMessage[] = [{
           to: expoPushToken.rows[0].expo_push_token,
           sound: "default",
-          body: `Your driver is on the way!`,
+          body: `Your driver is on the way! Please wait for a while`,
+          title: "Your driver is on the way!",
         }];
 
         try {

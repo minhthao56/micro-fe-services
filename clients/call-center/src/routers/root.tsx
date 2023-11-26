@@ -9,6 +9,7 @@ import {loginLoader, protectedLoader} from "./loader";
 import LoginPage from "../pages/LoginPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import { loginAction, logoutAction } from "./action";
+import HomePage from "../pages/HomePage";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
+        element: <HomePage />,
+      },
+      {
+        path: "/phone-booking",
         element: <PhoneBooking />,
       },
       {

@@ -6,25 +6,26 @@ import {
   ModalFooter,
   Button,
   UseDisclosureProps,
-  Divider
+  Divider,
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 
 import { useEffect, useState } from "react";
 import ReactMapGL from "@goongmaps/goong-map-react";
 
-import { createBooking } from "../services/booking/booking";
 import { findNearByDriver } from "../services/booking/customer";
 import { PhoneBooking } from "schema/communicate/phone-booking";
 import SearchAddress from "../components/inputs/SearchAddress";
 import InputHF from "../components/inputs/InputHF";
 import { socket } from "../services/communicate/client";
 import { SocketEventBooking } from "schema/constants/event";
-import { BookingSocketRequest, BookingStatusSocketResponse } from "schema/socket/booking";
+import {
+  BookingSocketRequest,
+  BookingStatusSocketResponse,
+} from "schema/socket/booking";
 import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
 import { sendSMS } from "../services/communicate/sms";
 import { updatePhoneBookingStatus } from "../services/communicate/phone-booking";
-
 
 export interface CreateBookingProps extends UseDisclosureProps {
   onOpenChange: () => void;
@@ -36,18 +37,17 @@ export default function CreateBooking({
   isOpen,
   onOpenChange,
   phoneBooking,
-  refetch
+  refetch,
 }: CreateBookingProps) {
-
   const [startAddress, setStartAddress] = useState({
     address: "",
     lat: 0,
-    long: 0
+    long: 0,
   });
   const [endAddress, setEndAddress] = useState({
     address: "",
     lat: 0,
-    long: 0
+    long: 0,
   });
 
   const [driver, setDriver] = useState<SchemaDriverWithDistance>();
@@ -63,12 +63,12 @@ export default function CreateBooking({
       "firstName:d": "",
       "phoneNumber:d": "",
       "email:d": "",
-    }
+    },
   });
-  const [viewState, setViewState] = useState({
+  const [viewState, _] = useState({
     longitude: 106.699793,
     latitude: 10.764661,
-    zoom: 12
+    zoom: 12,
   });
   const onSubmit = (data: any) => {
     console.log({ data });
@@ -81,7 +81,8 @@ export default function CreateBooking({
       start_lat: startAddress.lat || 0,
       start_long: startAddress.long || 0,
       status: "",
-      from_call_center: true
+      from_call_center: true,
+      distance: driver?.distance || 0,
     };
     socket.emit(SocketEventBooking.BOOKING_NEW, newBookingRequest);
   };
@@ -90,11 +91,11 @@ export default function CreateBooking({
     const data = await findNearByDriver({
       vehicle_type_id: 1,
       request_lat: startAddress.lat,
-      request_long: startAddress.long
+      request_long: startAddress.long,
     });
 
-    if (data.drivers?.length === 0){
-      alert("No driver found")
+    if (data.drivers?.length === 0) {
+      alert("No driver found");
       return;
     }
 
@@ -103,8 +104,7 @@ export default function CreateBooking({
     if (driver) {
       setDriver(driver);
     }
-
-  }
+  };
 
   useEffect(() => {
     reset({
@@ -117,16 +117,16 @@ export default function CreateBooking({
       "phoneNumber:d": driver?.phone_number || "",
       "email:d": driver?.email || "",
     });
-
-  }, 
-  [driver?.email, 
-  driver?.first_name,
-  driver?.last_name, 
-  driver?.phone_number,
-  phoneBooking?.first_name,
-  phoneBooking?.last_name,
-  phoneBooking?.phone_number, 
-  reset]);
+  }, [
+    driver?.email,
+    driver?.first_name,
+    driver?.last_name,
+    driver?.phone_number,
+    phoneBooking?.first_name,
+    phoneBooking?.last_name,
+    phoneBooking?.phone_number,
+    reset,
+  ]);
 
   useEffect(() => {
     const handleResponseDriver = async (data: BookingStatusSocketResponse) => {
@@ -134,13 +134,15 @@ export default function CreateBooking({
         alert("Booking accepted");
 
         await updatePhoneBookingStatus(
-        phoneBooking?.call_sid || "",
-         "COMPLETED"
-        )
+          phoneBooking?.call_sid || "",
+          "COMPLETED"
+        );
         await sendSMS({
           phone_number: phoneBooking?.phone_number || "",
-          message: `Your booking has been accepted by ${driver?.last_name + " " + driver?.first_name}. Phone number: ${driver?.phone_number}`
-        })
+          message: `Your booking has been accepted by ${
+            driver?.last_name + " " + driver?.first_name
+          }. Phone number: ${driver?.phone_number}`,
+        });
         setIsLoading(false);
         onOpenChange();
         refetch?.();
@@ -149,17 +151,33 @@ export default function CreateBooking({
         alert("Booking rejected re fill driver and try again");
         setIsLoading(false);
       }
-    }
+    };
     socket.on(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
     console.log("mount");
     return () => {
       console.log("unmount");
-      socket.off(SocketEventBooking.BOOKING_WAITING_ADMIN, handleResponseDriver);
-    }
-  }, [driver?.first_name, driver?.last_name, driver?.phone_number, endAddress.address, onOpenChange, phoneBooking?.call_sid, phoneBooking?.phone_number, refetch, startAddress.address]);
+      socket.off(
+        SocketEventBooking.BOOKING_WAITING_ADMIN,
+        handleResponseDriver
+      );
+    };
+  }, [
+    driver?.first_name,
+    driver?.last_name,
+    driver?.phone_number,
+    endAddress.address,
+    onOpenChange,
+    phoneBooking?.call_sid,
+    phoneBooking?.phone_number,
+    refetch,
+    startAddress.address,
+  ]);
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl"
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      size="5xl"
       scrollBehavior="inside"
     >
       <ModalContent>
@@ -213,7 +231,6 @@ export default function CreateBooking({
                       long: parseFloat(address[2]),
                     });
                   }}
-
                 />
                 <SearchAddress
                   name="endAddress"
@@ -226,16 +243,10 @@ export default function CreateBooking({
                       long: parseFloat(address[2]),
                     });
                   }}
-
                 />
               </div>
               <div className="mb-4">
-                <ReactMapGL
-                  width="100%"
-                  height="300px"
-                  {...viewState}
-
-                />
+                <ReactMapGL width="100%" height="300px" {...viewState} />
               </div>
               <span className="text-base text-default-500">
                 Driver Information
@@ -269,7 +280,6 @@ export default function CreateBooking({
                   type="text"
                   label="Phone Number"
                   {...register("phoneNumber:d")}
-
                 />
               </div>
             </ModalBody>
@@ -278,14 +288,22 @@ export default function CreateBooking({
                 Close
               </Button>
               <div>
-                <Button color="primary" variant="light" onPress={handleFindDriver}>
+                <Button
+                  color="primary"
+                  variant="light"
+                  onPress={handleFindDriver}
+                >
                   Fill Driver
                 </Button>
-                <Button color="primary" onClick={handleSubmit(onSubmit)} isDisabled={!driver?.driver_id} isLoading ={isLoading}>
+                <Button
+                  color="primary"
+                  onClick={handleSubmit(onSubmit)}
+                  isDisabled={!driver?.driver_id}
+                  isLoading={isLoading}
+                >
                   Book
                 </Button>
               </div>
-
             </ModalFooter>
           </>
         )}

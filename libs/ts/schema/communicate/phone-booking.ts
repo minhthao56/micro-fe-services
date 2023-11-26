@@ -13,7 +13,7 @@ export interface PhoneBooking {
 
 
 export interface GetManyPhoneBookingRequest {
-    page: number,
+    offset: number,
     limit: number,
     search: string,
 }

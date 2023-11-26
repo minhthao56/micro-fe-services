@@ -23,11 +23,13 @@ type BookingController interface {
 type BookingControllerImpl struct {
 	db          *sql.DB
 	repoBooking repository.BookingRepository
+	repoAddress repository.AddressRepository
 }
 
 func NewBookingController(db *sql.DB) BookingController {
 	repoBooking := repository.NewBookingRepository(db)
-	return &BookingControllerImpl{db: db, repoBooking: repoBooking}
+	repoAddress := repository.NewAddressRepository(db)
+	return &BookingControllerImpl{db: db, repoBooking: repoBooking, repoAddress: repoAddress}
 }
 
 func (u *BookingControllerImpl) CreateBooking(c *gin.Context) {
@@ -60,7 +62,7 @@ func (u *BookingControllerImpl) CreateBooking(c *gin.Context) {
 		return
 	}
 
-	err = u.repoBooking.UpdateAddresses(c, []schema.Address{
+	err = u.repoAddress.UpdateAddresses(c, []schema.Address{
 		request.EndAddress,
 		request.StartAddress,
 	})

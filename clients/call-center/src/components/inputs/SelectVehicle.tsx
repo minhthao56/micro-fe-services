@@ -14,7 +14,6 @@ export default function SelectVehicle(props: Omit<SelectProps, "children">) {
         <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
           <Select 
             label="Select an animal" 
-            className="max-w-xs" 
             size="sm"
             {...props}
           >

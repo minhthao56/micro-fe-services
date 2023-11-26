@@ -7,9 +7,11 @@ import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alert } from "react-native";
-import { MapContainer , userInitialPosition,  useMovePosition} from "tamagui-shared-ui";
+import { MapContainer , userInitialPosition} from "tamagui-shared-ui";
 import { useToast } from "react-native-toast-notifications";
 import { StatusBar } from "expo-status-bar";
+
+import { SchemaAddress } from "schema/booking/GetFrequentlyAddressResponse";
 
 import { getAddressByLatLng } from "../../services/goong/geocoding";
 import { updateCurrentLocation } from "../../services/booking/customer";
@@ -17,11 +19,13 @@ import { updateCurrentLocation } from "../../services/booking/customer";
 export default function CurrentPage() {
   const [currentLocation, setCurrentLocation] =
     useState<Location.LocationObject>();
-  const [address, setAddress] = useState("");
+  
+    const [address, setAddress] = useState<SchemaAddress>();
+
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  
   const { latitudeDelta, longitudeDelta } = userInitialPosition()
-
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,7 +48,12 @@ export default function CurrentPage() {
       location.coords.latitude,
       location.coords.longitude
     );
-    setAddress(address.results?.[0]?.formatted_address || "");
+    setAddress({
+      display_name: address.results?.[0]?.name || "",
+      formatted_address: address.results?.[0]?.formatted_address || "",
+      lat: location.coords.latitude,
+      long: location.coords.longitude,
+    });
     setCurrentLocation(location);
   }, []);
 
@@ -68,7 +77,12 @@ export default function CurrentPage() {
 
     const address = await getAddressByLatLng(region.latitude, region.longitude);
 
-    setAddress(address.results?.[0]?.formatted_address || "");
+    setAddress({
+      display_name: address.results?.[0]?.name || "",
+      formatted_address: address.results?.[0]?.formatted_address || "",
+      lat: region.latitude,
+      long: region.longitude,
+    });
   };
 
   const handleConfirmDestination = async () => {
@@ -77,6 +91,8 @@ export default function CurrentPage() {
       await updateCurrentLocation({
         lat: currentLocation?.coords.latitude || 0,
         long: currentLocation?.coords.longitude || 0,
+        display_name: address?.display_name,
+        formatted_address: address?.formatted_address,
       });
       await AsyncStorage.setItem(
         "currentLocation",
@@ -113,7 +129,7 @@ export default function CurrentPage() {
           >
             <XStack>
               <MapPin size="$1" />
-              <Text ml="$2">{address}</Text>
+              <Text ml="$2">{address?.formatted_address}</Text>
             </XStack>
           </Card>
           <Button

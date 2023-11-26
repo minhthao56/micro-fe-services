@@ -6,7 +6,7 @@ import type { Request } from "../types/app";
 const router: Router = express.Router();
 router.get("/", async (req: Request, res) => {
     const queries = req.query
-    const page = Number(queries.page) || 1;
+    const offset = Number(queries.offset) || 0;
     const limit = Number(queries.limit) || 10;
     const search = queries.search || ""
 
@@ -19,12 +19,14 @@ router.get("/", async (req: Request, res) => {
     JOIN users AS u ON c.user_id = u.user_id
     WHERE u.last_name LIKE $1 OR u.first_name LIKE $1
     LIMIT $2 OFFSET $3
-  `, [`%${search}%`, limit, (page - 1) * limit])
+  `, [`%${search}%`, limit, offset])
 
     if (phoneBooking.rowCount === 0) {
         return res.json({
             phone_booking: [],
-            total: 0
+            total: 0,
+            limit,
+            offset,
         });
     }
 
@@ -39,13 +41,17 @@ router.get("/", async (req: Request, res) => {
     if (total.rowCount === 0) {
         return res.json({
             phone_booking: [],
-            total: 0
+            total: 0,
+            limit,
+            offset,
         });
     }
 
     res.json({
         phone_booking: phoneBooking.rows,
-        total: total.rows[0].count
+        total: total.rows[0].count,
+        limit,
+        offset,
     });
 
 });

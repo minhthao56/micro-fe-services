@@ -76,6 +76,9 @@
     "user_id"
    ],
    "properties": {
+    "address": {
+     "$ref": "#/definitions/SchemaAddress"
+    },
     "customer_id": {
      "type": "string"
     },
@@ -84,6 +87,9 @@
     },
     "first_name": {
      "type": "string"
+    },
+    "is_vip": {
+     "type": "boolean"
     },
     "last_name": {
      "type": "string"

@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { FaBook } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
 import {
@@ -13,6 +13,7 @@ import {
   useDisclosure,
   Chip,
   Tooltip,
+  Pagination,
 } from "@nextui-org/react";
 import { PhoneBooking } from "schema/communicate/phone-booking";
 import moment from "moment";
@@ -26,11 +27,20 @@ import Loading from "../components/Loading";
 import CreateBooking from "./CreateBooking";
 import { YesNo } from "../components/modals/YesNo";
 
+const rowsPerPage = 10;
+
 export default function PhoneBookingPage() {
+  const [page, setPage] = useState(1);
+
   const { isPending, error, data, refetch } = useQuery({
     queryKey: ["getPhoneBookingList"],
     queryFn: async () =>
-      await getPhoneBookingList({ limit: 10, page: 0, search: "" }),
+      await getPhoneBookingList({
+        limit: 10,
+        offset: page * rowsPerPage - rowsPerPage,
+        search: "",
+      }),
+      placeholderData: keepPreviousData
   });
 
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
@@ -40,6 +50,10 @@ export default function PhoneBookingPage() {
     onOpenChange: onOpenChangeYesNo,
     onOpen: onOpenYesNo,
   } = useDisclosure();
+
+  const pages = useMemo(() => {
+    return data?.total ? Math.ceil(data.total / rowsPerPage) : 0;
+  }, [data?.total]);
 
   const [phoneBooking, setPhoneBooking] = useState<PhoneBooking>();
 
@@ -51,8 +65,26 @@ export default function PhoneBookingPage() {
       <div className="flex justify-between mb-6">
         <p className="text-xl">Management Phone Booking</p>
       </div>
-      <Table aria-label="Example static collection table">
+      <Table
+        aria-label="Example static collection table"
+        bottomContent={
+          pages > 0 ? (
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color="primary"
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
+          ) : null
+        }
+      >
         <TableHeader>
+          <TableColumn>STT</TableColumn>
           <TableColumn>NAME</TableColumn>
           <TableColumn>PHONE NUMBER</TableColumn>
           <TableColumn>START ADDRESS</TableColumn>
@@ -65,6 +97,7 @@ export default function PhoneBookingPage() {
           <TableBody>
             {data.phone_booking.map((item, index) => (
               <TableRow key={index}>
+                <TableCell>{index + 1}</TableCell>
                 <TableCell>{item.last_name + " " + item.first_name}</TableCell>
                 <TableCell>{item.phone_number}</TableCell>
                 <TableCell>
@@ -82,6 +115,8 @@ export default function PhoneBookingPage() {
                         ? "success"
                         : "danger"
                     }
+                    size="sm"
+                    variant="flat"
                   >
                     {item.status}
                   </Chip>{" "}
@@ -110,7 +145,6 @@ export default function PhoneBookingPage() {
                     <Button
                       isDisabled={item.status !== "PENDING"}
                       isIconOnly
-                      className="ml-1"
                       color="danger"
                       onClick={() => {
                         onOpenYesNo();

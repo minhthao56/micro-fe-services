@@ -57,6 +57,7 @@ export class AuthWithFirebase implements AuthProvider {
       const unsubscribe = this.auth.onAuthStateChanged(
         (user) => {
           resolve(user);
+          unsubscribe()
         },
         (error) => {
           reject(error);

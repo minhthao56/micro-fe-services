@@ -20,11 +20,13 @@ type CustomerController interface {
 type CustomerControllerImpl struct {
 	db           *sql.DB
 	repoCustomer repository.CustomerRepository
+	repoAddress  repository.AddressRepository
 }
 
 func NewCustomerController(db *sql.DB) CustomerController {
 	repoCustomer := repository.NewCustomerRepository(db)
-	return &CustomerControllerImpl{db: db, repoCustomer: repoCustomer}
+	repoAddress := repository.NewAddressRepository(db)
+	return &CustomerControllerImpl{db: db, repoCustomer: repoCustomer, repoAddress: repoAddress}
 }
 
 func (u *CustomerControllerImpl) SerCurrentLocation(c *gin.Context) {
@@ -54,8 +56,23 @@ func (u *CustomerControllerImpl) SerCurrentLocation(c *gin.Context) {
 		})
 		return
 	}
-
+	// TODO: Should handle transaction here
 	if err := u.repoCustomer.SerCurrentLocation(c, request, stringUserID); err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	if err := u.repoAddress.UpdateAddresses(c, []schema.Address{
+		{
+			Lat:              request.Lat,
+			Long:             request.Long,
+			FormattedAddress: request.FormattedAddress,
+			DisplayName:      request.DisplayName,
+		},
+	}); err != nil {
 		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
 			Message: err.Error(),
 			Status:  http.StatusInternalServerError,

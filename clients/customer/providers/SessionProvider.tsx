@@ -65,11 +65,10 @@ export function SessionProvider(props: {
           console.log("uid: ", user?.uid);
           setUser(user);
 
-          const token = await user?.getIdToken();
-          console.log("token: ", token);
-          setToken(token || "");
+          const getIdTokenResult = await user?.getIdTokenResult(true);
+          console.log("token: ", getIdTokenResult?.token);
+          setToken( getIdTokenResult?.token || "");
 
-          const getIdTokenResult = await user?.getIdTokenResult();
           const claims = getIdTokenResult?.claims as CustomClaims
           setClaims(claims);
           console.log("customer_id: ", claims.customer_id);

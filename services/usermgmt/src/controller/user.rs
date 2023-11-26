@@ -102,31 +102,23 @@ async fn create_user(
         return HttpResponse::InternalServerError()
             .json(json!({"status": "error","message": "You are not allowed to create user"}));
     }
-    let req = body.into_inner();
-    println!("req: {:?}", req);
-    let user = CreateUserRequest {
-        email: req.email,
-        first_name: req.first_name,
-        last_name: req.last_name,
-        user_group: req.user_group,
-        password: req.password,
-        phone_number: req.phone_number,
-        vehicle_type_id: req.vehicle_type_id,
-    };
+    let user_req = body.into_inner();
 
-    if user.user_group != ADMIN_GROUP && user.user_group != CUSTOMER_GROUP && user.user_group != DRIVER_GROUP {
+    println!("user_req: {:?}", user_req);
+
+    if user_req.user_group != ADMIN_GROUP && user_req.user_group != CUSTOMER_GROUP && user_req.user_group != DRIVER_GROUP {
         return HttpResponse::InternalServerError()
             .json(json!({"status": "error","message": "Invalid user group"}));
     }
 
-    if user.user_group == ADMIN_GROUP {
+    if user_req.user_group == ADMIN_GROUP {
         return HttpResponse::InternalServerError()
-            .json(json!({"status": "error","message": "You are not allowed to create admin user"}));
+            .json(json!({"status": "error","message": "Don't allowed to create admin user"}));
     }
 
     let firebase_user  = Req{
-        email: user.email,
-        password: user.password,
+        email: user_req.email,
+        password: user_req.password,
     };
     let path = String::from("/common-configmap/url_auth_service");
     let ip_service = match read_config(path) {
@@ -138,7 +130,7 @@ async fn create_user(
     };
     let endpoint = format!("http://{}:8080/authmgmt/create-firebase-user", ip_service);
 
-    // Start a transaction
+    // =========Start a transaction==========
     let tx =  data.db.begin().await;
     if tx.is_err() {
         return HttpResponse::InternalServerError().json(tx.err().unwrap().to_string());
@@ -169,51 +161,53 @@ async fn create_user(
             return HttpResponse::InternalServerError().json(e.to_string());
         }
     };
+    
+    println!("body.email: {:?}", body.email);
+    println!("body.uid: {:?}", body.uid);
 
     // INSERT data into users table
     let query_result = sqlx::query!(
         "INSERT INTO users (last_name, first_name, email, user_group, firebase_uid, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id",
-        user.first_name,user.last_name, body.email, user.user_group, body.uid, user.phone_number,
+        user_req.first_name,user_req.last_name, body.email, user_req.user_group, body.uid, user_req.phone_number,
     )
     .fetch_one(&data.db)
     .await;
 
     if query_result.is_err() {
-        println!("--1--");
-        let e = query_result.err().expect("No error INSERT data into users table");
+        let e = query_result.err().expect("Error INSERT data into users table");
+        eprintln!("Error INSERT data into users table: {}", e);
         return HttpResponse::InternalServerError().json(e.to_string());
     }
-    let r = query_result.expect("No error when get user_id");
-    let user_id = r.user_id;
+    let result = query_result.expect("No error when get user_id");
 
     // Create CUSTOMER_GROUP
-    if user.user_group == CUSTOMER_GROUP {
+    if user_req.user_group == CUSTOMER_GROUP {
         let query_result = sqlx::query!(
             "INSERT INTO customers (user_id) VALUES ($1)",
-            user_id,
+            result.user_id,
         )
         .execute(&data.db)
         .await;
         if query_result.is_err() {
-            println!("--2--");
             let e = query_result.err().expect("No error INSERT data into customers table");
+            eprintln!("Error INSERT data into customers table: {}", e);
             return HttpResponse::InternalServerError().json(e.to_string());
         }
     }
 
     // Create DRIVER_GROUP
-    if user.user_group == DRIVER_GROUP {
+    if user_req.user_group == DRIVER_GROUP {
         let query_result = sqlx::query!(
             "INSERT INTO drivers (user_id, vehicle_type_id, status) VALUES ($1, $2, $3)",
-            user_id,
-            user.vehicle_type_id,
+            result.user_id,
+            user_req.vehicle_type_id,
             "OFFLINE"
         )
         .execute(&data.db)
         .await;
         if query_result.is_err() {
-            println!("--3--");
             let e = query_result.err().expect("No error INSERT data into drivers table");
+            eprintln!("Error INSERT data into drivers table: {}", e);
             return HttpResponse::InternalServerError().json(e.to_string());
         }
     }
@@ -221,17 +215,17 @@ async fn create_user(
     // commit the transaction
     let commit = tx.unwrap().commit().await;
     if commit.is_err() {
-        println!("--4--");
         let e = commit.err().expect("No error commit the transaction");
+        eprintln!("Error commit the transaction: {}", e);
         return HttpResponse::InternalServerError().json(e.to_string());
     }
     let user_resp = CreateUserResponse {
         email: body.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        user_group: user.user_group,
-        user_id: user_id,
-        phone_number: user.phone_number,
+        first_name: user_req.first_name,
+        last_name: user_req.last_name,
+        user_group: user_req.user_group,
+        user_id: result.user_id,
+        phone_number: user_req.phone_number,
     };
     println!("user_resp: {:?}", user_resp);
     HttpResponse::Ok().json(user_resp)
