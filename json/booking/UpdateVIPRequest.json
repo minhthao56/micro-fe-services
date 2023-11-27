@@ -1,0 +1,11 @@
+{
+ "required": [
+  "is_vip"
+ ],
+ "properties": {
+  "is_vip": {
+   "type": "boolean"
+  }
+ },
+ "type": "object"
+}

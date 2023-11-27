@@ -1,0 +1,41 @@
+{
+ "properties": {
+  "monthly_booking": {
+   "type": "integer"
+  },
+  "monthly_customer": {
+   "type": "integer"
+  },
+  "monthly_driver": {
+   "type": "integer"
+  },
+  "monthly_phone": {
+   "type": "integer"
+  },
+  "new_booking": {
+   "type": "integer"
+  },
+  "new_customer": {
+   "type": "integer"
+  },
+  "new_driver": {
+   "type": "integer"
+  },
+  "new_phone": {
+   "type": "integer"
+  },
+  "total_booking": {
+   "type": "integer"
+  },
+  "total_customer": {
+   "type": "integer"
+  },
+  "total_driver": {
+   "type": "integer"
+  },
+  "total_phone": {
+   "type": "integer"
+  }
+ },
+ "type": "object"
+}

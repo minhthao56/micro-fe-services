@@ -13,6 +13,8 @@ type CustomerRepository interface {
 	GetCustomers(ctx context.Context, req schema.GetCustomersRequest) ([]schema.Customer, error)
 	GetCustomer(ctx context.Context, customer_id string) (schema.Customer, error)
 	CountCustomers(ctx context.Context, req schema.GetCustomersRequest) (int, error)
+	UpdateVIP(ctx context.Context, UserID string, IsVIP bool) error
+	GetCurrentCustomer(ctx context.Context, UserID string) (schema.Customer, error)
 }
 
 type CustomerRepositoryImpl struct {
@@ -119,4 +121,38 @@ func (c *CustomerRepositoryImpl) CountCustomers(ctx context.Context, req schema.
 		return total, e
 	}
 	return total, nil
+}
+
+func (c *CustomerRepositoryImpl) UpdateVIP(ctx context.Context, UserID string, IsVIP bool) error {
+	r, e := c.db.Exec("UPDATE customers SET is_vip = $1 WHERE user_id = $2", IsVIP, UserID)
+	if e != nil {
+		return e
+	}
+	if n, _ := r.RowsAffected(); n == 0 {
+		return errors.Wrap(sql.ErrNoRows, "customer not found")
+	}
+	return nil
+}
+
+func (c *CustomerRepositoryImpl) GetCurrentCustomer(ctx context.Context, UserID string) (schema.Customer, error) {
+	var customer schema.Customer
+	r := c.db.QueryRow(`
+		SELECT c.customer_id, c.long, c.lat, c.is_vip
+		FROM customers  AS c
+		WHERE c.user_id = $1
+	`, UserID,
+	)
+	var long, lat sql.NullFloat64
+	e := r.Scan(
+		&customer.CustomerId,
+		&long,
+		&lat,
+		&customer.IsVIP,
+	)
+	customer.Long = long.Float64
+	customer.Lat = lat.Float64
+	if e != nil {
+		return customer, e
+	}
+	return customer, nil
 }

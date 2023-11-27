@@ -13,8 +13,10 @@ import (
 )
 
 type CustomerController interface {
-	SerCurrentLocation(c *gin.Context)
+	SetCurrentLocation(c *gin.Context)
 	GetCustomers(c *gin.Context)
+	UpdateVIP(c *gin.Context)
+	GetCurrentCustomer(c *gin.Context)
 }
 
 type CustomerControllerImpl struct {
@@ -29,7 +31,7 @@ func NewCustomerController(db *sql.DB) CustomerController {
 	return &CustomerControllerImpl{db: db, repoCustomer: repoCustomer, repoAddress: repoAddress}
 }
 
-func (u *CustomerControllerImpl) SerCurrentLocation(c *gin.Context) {
+func (u *CustomerControllerImpl) SetCurrentLocation(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	stringUserID := c.GetString("user_id")
 
@@ -130,5 +132,53 @@ func (u *CustomerControllerImpl) GetCustomers(c *gin.Context) {
 		Limit:     request.Limit,
 		Offset:    request.Offset,
 		Total:     total,
+	})
+}
+
+func (u *CustomerControllerImpl) UpdateVIP(c *gin.Context) {
+	stringUserID := c.GetString("user_id")
+
+	if stringUserID == "" {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: "user_id is required",
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+
+	if err := u.repoCustomer.UpdateVIP(c, stringUserID, true); err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+	}
+
+	c.JSON(http.StatusOK, schema.StatusResponse{
+		Message: "success",
+	})
+
+}
+
+func (u *CustomerControllerImpl) GetCurrentCustomer(c *gin.Context) {
+	stringUserID := c.GetString("user_id")
+
+	if stringUserID == "" {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: "user_id is required",
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+
+	customer, err := u.repoCustomer.GetCurrentCustomer(c, stringUserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+	}
+
+	c.JSON(http.StatusOK, schema.GetCustomerResponse{
+		Customer: customer,
 	})
 }

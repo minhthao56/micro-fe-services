@@ -4,6 +4,7 @@ import type { User, ParsedToken } from "firebase/auth";
 import { AuthWithFirebase } from "utils/firebase/provider";
 import { setToken } from "../services/initClient";
 import { whoami } from "../services/usermgmt/user";
+import { getCurrentCustomer } from "../services/booking/customer";
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -71,9 +72,13 @@ export function SessionProvider(props: {
 
           const claims = getIdTokenResult?.claims as CustomClaims
           setClaims(claims);
+          
           console.log("customer_id: ", claims.customer_id);
           const userDB = await whoami();
+          const customerData = await getCurrentCustomer();
+
           await AsyncStorage.setItem("userDB", JSON.stringify(userDB.results));
+          await AsyncStorage.setItem("customerDB", JSON.stringify(customerData.customer));
           
         }
       } catch (error: any) {

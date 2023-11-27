@@ -9,6 +9,8 @@ import (
 
 func NewRouterCustomer(r *gin.RouterGroup, conn *sql.DB) {
 	controller := controller.NewCustomerController(conn)
-	r.POST("/customer/set-location", controller.SerCurrentLocation)
+	r.POST("/customer/set-location", controller.SetCurrentLocation)
 	r.GET("/customers", controller.GetCustomers)
+	r.POST("/customer/vip", controller.UpdateVIP)
+	r.GET("/customer", controller.GetCurrentCustomer)
 }

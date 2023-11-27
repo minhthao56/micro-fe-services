@@ -18,11 +18,13 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(middleware.ValidateJWT())
 	r.Use(gin.Logger())
+
 	routerGroup := r.Group("/booking")
 	router.NewRouterCustomer(routerGroup, conn)
 	router.NewRouterBooking(routerGroup, conn)
 	router.NewRouterDriver(routerGroup, conn)
 	router.NewRouterVehicleType(routerGroup, conn)
+	router.NewRouterDashboard(routerGroup, conn)
 
 	r.Run(":6060")
 	log.Println("booking service started port 8080")

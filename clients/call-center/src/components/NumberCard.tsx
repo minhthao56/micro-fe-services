@@ -9,13 +9,13 @@ import {
 import { useNavigate } from "react-router-dom";
 
 export interface NumberCardProps {
-  number: number;
-  total: number;
-  new: number;
-  title: string;
-  icon: any;
-  bg: "green" | "blue";
-  path: string;
+  number?: number;
+  total?: number;
+  new?: number;
+  title?: string;
+  icon?: any;
+  bg?: "green" | "blue";
+  path?: string;
 }
 
 export function NumberCard({
@@ -43,7 +43,7 @@ export function NumberCard({
           size="sm"
           variant="flat"
           onPress={() => {
-            navigate(path);
+            navigate(path || "/");
           }}
         >
           {"More"}

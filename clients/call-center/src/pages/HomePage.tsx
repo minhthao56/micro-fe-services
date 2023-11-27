@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { NumberCard } from "../components/NumberCard";
 import { LatestBookingCard } from "../components/LatestBookingCard";
 import { VIPCard } from "../components/VIPCard";
@@ -6,8 +7,16 @@ import { FaUser, FaTaxi, FaBookmark } from "react-icons/fa";
 import { FaPhoneVolume } from "react-icons/fa6";
 import { Steam } from "../components/Steam";
 import { Button, Card } from "@nextui-org/react";
+import { getGeneralNumber } from "../services/booking/dashboard"
 
 export default function HomePage() {
+  const { data } = useQuery({
+    queryKey: ["getGeneralNumber"],
+    queryFn: async () => await getGeneralNumber()
+  });
+
+  console.log(data);
+
   return (
     <>
       <div className="flex gap-4 mb-8">
@@ -17,36 +26,36 @@ export default function HomePage() {
             <div className="flex justify-evenly items-center gap-3">
               <NumberCard
                 title="Customers"
-                number={100}
-                new={4}
-                total={97100}
+                number={data?.monthly_customer}
+                new={data?.new_customer}
+                total={data?.total_customer}
                 icon={FaUser}
                 bg="green"
                 path="/customer"
               />
               <NumberCard
                 title="Drivers"
-                number={100}
-                new={4}
-                total={97100}
+                number={data?.monthly_driver}
+                new={data?.new_driver}
+                total={data?.total_driver}
                 icon={FaTaxi}
                 bg="blue"
                 path="/driver"
               />
               <NumberCard
                 title="Phones"
-                number={100}
-                new={4}
-                total={97100}
+                number={data?.monthly_phone}
+                new={data?.new_phone}
+                total={data?.total_phone}
                 icon={FaPhoneVolume}
                 bg="green"
                 path="/phone-booking"
               />
               <NumberCard
                 title="Booking"
-                number={100}
-                new={4}
-                total={97100}
+                number={data?.monthly_booking}
+                new={data?.new_booking}
+                total={data?.total_booking}
                 icon={FaBookmark}
                 bg="blue"
                 path="/booking"
@@ -54,7 +63,7 @@ export default function HomePage() {
             </div>
           </div>
           <p className="text-2xl font-bold mb-3">Statistics</p>
-          <Card>
+          <Card className="pt-3 pl-4 pb-2">
             <Steam />
           </Card>
         </div>

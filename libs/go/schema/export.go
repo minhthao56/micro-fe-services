@@ -37,5 +37,7 @@ func GetBookingSchema() map[string]interface{} {
 		"GetFrequentlyAddressResponse": GetFrequentlyAddressResponse{},
 		"GetHistoryBookingResponse":    GetHistoryBookingResponse{},
 		"GeocodeGoongResponse":         GeocodeGoongResponse{},
+		"UpdateVIPRequest":             UpdateVIPRequest{},
+		"GeneralNumberResponse":        GeneralNumberResponse{},
 	}
 }

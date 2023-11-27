@@ -39,24 +39,23 @@ async fn whoami(
         user_group,
         db_user_id,
     )
-    .fetch_all(&data.db)
+    .fetch_one(&data.db)
     .await;
 
     if query_result.is_err() {
-        let message = "Something bad happened while fetching all note items";
+        let e = query_result.err().expect("Error get user");
+        eprintln!("Error get user: {}", e);
         return HttpResponse::InternalServerError()
-            .json(json!({"status": "error","message": message}));
+            .json(json!({"status": "error","message": e.to_string()}));
     }
+    
+    let user = query_result.unwrap();
+    
+    println!("user: {:?}", user);
 
-    let users = query_result.unwrap();
-    if users.len() == 0 {
-        return HttpResponse::InternalServerError()
-            .json(json!({"status": "error","message": "User not found"}));
-    }
-    println!("users: {:?}", users);
     let json_response = serde_json::json!({
         "status": "success",
-        "results": users[0],
+        "results": user,
     });
     HttpResponse::Ok().json(json_response)
 }

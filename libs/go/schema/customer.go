@@ -43,3 +43,7 @@ type GetCustomerResponse struct {
 type GetCustomerRequest struct {
 	CustomerId string `json:"customer_id" required:"true"`
 }
+
+type UpdateVIPRequest struct {
+	IsVIP bool `json:"is_vip" required:"true"`
+}
