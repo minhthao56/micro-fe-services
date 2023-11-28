@@ -1,0 +1,14 @@
+{
+ "properties": {
+  "results": {
+   "items": {
+    "type": "integer"
+   },
+   "type": [
+    "array",
+    "null"
+   ]
+  }
+ },
+ "type": "object"
+}

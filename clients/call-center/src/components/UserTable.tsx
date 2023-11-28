@@ -1,5 +1,5 @@
 import React from "react";
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue} from "@nextui-org/react";
+import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip} from "@nextui-org/react";
 import {EditIcon} from "./icons/EditIcon";
 import {DeleteIcon} from "./icons/DeleteIcon";
 import {EyeIcon} from "./icons/EyeIcon";

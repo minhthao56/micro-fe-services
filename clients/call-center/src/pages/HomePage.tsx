@@ -7,16 +7,13 @@ import { FaUser, FaTaxi, FaBookmark } from "react-icons/fa";
 import { FaPhoneVolume } from "react-icons/fa6";
 import { Steam } from "../components/Steam";
 import { Button, Card } from "@nextui-org/react";
-import { getGeneralNumber } from "../services/booking/dashboard"
+import { getGeneralNumber } from "../services/booking/dashboard";
 
 export default function HomePage() {
-  const { data } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["getGeneralNumber"],
-    queryFn: async () => await getGeneralNumber()
+    queryFn: async () => await getGeneralNumber(),
   });
-
-  console.log(data);
-
   return (
     <>
       <div className="flex gap-4 mb-8">
@@ -32,6 +29,7 @@ export default function HomePage() {
                 icon={FaUser}
                 bg="green"
                 path="/customer"
+                isLoading={isPending}
               />
               <NumberCard
                 title="Drivers"
@@ -41,6 +39,7 @@ export default function HomePage() {
                 icon={FaTaxi}
                 bg="blue"
                 path="/driver"
+                isLoading={isPending}
               />
               <NumberCard
                 title="Phones"
@@ -50,6 +49,7 @@ export default function HomePage() {
                 icon={FaPhoneVolume}
                 bg="green"
                 path="/phone-booking"
+                isLoading={isPending}
               />
               <NumberCard
                 title="Booking"
@@ -59,6 +59,7 @@ export default function HomePage() {
                 icon={FaBookmark}
                 bg="blue"
                 path="/booking"
+                isLoading={isPending}
               />
             </div>
           </div>
@@ -76,7 +77,9 @@ export default function HomePage() {
       </div>
       <div className="mb-3 flex justify-between items-center">
         <p className="text-2xl font-bold">All Users</p>
-        <Button variant="flat" color="primary">View All</Button>
+        <Button variant="flat" color="primary">
+          View All
+        </Button>
       </div>
       <UserTable />
     </>

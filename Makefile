@@ -54,6 +54,8 @@ start-frontend:
 
 build-frontend:
 	npx nx build call-center
+preview:
+	npx nx preview call-center
 
 # App
 customer-start-ios:

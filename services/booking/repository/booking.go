@@ -16,6 +16,7 @@ type BookingRepository interface {
 	CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error)
 	GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error)
 	GetBookingByUserID(ctx context.Context, userID string) ([]schema.BookingWithAddress, error)
+	CountBookingPerTwoHours(ctx context.Context) ([]schema.HoursCount, error)
 }
 
 type BookingRepositoryImpl struct {
@@ -244,4 +245,31 @@ func (c *BookingRepositoryImpl) GetBookingByUserID(ctx context.Context, userID s
 	}
 
 	return bookings, nil
+}
+
+func (c *BookingRepositoryImpl) CountBookingPerTwoHours(ctx context.Context) ([]schema.HoursCount, error) {
+
+	var bookingPerTwoHours []schema.HoursCount
+	rows, err := c.db.Query(
+		`SELECT COUNT(*), EXTRACT(HOUR FROM created_at) FROM booking
+		WHERE created_at BETWEEN NOW() - INTERVAL '2 HOURS' AND NOW()
+		GROUP BY EXTRACT(HOUR FROM created_at)
+		ORDER BY EXTRACT(HOUR FROM created_at) ASC`,
+	)
+	if err != nil {
+		return bookingPerTwoHours, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var hoursCount schema.HoursCount
+		err := rows.Scan(
+			&hoursCount.Count,
+			&hoursCount.Hour,
+		)
+		if err != nil {
+			return bookingPerTwoHours, err
+		}
+		bookingPerTwoHours = append(bookingPerTwoHours, hoursCount)
+	}
+	return bookingPerTwoHours, nil
 }

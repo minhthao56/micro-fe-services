@@ -18,6 +18,7 @@ type BookingController interface {
 	GetManyBooking(c *gin.Context)
 	GetFrequentlyAddresses(c *gin.Context)
 	GetHistoryBookingByUserID(c *gin.Context)
+	CountBookingPerTwoHours(c *gin.Context)
 }
 
 type BookingControllerImpl struct {
@@ -200,5 +201,20 @@ func (u *BookingControllerImpl) GetHistoryBookingByUserID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, schema.GetHistoryBookingResponse{
 		BookingWithAddress: bookings,
+	})
+}
+
+func (u *BookingControllerImpl) CountBookingPerTwoHours(c *gin.Context) {
+	results, err := u.repoBooking.CountBookingPerTwoHours(c)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, schema.BookingPerTwoHours{
+		Results: results,
 	})
 }

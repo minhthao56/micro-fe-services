@@ -1,21 +1,30 @@
+import { useQuery } from "@tanstack/react-query";
 import { Props } from "react-apexcharts";
 import { commonColors } from "@nextui-org/theme";
 import { useTheme } from "next-themes";
 import { useMemo } from "react";
+import {getStatistics} from "../services/booking/booking"
 
 const textColor = commonColors.zinc["500"];
 
 export default function useChart() {
   const { theme } = useTheme();
 
+  const { data } = useQuery({
+    queryKey: ["getStatistics"],
+    queryFn: getStatistics,
+  });
+
+  console.log(data);
+
   const state: Props["series"] = [
     {
-      name: "Completed",
-      data: [31, 40, 28, 51, 42, 109, 100],
+      name: "Cancel",
+      data: [31, 40, 28, 51, 42, 109, 100, 120, 99, 142, 109, 120, 99],
     },
     {
-      name: "Cancel",
-      data: [11, 32, 45, 32, 34, 52, 41],
+      name: "Completed",
+      data: [11, 32, 45, 32, 34, 52, 41, 42, 109, 100, 120, 99, 142],
     },
   ];
 
@@ -46,7 +55,7 @@ export default function useChart() {
       },
 
       xaxis: {
-        categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
+        categories: [6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 0, 2, 4],
         labels: {
           // show: false,
           style: {
@@ -60,6 +69,13 @@ export default function useChart() {
         axisTicks: {
           color: color,
         },
+        title:{
+          text: "Hours",
+          style: {
+            color: textColor,
+            fontFamily: "Inter, sans-serif",
+          },
+        }
       },
       yaxis: {
         labels: {
@@ -68,6 +84,13 @@ export default function useChart() {
             fontFamily: "Inter, sans-serif",
           },
         },
+        title:{
+          text: "Numbers",
+          style: {
+            color: textColor,
+            fontFamily: "Inter, sans-serif",
+          },
+        }
       },
       tooltip: {
         enabled: false,

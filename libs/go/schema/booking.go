@@ -41,6 +41,15 @@ type BookingWithAddress struct {
 	EndAddress   Address `json:"end_address"`
 }
 
+type HoursCount struct {
+	Hour  int `json:"hour"`
+	Count int `json:"count"`
+}
+
+type BookingPerTwoHours struct {
+	Results []HoursCount `json:"results"`
+}
+
 type GetFrequentlyAddressResponse struct {
 	Addresses []Address `json:"addresses"`
 }
