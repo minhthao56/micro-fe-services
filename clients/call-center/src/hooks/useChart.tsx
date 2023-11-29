@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import {getStatistics} from "../services/booking/booking"
 
 const textColor = commonColors.zinc["500"];
+const valueOfX = [0 ,2 ,4 ,6 ,8 ,10 ,12 ,14 ,16 ,18 ,20 ,22];
 
 export default function useChart() {
   const { theme } = useTheme();
@@ -13,18 +14,20 @@ export default function useChart() {
   const { data } = useQuery({
     queryKey: ["getStatistics"],
     queryFn: getStatistics,
+    select(data) {
+      const r = [];
+      for (let i = 0; i <valueOfX.length * 2; i = i + 2) {
+        const v = data?.results?.[i] || 0;
+        r.push(v);
+      }
+      return r;
+    },
   });
-
-  console.log(data);
 
   const state: Props["series"] = [
     {
-      name: "Cancel",
-      data: [31, 40, 28, 51, 42, 109, 100, 120, 99, 142, 109, 120, 99],
-    },
-    {
-      name: "Completed",
-      data: [11, 32, 45, 32, 34, 52, 41, 42, 109, 100, 120, 99, 142],
+      name: "Booking",
+      data: data || [],
     },
   ];
 
@@ -55,7 +58,7 @@ export default function useChart() {
       },
 
       xaxis: {
-        categories: [6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 0, 2, 4],
+        categories: valueOfX,
         labels: {
           // show: false,
           style: {

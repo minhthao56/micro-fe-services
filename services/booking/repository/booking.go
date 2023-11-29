@@ -16,7 +16,7 @@ type BookingRepository interface {
 	CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error)
 	GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error)
 	GetBookingByUserID(ctx context.Context, userID string) ([]schema.BookingWithAddress, error)
-	CountBookingPerTwoHours(ctx context.Context) ([]schema.HoursCount, error)
+	CountBookingPerTwoHours(ctx context.Context) (map[int]int, error)
 }
 
 type BookingRepositoryImpl struct {
@@ -247,9 +247,22 @@ func (c *BookingRepositoryImpl) GetBookingByUserID(ctx context.Context, userID s
 	return bookings, nil
 }
 
-func (c *BookingRepositoryImpl) CountBookingPerTwoHours(ctx context.Context) ([]schema.HoursCount, error) {
+func (c *BookingRepositoryImpl) CountBookingPerTwoHours(ctx context.Context) (map[int]int, error) {
 
-	var bookingPerTwoHours []schema.HoursCount
+	mapBookingPerTwoHours := make(map[int]int)
+	mapBookingPerTwoHours[0] = 0
+	mapBookingPerTwoHours[2] = 0
+	mapBookingPerTwoHours[4] = 0
+	mapBookingPerTwoHours[6] = 0
+	mapBookingPerTwoHours[8] = 0
+	mapBookingPerTwoHours[10] = 0
+	mapBookingPerTwoHours[12] = 0
+	mapBookingPerTwoHours[14] = 0
+	mapBookingPerTwoHours[16] = 0
+	mapBookingPerTwoHours[18] = 0
+	mapBookingPerTwoHours[20] = 0
+	mapBookingPerTwoHours[22] = 0
+
 	rows, err := c.db.Query(
 		`SELECT COUNT(*), EXTRACT(HOUR FROM created_at) FROM booking
 		WHERE created_at BETWEEN NOW() - INTERVAL '2 HOURS' AND NOW()
@@ -257,19 +270,22 @@ func (c *BookingRepositoryImpl) CountBookingPerTwoHours(ctx context.Context) ([]
 		ORDER BY EXTRACT(HOUR FROM created_at) ASC`,
 	)
 	if err != nil {
-		return bookingPerTwoHours, err
+		return mapBookingPerTwoHours, err
 	}
+
 	defer rows.Close()
 	for rows.Next() {
-		var hoursCount schema.HoursCount
+		var count int
+		var hour int
 		err := rows.Scan(
-			&hoursCount.Count,
-			&hoursCount.Hour,
+			&count,
+			&hour,
 		)
 		if err != nil {
-			return bookingPerTwoHours, err
+			return mapBookingPerTwoHours, err
 		}
-		bookingPerTwoHours = append(bookingPerTwoHours, hoursCount)
+		mapBookingPerTwoHours[hour] = count
+
 	}
-	return bookingPerTwoHours, nil
+	return mapBookingPerTwoHours, nil
 }

@@ -1,4 +1,4 @@
 export interface BookingPerTwoHours {
-    results?: number[] | null;
+    results?: { [key: string]: number } | null;
     [property: string]: any;
 }

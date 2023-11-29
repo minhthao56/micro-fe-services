@@ -23,7 +23,7 @@ export function registerBookingHandlers(
       const { driver_id } = data;
 
       console.log("--booking:new:data--", data);
-      
+
       if (!driver_id) {
         console.log("Cannot find driver");
         return;
@@ -53,8 +53,6 @@ export function registerBookingHandlers(
         cmt = cmt + " AND socket_id IS NOT NULL;";
       }
 
-      console.log("cmt: ", cmt);
-
       const customers = await db.query<CustomerSocket>(cmt, [data.customer_id]);
 
       if (customers.rowCount === 0) {
@@ -77,8 +75,6 @@ export function registerBookingHandlers(
           return;
         }
 
-        console.log("admins.rows: ", admins.rows);
-
         admin_socket_id = admins.rows[0].socket_id;
       }
 
@@ -99,8 +95,6 @@ export function registerBookingHandlers(
 
   socket.on("booking:status", async (data: BookingStatusSocketResponse) => {
     const { customer, from_call_center } = data;
-    console.log("booking:status", data);
-
     if (from_call_center && data.admin_socket_id) {
       io.sockets.to(data.admin_socket_id).emit("booking:waiting:admin", data);
       return;
@@ -113,15 +107,18 @@ export function registerBookingHandlers(
         [customer.user_id, "CUSTOMER_GROUP"]);
 
       if (expoPushToken.rowCount > 0) {
+        const title = "Your booking has been accepted!";
+        const body = "Your booking has been accepted! Please wait for a while";
         const messages: ExpoPushMessage[] = [{
           to: expoPushToken.rows[0].expo_push_token,
           sound: "default",
-          body: `Your driver is on the way! Please wait for a while`,
-          title: "Your driver is on the way!",
+          body,
+          title,
         }];
 
         try {
           await expo.sendPushNotificationsAsync(messages);
+          await db.query(`INSERT INTO notifications (user_id, title, body, is_read) VALUES ($1, $2, $3, $4)`, [customer.user_id, title, body, false]);
         } catch (error) {
           console.log("Error sending push notification: ", error);
         }

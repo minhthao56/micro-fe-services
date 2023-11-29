@@ -7,6 +7,8 @@ import { FaUser, FaTaxi, FaBookmark } from "react-icons/fa";
 import { FaPhoneVolume } from "react-icons/fa6";
 import { Steam } from "../components/Steam";
 import { Button, Card } from "@nextui-org/react";
+import moment from "moment";
+
 import { getGeneralNumber } from "../services/booking/dashboard";
 
 export default function HomePage() {
@@ -18,8 +20,8 @@ export default function HomePage() {
     <>
       <div className="flex gap-4 mb-8">
         <div className="flex-auto">
-          <div className="mb-6">
-            <p className="text-2xl font-bold mb-3">General</p>
+          <div className="mb-8">
+            <p className="text-2xl font-bold mb-3">{`General ( ${moment().subtract(1, "month").startOf("month").format('MMMM')} )`}</p>
             <div className="flex justify-evenly items-center gap-3">
               <NumberCard
                 title="Customers"
@@ -63,7 +65,7 @@ export default function HomePage() {
               />
             </div>
           </div>
-          <p className="text-2xl font-bold mb-3">Statistics</p>
+          <p className="text-2xl font-bold mb-3">Statistic</p>
           <Card className="pt-3 pl-4 pb-2">
             <Steam />
           </Card>

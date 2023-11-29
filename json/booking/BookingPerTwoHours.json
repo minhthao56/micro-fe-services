@@ -1,11 +1,11 @@
 {
  "properties": {
   "results": {
-   "items": {
+   "additionalProperties": {
     "type": "integer"
    },
    "type": [
-    "array",
+    "object",
     "null"
    ]
   }
