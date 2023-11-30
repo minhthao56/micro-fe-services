@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import {getStatistics} from "../services/booking/booking"
 
 const textColor = commonColors.zinc["500"];
-const valueOfX = [0 ,2 ,4 ,6 ,8 ,10 ,12 ,14 ,16 ,18 ,20 ,22];
+const valueOfX = [0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12 ,13 ,14 ,15 ,16 ,17 ,18 ,19 ,20 ,21, 22, 23];
 
 export default function useChart() {
   const { theme } = useTheme();
@@ -16,7 +16,7 @@ export default function useChart() {
     queryFn: getStatistics,
     select(data) {
       const r = [];
-      for (let i = 0; i <valueOfX.length * 2; i = i + 2) {
+      for (let i = 0; i < valueOfX.length ; i++) {
         const v = data?.results?.[i] || 0;
         r.push(v);
       }

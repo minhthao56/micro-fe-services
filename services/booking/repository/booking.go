@@ -251,17 +251,29 @@ func (c *BookingRepositoryImpl) CountBookingPerTwoHours(ctx context.Context) (ma
 
 	mapBookingPerTwoHours := make(map[int]int)
 	mapBookingPerTwoHours[0] = 0
+	mapBookingPerTwoHours[1] = 0
 	mapBookingPerTwoHours[2] = 0
+	mapBookingPerTwoHours[3] = 0
 	mapBookingPerTwoHours[4] = 0
+	mapBookingPerTwoHours[5] = 0
 	mapBookingPerTwoHours[6] = 0
+	mapBookingPerTwoHours[7] = 0
 	mapBookingPerTwoHours[8] = 0
+	mapBookingPerTwoHours[9] = 0
 	mapBookingPerTwoHours[10] = 0
+	mapBookingPerTwoHours[11] = 0
 	mapBookingPerTwoHours[12] = 0
+	mapBookingPerTwoHours[13] = 0
 	mapBookingPerTwoHours[14] = 0
+	mapBookingPerTwoHours[15] = 0
 	mapBookingPerTwoHours[16] = 0
+	mapBookingPerTwoHours[17] = 0
 	mapBookingPerTwoHours[18] = 0
+	mapBookingPerTwoHours[19] = 0
 	mapBookingPerTwoHours[20] = 0
+	mapBookingPerTwoHours[21] = 0
 	mapBookingPerTwoHours[22] = 0
+	mapBookingPerTwoHours[23] = 0
 
 	rows, err := c.db.Query(
 		`SELECT COUNT(*), EXTRACT(HOUR FROM created_at) FROM booking

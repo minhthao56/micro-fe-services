@@ -4,12 +4,25 @@
   "offset",
   "search"
  ],
+ "definitions": {
+  "SchemaOptionsCustomers": {
+   "properties": {
+    "is_vip": {
+     "type": "boolean"
+    }
+   },
+   "type": "object"
+  }
+ },
  "properties": {
   "limit": {
    "type": "integer"
   },
   "offset": {
    "type": "integer"
+  },
+  "options": {
+   "$ref": "#/definitions/SchemaOptionsCustomers"
   },
   "search": {
    "type": "string"

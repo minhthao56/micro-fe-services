@@ -31,10 +31,15 @@ type GetCustomersResponse struct {
 	Customers []Customer `json:"customers" required:"true"`
 }
 
+type OptionsCustomers struct {
+	IsVIP bool `json:"is_vip"`
+}
+
 type GetCustomersRequest struct {
-	Limit  int    `json:"limit" required:"true"`
-	Offset int    `json:"offset" required:"true"`
-	Search string `json:"search" required:"true"`
+	Limit   int              `json:"limit" required:"true"`
+	Offset  int              `json:"offset" required:"true"`
+	Search  string           `json:"search" required:"true"`
+	Options OptionsCustomers `json:"options"`
 }
 type GetCustomerResponse struct {
 	Customer Customer `json:"customer" required:"true"`
