@@ -1,19 +1,10 @@
 import { Redirect, Tabs } from "expo-router";
-import { Text } from "react-native";
-import { Home, User, Clock3 } from "@tamagui/lucide-icons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Home, User, Clock3, Bell } from "@tamagui/lucide-icons";
 import { useColorScheme } from "react-native";
 import Colors from "../../constants/Colors";
 
 import { useSession } from "../../providers/SessionProvider";
 import { FullLoading } from "tamagui-shared-ui";
-
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>["name"];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
 
 export default function HomeLayout() {
   const val = useSession();
@@ -47,6 +38,14 @@ export default function HomeLayout() {
         options={{
           title: "History",
           tabBarIcon: ({ color }) => <Clock3 color={color}/>,
+          headerShown: false,
+        }}
+      />
+       <Tabs.Screen
+        name="notification"
+        options={{
+          title: "Notification",
+          tabBarIcon: ({ color }) => <Bell color={color} />,
           headerShown: false,
         }}
       />

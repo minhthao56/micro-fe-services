@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { router } from "expo-router";
-import { H2 } from "tamagui";
+import { H2, YStack } from "tamagui";
 import { LoginForm, LoginFormData } from "tamagui-shared-ui";
 import { KeyboardAvoidingComponent } from "expo-shared-ui";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,7 +23,9 @@ export default function SignIn() {
           firebaseToken,
           userGroup: UserGroup.DRIVER_GROUP,
         });
-        const  userCredential = await session?.signInWithCustomToken(token.customToken);
+        const userCredential = await session?.signInWithCustomToken(
+          token.customToken
+        );
         const customToken = await userCredential?.user?.getIdToken();
         if (!customToken) {
           await session?.signOut();
@@ -40,7 +42,6 @@ export default function SignIn() {
       console.log(error);
       Alert.alert("Error", error.message);
       await session?.signOut();
-
     }
   }, []);
   return (
@@ -48,8 +49,10 @@ export default function SignIn() {
       style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
     >
       <KeyboardAvoidingComponent>
-        <H2 mb="$4">Driver SM</H2>
-        <LoginForm onSubmit={onSubmit} title="Sign In" />
+        <YStack flex={1} justifyContent="center" alignItems="center">
+          <H2 mb="$4">Driver SM</H2>
+          <LoginForm onSubmit={onSubmit} title="Sign In" />
+        </YStack>
       </KeyboardAvoidingComponent>
     </SafeAreaView>
   );

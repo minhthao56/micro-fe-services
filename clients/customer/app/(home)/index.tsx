@@ -102,12 +102,6 @@ export default function HomeScreen() {
           <Separator marginVertical={20} />
           {isLoading && <Spinner mb="$3" />}
           <ScrollView
-            refreshControl={
-              <RefreshControl
-                onRefresh={handleFrequentlyAddresses}
-                refreshing={isLoading}
-              />
-            }
           >
             {address.map((item, index) => {
               return (

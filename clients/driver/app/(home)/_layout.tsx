@@ -18,6 +18,7 @@ export default function HomeLayout() {
       screenOptions={{
         headerShown: false,
       }}
+      initialRouteName="index"
     >
       <Stack.Screen name="index"/>
       <Stack.Screen name="profile"

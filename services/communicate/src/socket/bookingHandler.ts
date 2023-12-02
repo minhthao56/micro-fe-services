@@ -108,7 +108,7 @@ export function registerBookingHandlers(
 
       if (expoPushToken.rowCount > 0) {
         const title = "Your booking has been accepted!";
-        const body = "Your booking has been accepted! Please wait for a while";
+        const body = "Your booking has been accepted! Please wait your driver for a while";
         const messages: ExpoPushMessage[] = [{
           to: expoPushToken.rows[0].expo_push_token,
           sound: "default",
