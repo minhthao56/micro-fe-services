@@ -1,6 +1,15 @@
 #!/bin/bash
 # Define the base directory where your JSON files are located
 base_dir="json"
+
+
+convert_to_snake_case() {
+  input=$1
+  # Convert CamelCase to snake_case using sed
+  snake_case=$(echo "$input" | sed 's/\([a-z]\)\([A-Z]\)/\1_\2/g' | tr '[:upper:]' '[:lower:]')
+  echo "$snake_case"
+}
+
 # Loop through subdirectories
 for subdir in "$base_dir"/*; do
     if [ -d "$subdir" ]; then
@@ -14,8 +23,8 @@ for subdir in "$base_dir"/*; do
             continue
         fi
 
-        if [ ! -d "libs/rust/schema/${subdir_name}" ]; then
-            mkdir "libs/rust/schema/${subdir_name}"
+        if [ ! -d "libs/rust/schema/src/${subdir_name}" ]; then
+            mkdir "libs/rust/schema/src/${subdir_name}"
         fi
 
         # Loop through each JSON file in the subdirectory
@@ -23,14 +32,14 @@ for subdir in "$base_dir"/*; do
             # Extract the filename without extension
             file_name=$(basename -- "$json_file")
             file_name_no_extension="${file_name%.*}"
-            echo "Generating Rust for $subdir_name/$file_name_no_extension"
+            snake_string_snake_case=$(convert_to_snake_case "$file_name_no_extension")
+            echo "Generating Rust for $subdir_name/$snake_string_snake_case"
             quicktype \
             --src-lang schema "$json_file" \
-            --out "libs/rust/schema/${subdir_name}/${file_name_no_extension}.rs" \
+            --out "libs/rust/schema/src/${subdir_name}/${snake_string_snake_case}.rs" \
             --visibility public \
             --derive-debug \
-            --derive-clone \
-            --derive-partial-eq
+            --derive-clone
         done
     fi
 done

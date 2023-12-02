@@ -4,17 +4,17 @@
 // extern crate serde_derive;
 // extern crate serde_json;
 //
-// use generated_module::resp;
+// use generated_module::create_firebase_user_response;
 //
 // fn main() {
 //     let json = r#"{"answer": 42}"#;
-//     let model: resp = serde_json::from_str(&json).unwrap();
+//     let model: create_firebase_user_response = serde_json::from_str(&json).unwrap();
 // }
 
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct Resp {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateFirebaseUserResponse {
     pub email: String,
 
     pub uid: String,

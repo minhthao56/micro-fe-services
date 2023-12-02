@@ -5,14 +5,15 @@ use crate::{ AppState,helpers::firebase};
 use serde_json::json;
 use entity::user::UserEntity;
 use schema::{authmgmt::{
-    req::Req,
-    resp::Resp,
+    create_firebase_user_request::CreateFirebaseUserRequest,
+    create_firebase_user_response::CreateFirebaseUserResponse,
 }, usermgmt::whoami::WhoamiResp};
+
 use schema::usermgmt::{
     user::CreateUserRequest,
     user::CreateUserResponse,
 };
-use utils::read_file::read_config;
+use utils::read_file::endpoint_create_firebase_user;
 use utils::constants::{
     ADMIN_GROUP,
     CUSTOMER_GROUP,
@@ -86,19 +87,12 @@ async fn create_user(
             .json(json!({"status": "error","message": "Don't allowed to create admin user"}));
     }
 
-    let firebase_user  = Req{
+    let firebase_user  = CreateFirebaseUserRequest{
         email: user_req.email,
         password: user_req.password,
     };
-    let path = String::from("/common-configmap/url_auth_service");
-    let ip_service = match read_config(path) {
-        Ok(url) => url,
-        Err(e) => {
-            eprintln!("Error reading file: {}", e);
-            return HttpResponse::InternalServerError().json(e.to_string());
-        }
-    };
-    let endpoint = format!("http://{}:8080/authmgmt/create-firebase-user", ip_service);
+
+    let endpoint = endpoint_create_firebase_user();
 
     // =========Start a transaction==========
     let tx =  data.db.begin().await;
@@ -124,7 +118,7 @@ async fn create_user(
             }
     };
     // Attempt to parse the trimmed response as JSON
-    let body: Resp = match  serde_json::from_str(response_text.trim()) {
+    let body: CreateFirebaseUserResponse = match  serde_json::from_str(response_text.trim()) {
         Ok(body) => body,
         Err(e) => {
             eprintln!("Error reading body: {}", e);

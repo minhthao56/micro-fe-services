@@ -28,3 +28,23 @@ pub fn read_config(file_path: String) -> Result<String, Error> {
         }
     }
 }
+
+
+pub fn get_endpoint_authmgmt() -> String {
+    let path = String::from("/common-configmap/url_auth_service");
+    let ip_service = match read_config(path) {
+        Ok(url) => url,
+        Err(e) => {
+            eprintln!("Error reading file: {}", e);
+            return String::from("");
+        }
+    };
+    return ip_service;
+}
+
+
+pub fn endpoint_create_firebase_user() -> String {
+    let ip_service = get_endpoint_authmgmt();
+    let endpoint = format!("http://{}:8080/authmgmt/create-firebase-user", ip_service);
+    return endpoint;
+}

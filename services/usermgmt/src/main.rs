@@ -35,9 +35,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
                 web::scope("/usermgmt/public")
-                    .configure(controller::healthchecker::config)
-                    .configure(controller::user::config)
-                    .wrap(ValidateJWT::add_public_key(public_keys.clone()))
+                    .configure(controller::pub_user::config)
             )
             .wrap(Logger::default())
             
