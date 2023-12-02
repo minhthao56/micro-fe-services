@@ -1,9 +1,6 @@
 {
  "required": [
-  "booking",
-  "limit",
-  "offset",
-  "total"
+  "booking"
  ],
  "definitions": {
   "SchemaAddress": {
@@ -23,7 +20,7 @@
    },
    "type": "object"
   },
-  "SchemaBookingWithAddress": {
+  "SchemaBooking": {
    "properties": {
     "booking_id": {
      "type": "string"
@@ -46,17 +43,11 @@
     "driver_id": {
      "type": "string"
     },
-    "end_address": {
-     "$ref": "#/definitions/SchemaAddress"
-    },
     "end_lat": {
      "type": "number"
     },
     "end_long": {
      "type": "number"
-    },
-    "start_address": {
-     "$ref": "#/definitions/SchemaAddress"
     },
     "start_lat": {
      "type": "number"
@@ -164,21 +155,12 @@
  "properties": {
   "booking": {
    "items": {
-    "$ref": "#/definitions/SchemaBookingWithAddress"
+    "$ref": "#/definitions/SchemaBooking"
    },
    "type": [
     "array",
     "null"
    ]
-  },
-  "limit": {
-   "type": "integer"
-  },
-  "offset": {
-   "type": "integer"
-  },
-  "total": {
-   "type": "integer"
   }
  },
  "type": "object"

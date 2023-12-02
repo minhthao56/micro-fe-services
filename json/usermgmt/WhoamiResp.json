@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WhoamiResp",
+  "type": "object",
+  "required": [
+    "results",
+    "status"
+  ],
+  "properties": {
+    "results": {
+      "$ref": "#/definitions/UserEntity"
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "definitions": {
+    "UserEntity": {
+      "type": "object",
+      "required": [
+        "email",
+        "firebase_uid",
+        "first_name",
+        "last_name",
+        "phone_number",
+        "user_group",
+        "user_id"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "firebase_uid": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "phone_number": {
+          "type": "string"
+        },
+        "user_group": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    }
+  }
+}

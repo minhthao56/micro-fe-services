@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 kubectl delete job migration-db
 eval $(minikube -p minikube docker-env)
 ID=$(docker images --format "{{.ID}} {{.Repository}} {{.Tag}}" | grep "taxi/migration-db latest" | awk '{print $1}')

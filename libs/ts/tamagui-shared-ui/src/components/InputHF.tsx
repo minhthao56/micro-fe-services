@@ -1,4 +1,4 @@
-import { Input, InputProps } from "tamagui";
+import { Input, InputProps, Text, YStack } from "tamagui";
 import {
   useController,
   UseControllerProps,
@@ -14,6 +14,15 @@ export function InputHF<T extends FieldValues>({
   hookForm,
   ...props
 }: InputHFProps<T>) {
-  const { field } = useController<T>(hookForm);
-  return <Input {...props} onChangeText={field.onChange} value={field.value} />;
+  const { field, fieldState } = useController<T>(hookForm);
+  return (
+    <YStack pb="$1">
+      <Input
+        {...props}
+        onChangeText={field.onChange}
+        value={field.value}
+      />
+      <Text color="$red10" fontSize="$1" ml="$1">{fieldState.error?.message}</Text>
+    </YStack>
+  );
 }

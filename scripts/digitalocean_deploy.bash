@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 SVC_NAME=$1
 
 if [ -z "$SVC_NAME" ]

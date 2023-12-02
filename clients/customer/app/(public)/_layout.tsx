@@ -7,6 +7,10 @@ export default function PublicLayout() {
       screenOptions={{
         headerShown: false,
       }}
-    />
+      initialRouteName="sign-in"
+    >
+      <Stack.Screen name="sign-up" />
+      <Stack.Screen name="sign-in" />
+    </Stack>
   );
 }

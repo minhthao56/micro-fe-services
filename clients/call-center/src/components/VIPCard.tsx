@@ -1,6 +1,13 @@
 import { Avatar, AvatarGroup, Card, CardHeader } from "@nextui-org/react";
+import { getVIPCustomers } from "../services/booking/customer";
+import { useQuery } from "@tanstack/react-query";
 
 export function VIPCard() {
+  const { data } = useQuery({
+    queryKey: ["getVIPCustomers"],
+    queryFn: getVIPCustomers,
+  });
+
   return (
     <Card className="max-w-[300px] w-full p-3 gap-4 pb-8">
         <CardHeader className="flex justify-center items-center flex-row">
@@ -12,12 +19,11 @@ export function VIPCard() {
         All VIP customers in your business. Let them know you care about them.
         </span>
       <AvatarGroup isBordered>
-        <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026024d" />
-        <Avatar src="https://i.pravatar.cc/150?u=a04258a2462d826712d" />
-        <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-        <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026302d" />
-        <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026702d" />
-        <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026708c" />
+        {
+          data?.customers?.map((item: any) => (
+            <Avatar/>
+          ))
+        }
       </AvatarGroup>
     </Card>
   );

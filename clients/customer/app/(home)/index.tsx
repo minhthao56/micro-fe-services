@@ -14,7 +14,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import debounce from "lodash.debounce";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Keyboard, TouchableWithoutFeedback } from "react-native";
+import {
+  Alert,
+  Keyboard,
+  RefreshControl,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { SchemaAddress } from "schema/booking/GetFrequentlyAddressResponse";
 
 import { LocationCard } from "../../components/LocationCard";
@@ -24,7 +29,9 @@ import { getFrequentlyAddresses } from "../../services/booking/booking";
 export default function HomeScreen() {
   const [address, setAddress] = useState<SchemaAddress[]>([]);
 
-  const [frequentlyAddresses, setFrequentlyAddresses] = useState<SchemaAddress[]>([]);
+  const [frequentlyAddresses, setFrequentlyAddresses] = useState<
+    SchemaAddress[]
+  >([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,7 +41,7 @@ export default function HomeScreen() {
       return;
     }
     const address = await searchAddress(text);
-    
+
     const mapAddress = address?.places?.map((item: any) => {
       return {
         lat: item.location.latitude,
@@ -44,7 +51,7 @@ export default function HomeScreen() {
       };
     });
 
-    setAddress(mapAddress || [])
+    setAddress(mapAddress || []);
   };
 
   const debouncedChangeHandler = useCallback(debounce(onChangeText, 300), [
@@ -93,8 +100,15 @@ export default function HomeScreen() {
             onChangeText={debouncedChangeHandler}
           />
           <Separator marginVertical={20} />
-          {isLoading && <Spinner mb = "$3"/>}
-          <ScrollView>
+          {isLoading && <Spinner mb="$3" />}
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                onRefresh={handleFrequentlyAddresses}
+                refreshing={isLoading}
+              />
+            }
+          >
             {address.map((item, index) => {
               return (
                 <LocationCard
@@ -114,14 +128,14 @@ export default function HomeScreen() {
                   }}
                 >
                   <XStack alignItems="center">
-                    <MapPin size="$1" color="$red10Light"/>
-                    <YStack flex={1} ml ="$2">
-                      <Text fontWeight="700" fontSize="$4" mb = "$1">
+                    <MapPin size="$1" color="$red10Light" />
+                    <YStack flex={1} ml="$2">
+                      <Text fontWeight="700" fontSize="$4" mb="$1">
                         {item.display_name}
                       </Text>
                       <Text>{item.formatted_address}</Text>
                     </YStack>
-                    <ArrowRight size="$1"/>
+                    <ArrowRight size="$1" />
                   </XStack>
                 </LocationCard>
               );

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 svcname=$1
 
 make build-$svcname

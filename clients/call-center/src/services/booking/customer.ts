@@ -2,6 +2,8 @@ import { GetCustomersRequest } from "schema/booking/GetCustomersRequest";
 import { GetCustomersResponse } from "schema/booking/GetCustomersResponse";
 import { GetNearbyDriversRequest } from "schema/booking/GetNearbyDriversRequest";
 import { GetNearbyDriversResponse } from "schema/booking/GetNearbyDriversResponse";
+import { GetVPICustomersResponse } from "schema/booking/GetVPICustomersResponse";
+
 
 import { bookingClient } from "./client";
 
@@ -22,4 +24,8 @@ export async function findNearByDriver(req: GetNearbyDriversRequest) {
         long: `${req.request_long}`,
     },
   });
+}
+
+export const getVIPCustomers = async () => {
+  return await bookingClient.get<GetVPICustomersResponse>("/customers/vip");
 }

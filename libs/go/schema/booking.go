@@ -50,10 +50,14 @@ type GetFrequentlyAddressResponse struct {
 }
 
 type GetManyBookingResponse struct {
+	Booking []BookingWithAddress `json:"booking" required:"true"`
+	Limit   int                  `json:"limit" required:"true"`
+	Offset  int                  `json:"offset" required:"true"`
+	Total   int                  `json:"total" required:"true"`
+}
+
+type GetManyBookingInDayResponse struct {
 	Booking []Booking `json:"booking" required:"true"`
-	Limit   int       `json:"limit" required:"true"`
-	Offset  int       `json:"offset" required:"true"`
-	Total   int       `json:"total" required:"true"`
 }
 
 type GetHistoryBookingResponse struct {

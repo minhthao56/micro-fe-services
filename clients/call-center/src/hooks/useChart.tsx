@@ -33,7 +33,7 @@ export default function useChart() {
 
   const options = useMemo(() => {
     const color =
-      theme === "dark" ? commonColors.zinc["700"] : commonColors.zinc["300"];
+      theme === "dark" ? commonColors.zinc["800"] : commonColors.zinc["200"];
 
     const options: Props["options"] = {
       chart: {

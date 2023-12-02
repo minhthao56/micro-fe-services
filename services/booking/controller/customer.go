@@ -17,6 +17,7 @@ type CustomerController interface {
 	GetCustomers(c *gin.Context)
 	UpdateVIP(c *gin.Context)
 	GetCurrentCustomer(c *gin.Context)
+	GetVIPCustomers(c *gin.Context)
 }
 
 type CustomerControllerImpl struct {
@@ -180,5 +181,19 @@ func (u *CustomerControllerImpl) GetCurrentCustomer(c *gin.Context) {
 
 	c.JSON(http.StatusOK, schema.GetCustomerResponse{
 		Customer: customer,
+	})
+}
+
+func (u *CustomerControllerImpl) GetVIPCustomers(c *gin.Context) {
+	customers, err := u.repoCustomer.GetVIPCustomers(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+	}
+
+	c.JSON(http.StatusOK, schema.GetVPICustomersResponse{
+		Customers: customers,
 	})
 }

@@ -35,37 +35,55 @@ export function LoginForm({ onSubmit, title }: LoginFormProps) {
       borderColor="$borderColor"
       padding="$8"
     >
-        <H4 mb="$3">{title}</H4>
-        <InputHF<LoginFormData>
-          size="$4"
-          borderWidth={2}
-          keyboardType="email-address"
-          width={300}
-          placeholder="Email"
-          hookForm={{
-            name: "email",
-            defaultValue: "",
-            control,
-          }}
-        />
-        <InputHF<LoginFormData>
-          size="$4"
-          borderWidth={2}
-          secureTextEntry
-          width={300}
-          placeholder="Password"
-          hookForm={{
-            name: "password",
-            control,
-            defaultValue: "",
-          }}
-        />
+      <H4 mb="$3">{title}</H4>
+      <InputHF<LoginFormData>
+        size="$4"
+        borderWidth={2}
+        keyboardType="email-address"
+        width={300}
+        placeholder="Email"
+        hookForm={{
+          name: "email",
+          defaultValue: "",
+          control,
+          rules: {
+            required: "Email is required",
+            pattern: {
+              value: /\S+@\S+\.\S+/,
+              message: "Entered value does not match email format",
+            },
+          },
+        }}
+      />
+      <InputHF<LoginFormData>
+        size="$4"
+        borderWidth={2}
+        secureTextEntry
+        width={300}
+        placeholder="Password"
+        hookForm={{
+          name: "password",
+          control,
+          defaultValue: "",
+          rules: {
+            required: "Password is required",
+            minLength: {
+              value: 6,
+              message: "Password must have at least 6 characters",
+            },
+          },
+        }}
+      />
 
-        <Form.Trigger asChild disabled={isSubmitting}>
-          <Button icon={isSubmitting ? () => <Spinner /> : undefined} mt="$3">
-            Login
-          </Button>
-        </Form.Trigger>
+      <Form.Trigger asChild disabled={isSubmitting}>
+        <Button
+          icon={isSubmitting ? () => <Spinner /> : undefined}
+          mt="$3"
+          bg="$green8"
+        >
+          Login
+        </Button>
+      </Form.Trigger>
     </Form>
   );
 }

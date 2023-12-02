@@ -63,9 +63,11 @@ export default function PhoneBookingPage() {
         <TableHeader>
           <TableColumn>STT</TableColumn>
           <TableColumn>NAME CUSTOMER</TableColumn>
-          <TableColumn>PHONE NUMBER CUSTOMER</TableColumn>
+          <TableColumn>PHONE CUSTOMER</TableColumn>
           <TableColumn>NAME DRIVER</TableColumn>
-          <TableColumn>PHONE NUMBER DRIVER</TableColumn>
+          <TableColumn>PHONE DRIVER</TableColumn>
+          <TableColumn>ADDRESS START</TableColumn>
+          <TableColumn>ADDRESS END</TableColumn>
           <TableColumn>STATUS</TableColumn>
           <TableColumn>CREATED AT</TableColumn>
         </TableHeader>
@@ -83,6 +85,8 @@ export default function PhoneBookingPage() {
                   {item?.driver?.last_name + " " + item?.driver?.first_name}
                 </TableCell>
                 <TableCell>{item?.driver?.phone_number}</TableCell>
+                <TableCell>{item?.start_address?.formatted_address}</TableCell>
+                <TableCell>{item?.end_address?.formatted_address}</TableCell>
                 <TableCell>
                   <Chip
                     color={

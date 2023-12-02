@@ -5,6 +5,7 @@ import type { UpdateBookingRequest } from "schema/booking/UpdateBookingRequest";
 import type { GetManyBookingRequest } from "schema/booking/GetManyBookingRequest";
 import type { GetManyBookingResponse } from "schema/booking/GetManyBookingResponse";
 import type { BookingPerTwoHours } from "schema/booking/BookingPerTwoHours";
+import type { GetManyBookingInDayResponse } from "schema/booking/GetManyBookingInDayResponse";
 
 
 
@@ -24,4 +25,8 @@ export async function getManyBooking (req: GetManyBookingRequest) {
 
 export async function getStatistics () {
   return await bookingClient.get<BookingPerTwoHours >("/statistics");
+}
+
+export async function getLastBookingInDay () {
+  return await bookingClient.get<GetManyBookingInDayResponse >("/in-day");
 }

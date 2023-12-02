@@ -13,11 +13,7 @@ export const KeyboardAvoidingComponent = (props: PropsWithChildren) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          {props.children}
-        </View>
+        <View style={{ flex: 1 }}>{props.children}</View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );

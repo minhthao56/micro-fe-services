@@ -2,11 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { NumberCard } from "../components/NumberCard";
 import { LatestBookingCard } from "../components/LatestBookingCard";
 import { VIPCard } from "../components/VIPCard";
-import { UserTable } from "../components/UserTable";
 import { FaUser, FaTaxi, FaBookmark } from "react-icons/fa";
 import { FaPhoneVolume } from "react-icons/fa6";
 import { Steam } from "../components/Steam";
-import { Button, Card } from "@nextui-org/react";
+import { Card } from "@nextui-org/react";
 import moment from "moment";
 
 import { getGeneralNumber } from "../services/booking/dashboard";
@@ -20,7 +19,7 @@ export default function HomePage() {
     <>
       <div className="flex gap-4 mb-8">
         <div className="flex-auto">
-          <div className="mb-8">
+          <div className="mb-9">
             <p className="text-2xl font-bold mb-3">{`General ( ${moment().subtract(1, "month").startOf("month").format('MMMM')} )`}</p>
             <div className="flex justify-evenly items-center gap-3">
               <NumberCard
@@ -77,13 +76,6 @@ export default function HomePage() {
           <LatestBookingCard />
         </div>
       </div>
-      <div className="mb-3 flex justify-between items-center">
-        <p className="text-2xl font-bold">All Users</p>
-        <Button variant="flat" color="primary">
-          View All
-        </Button>
-      </div>
-      <UserTable />
     </>
   );
 }

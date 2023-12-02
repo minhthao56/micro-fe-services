@@ -13,4 +13,5 @@ func NewRouterCustomer(r *gin.RouterGroup, conn *sql.DB) {
 	r.GET("/customers", controller.GetCustomers)
 	r.POST("/customer/vip", controller.UpdateVIP)
 	r.GET("/customer", controller.GetCurrentCustomer)
+	r.GET("/customers/vip", controller.GetVIPCustomers)
 }

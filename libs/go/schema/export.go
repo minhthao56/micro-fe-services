@@ -40,5 +40,7 @@ func GetBookingSchema() map[string]interface{} {
 		"UpdateVIPRequest":             UpdateVIPRequest{},
 		"GeneralNumberResponse":        GeneralNumberResponse{},
 		"BookingPerTwoHours":           BookingPerTwoHours{},
+		"GetVPICustomersResponse":      GetVPICustomersResponse{},
+		"GetManyBookingInDayResponse":  GetManyBookingInDayResponse{},
 	}
 }

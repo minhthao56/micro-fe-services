@@ -1,0 +1,78 @@
+{
+ "required": [
+  "customers"
+ ],
+ "definitions": {
+  "SchemaAddress": {
+   "properties": {
+    "display_name": {
+     "type": "string"
+    },
+    "formatted_address": {
+     "type": "string"
+    },
+    "lat": {
+     "type": "number"
+    },
+    "long": {
+     "type": "number"
+    }
+   },
+   "type": "object"
+  },
+  "SchemaCustomer": {
+   "required": [
+    "customer_id",
+    "first_name",
+    "last_name",
+    "phone_number",
+    "user_id"
+   ],
+   "properties": {
+    "address": {
+     "$ref": "#/definitions/SchemaAddress"
+    },
+    "customer_id": {
+     "type": "string"
+    },
+    "email": {
+     "type": "string"
+    },
+    "first_name": {
+     "type": "string"
+    },
+    "is_vip": {
+     "type": "boolean"
+    },
+    "last_name": {
+     "type": "string"
+    },
+    "lat": {
+     "type": "number"
+    },
+    "long": {
+     "type": "number"
+    },
+    "phone_number": {
+     "type": "string"
+    },
+    "user_id": {
+     "type": "string"
+    }
+   },
+   "type": "object"
+  }
+ },
+ "properties": {
+  "customers": {
+   "items": {
+    "$ref": "#/definitions/SchemaCustomer"
+   },
+   "type": [
+    "array",
+    "null"
+   ]
+  }
+ },
+ "type": "object"
+}

@@ -28,12 +28,19 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(app_state.clone()))
             .service(
-                web::scope("/usermgmt")
+                web::scope("/usermgmt/private")
                     .configure(controller::healthchecker::config)
                     .configure(controller::user::config)
+                    .wrap(ValidateJWT::add_public_key(public_keys.clone()))
+            )
+            .service(
+                web::scope("/usermgmt/public")
+                    .configure(controller::healthchecker::config)
+                    .configure(controller::user::config)
+                    .wrap(ValidateJWT::add_public_key(public_keys.clone()))
             )
             .wrap(Logger::default())
-            .wrap(ValidateJWT::add_public_key(public_keys.clone()))
+            
     })
     .bind(("0.0.0.0", 9090))?
     .run()

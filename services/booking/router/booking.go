@@ -15,4 +15,5 @@ func NewRouterBooking(r *gin.RouterGroup, conn *sql.DB) {
 	r.GET("/frequently-addresses", controller.GetFrequentlyAddresses)
 	r.GET("/history", controller.GetHistoryBookingByUserID)
 	r.GET("/statistics", controller.CountBookingPerTwoHours)
+	r.GET("/in-day", controller.GetManyBookingInDay)
 }

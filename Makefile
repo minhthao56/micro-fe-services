@@ -48,6 +48,9 @@ connect-db:
 gen-sqlx:
 	cargo sqlx prepare --workspace
 
+gen-rust:
+	scripts/gen_rust.bash   
+
 # Frontend
 start-frontend:
 	npx nx dev call-center

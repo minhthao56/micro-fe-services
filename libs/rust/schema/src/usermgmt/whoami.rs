@@ -1,8 +1,10 @@
+use entity::user::UserEntity;
+use schemars::JsonSchema;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct WhoamiResp {
-    pub email: String,
 
-    pub uid: String,
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct WhoamiResp {
+    pub status: String,
+    pub results: UserEntity,
 }

@@ -15,6 +15,7 @@ type CustomerRepository interface {
 	CountCustomers(ctx context.Context, req schema.GetCustomersRequest) (int, error)
 	UpdateVIP(ctx context.Context, UserID string, IsVIP bool) error
 	GetCurrentCustomer(ctx context.Context, UserID string) (schema.Customer, error)
+	GetVIPCustomers(ctx context.Context) ([]schema.Customer, error)
 }
 
 type CustomerRepositoryImpl struct {
@@ -38,6 +39,7 @@ func (c *CustomerRepositoryImpl) SerCurrentLocation(ctx context.Context, req sch
 
 func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.GetCustomersRequest) ([]schema.Customer, error) {
 	var customers []schema.Customer
+
 	r, e := c.db.Query(`
 		SELECT c.customer_id, c.is_vip,
 		c.long, c.lat, u.first_name, u.last_name, u.email, u.phone_number,
@@ -45,10 +47,9 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 		FROM customers  AS c
 		JOIN users AS u ON c.user_id = u.user_id
 		LEFT JOIN addresses AS a ON c.long = a.long AND c.lat = a.lat
-		WHERE u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%'
-		AND c.is_vip = $4
+		WHERE (u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%')
 		LIMIT $2 OFFSET $3
-	`, req.Search, req.Limit, req.Offset, req.Options.IsVIP,
+	`, req.Search, req.Limit, req.Offset,
 	)
 	if e != nil {
 		return customers, e
@@ -156,4 +157,31 @@ func (c *CustomerRepositoryImpl) GetCurrentCustomer(ctx context.Context, UserID 
 		return customer, e
 	}
 	return customer, nil
+}
+
+func (c *CustomerRepositoryImpl) GetVIPCustomers(ctx context.Context) ([]schema.Customer, error) {
+	var customers []schema.Customer
+
+	r, e := c.db.Query(`
+		SELECT DISTINCT c.customer_id, c.is_vip
+		FROM customers  AS c
+		JOIN users AS u ON c.user_id = u.user_id
+		WHERE c.is_vip = true
+	`)
+	if e != nil {
+		return customers, e
+	}
+	for r.Next() {
+		var customer schema.Customer
+
+		e = r.Scan(
+			&customer.CustomerId,
+			&customer.IsVIP,
+		)
+		if e != nil {
+			return customers, e
+		}
+		customers = append(customers, customer)
+	}
+	return customers, nil
 }

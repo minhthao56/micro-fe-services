@@ -4,10 +4,10 @@ use serde::Deserialize;
 use crate::{ AppState,helpers::firebase};
 use serde_json::json;
 use entity::user::UserEntity;
-use schema::authmgmt::{
+use schema::{authmgmt::{
     req::Req,
     resp::Resp,
-};
+}, usermgmt::whoami::WhoamiResp};
 use schema::usermgmt::{
     user::CreateUserRequest,
     user::CreateUserResponse,
@@ -53,41 +53,12 @@ async fn whoami(
     
     println!("user: {:?}", user);
 
-    let json_response = serde_json::json!({
-        "status": "success",
-        "results": user,
+    let json_response = serde_json::json!(WhoamiResp {
+        status: String::from("success"),
+        results: user,
     });
     HttpResponse::Ok().json(json_response)
 }
-
-#[get("/users")]
-async fn get_all_user( 
-    _: web::Query<FilterOptions>,
-    data: web::Data<AppState>,
-) -> impl Responder {
-
-    let query_result = sqlx::query_as!(
-        UserEntity,
-        "SELECT user_id, email, firebase_uid, first_name, last_name, user_group, phone_number FROM users",
-    )
-    .fetch_all(&data.db)
-    .await;
-
-    if query_result.is_err() {
-        let message = "Something bad happened while fetching all note items";
-        return HttpResponse::InternalServerError()
-            .json(json!({"status": "error","message": message}));
-    }
-
-    let users = query_result.unwrap();
-    let json_response = serde_json::json!({
-        "status": "success",
-        "results": users.len(),
-        "users": users
-    });
-    HttpResponse::Ok().json(json_response)
-}
-
 
 #[post("/create")]
 async fn create_user(
@@ -232,6 +203,5 @@ async fn create_user(
 
 pub fn config(conf: &mut web::ServiceConfig) {
     conf.service(whoami)
-        .service(get_all_user)
         .service(create_user);
 }

@@ -4,8 +4,9 @@ use std::io::Write;
 
 use schema::usermgmt::user::{
     CreateUserRequest,
-    CreateUserResponse
+    CreateUserResponse,
 };
+use schema::usermgmt::whoami::WhoamiResp;
 
 
 // Procedural macro to generate JSON schema for a struct
@@ -19,6 +20,7 @@ fn to_schema_json() {
     let structs = vec![
         ("CreateUserRequest", generate_schema_for_struct::<CreateUserRequest>()),
         ("CreateUserResponse", generate_schema_for_struct::<CreateUserResponse>()),
+        ("WhoamiResp", generate_schema_for_struct::<WhoamiResp>()),
         // Add more structs here as needed
     ];
 

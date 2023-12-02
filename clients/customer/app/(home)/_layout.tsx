@@ -32,6 +32,7 @@ export default function HomeLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
       }}
+      initialRouteName="index"
     >
       <Tabs.Screen
         name="index"

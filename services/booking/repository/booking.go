@@ -12,11 +12,12 @@ import (
 type BookingRepository interface {
 	CreateBooking(ctx context.Context, booking schema.CreateBookingRequest) (int, error)
 	UpdateBooking(ctx context.Context, booking schema.UpdateBookingRequest) error
-	GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.Booking, error)
+	GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.BookingWithAddress, error)
 	CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error)
 	GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error)
 	GetBookingByUserID(ctx context.Context, userID string) ([]schema.BookingWithAddress, error)
 	CountBookingPerTwoHours(ctx context.Context) (map[int]int, error)
+	GetManyBookingInDay(ctx context.Context) ([]schema.Booking, error)
 }
 
 type BookingRepositoryImpl struct {
@@ -68,17 +69,23 @@ func (c *BookingRepositoryImpl) UpdateBooking(ctx context.Context, booking schem
 	return nil
 }
 
-func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.Booking, error) {
+func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.BookingWithAddress, error) {
 	rows, err := c.db.Query(
-		`SELECT b.booking_id, b.customer_id, b.driver_id, b.start_long, b.start_lat, b.end_long, b.end_lat, b.status, u.first_name, u.last_name,u.phone_number, u2.first_name, u2.last_name, u2.phone_number, b.created_at
-		FROM booking AS b 
-		JOIN customers AS c ON b.customer_id = c.customer_id
-		JOIN drivers AS d ON b.driver_id = d.driver_id
-		JOIN users AS u ON c.user_id = u.user_id
-		JOIN users AS u2 ON d.user_id = u2.user_id
-		WHERE u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%'
-		LIMIT $2 
-		OFFSET $3`,
+		`SELECT b.booking_id, b.customer_id, b.driver_id, b.start_long, b.start_lat, 
+		b.end_long, b.end_lat, b.status, 
+		u.first_name, u.last_name,u.phone_number, u2.first_name, u2.last_name, u2.phone_number, b.created_at,
+		sa.formatted_address, sa.display_name,
+		ea.formatted_address, ea.display_name, b.distance
+			FROM booking AS b 
+			JOIN customers AS c ON b.customer_id = c.customer_id
+			JOIN drivers AS d ON b.driver_id = d.driver_id
+			JOIN users AS u ON c.user_id = u.user_id
+			JOIN users AS u2 ON d.user_id = u2.user_id
+			LEFT JOIN addresses AS sa ON sa.lat = b.start_lat AND sa.long = b.start_long
+			LEFT JOIN addresses AS ea ON ea.lat = b.end_lat AND ea.long = b.end_long
+			WHERE u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%'
+			LIMIT $2 
+			OFFSET $3`,
 		booking.Search,
 		booking.Limit,
 		booking.Offset,
@@ -87,9 +94,17 @@ func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking sche
 		return nil, err
 	}
 	defer rows.Close()
-	var bookings []schema.Booking
+	var bookings []schema.BookingWithAddress
 	for rows.Next() {
-		var booking schema.Booking
+		var booking schema.BookingWithAddress
+		distance := sql.NullFloat64{}
+
+		startFormattedAddress := sql.NullString{}
+		startDisplayName := sql.NullString{}
+
+		endFormattedAddress := sql.NullString{}
+		endDisplayName := sql.NullString{}
+
 		err := rows.Scan(
 			&booking.BookingID,
 			&booking.CustomerID,
@@ -106,10 +121,22 @@ func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking sche
 			&booking.Driver.LastName,
 			&booking.Driver.PhoneNumber,
 			&booking.CreatedAt,
+			&startFormattedAddress,
+			&startDisplayName,
+			&endFormattedAddress,
+			&endDisplayName,
+			&distance,
 		)
 		if err != nil {
 			return nil, err
 		}
+		booking.Distance = distance.Float64
+
+		booking.StartAddress.FormattedAddress = startFormattedAddress.String
+		booking.StartAddress.DisplayName = startDisplayName.String
+		booking.EndAddress.FormattedAddress = endFormattedAddress.String
+		booking.EndAddress.DisplayName = endDisplayName.String
+
 		bookings = append(bookings, booking)
 	}
 	return bookings, nil
@@ -300,4 +327,47 @@ func (c *BookingRepositoryImpl) CountBookingPerTwoHours(ctx context.Context) (ma
 
 	}
 	return mapBookingPerTwoHours, nil
+}
+
+func (c *BookingRepositoryImpl) GetManyBookingInDay(ctx context.Context) ([]schema.Booking, error) {
+	rows, err := c.db.Query(
+		`SELECT DISTINCT (b.customer_id), b.booking_id, b.driver_id, b.start_long, b.start_lat, 
+		b.end_long, b.end_lat, b.status,u.last_name, u.first_name, b.created_at, b.distance, c.is_vip
+				FROM booking AS b 
+				JOIN customers AS c ON b.customer_id = c.customer_id
+				JOIN users AS u ON c.user_id = u.user_id
+				WHERE b.created_at BETWEEN NOW() - INTERVAL '1 DAY' AND NOW()`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var bookings []schema.Booking
+	for rows.Next() {
+		var booking schema.Booking
+		distance := sql.NullFloat64{}
+
+		err := rows.Scan(
+			&booking.CustomerID,
+			&booking.BookingID,
+			&booking.DriverID,
+			&booking.StartLong,
+			&booking.StartLat,
+			&booking.EndLong,
+			&booking.EndLat,
+			&booking.Status,
+			&booking.Customer.FirstName,
+			&booking.Customer.LastName,
+			&booking.CreatedAt,
+			&distance,
+			&booking.Customer.IsVIP,
+		)
+		if err != nil {
+			return nil, err
+		}
+		booking.Distance = distance.Float64
+		bookings = append(bookings, booking)
+	}
+
+	return bookings, nil
 }

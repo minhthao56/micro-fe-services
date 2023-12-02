@@ -1,26 +1,21 @@
-export interface GetManyBookingResponse {
-    booking: SchemaBookingWithAddress[] | null;
-    limit:   number;
-    offset:  number;
-    total:   number;
+export interface GetManyBookingInDayResponse {
+    booking: SchemaBooking[] | null;
     [property: string]: any;
 }
 
-export interface SchemaBookingWithAddress {
-    booking_id?:    string;
-    created_at?:    string;
-    customer?:      SchemaCustomer;
-    customer_id?:   string;
-    distance?:      number;
-    driver?:        SchemaDriver;
-    driver_id?:     string;
-    end_address?:   SchemaAddress;
-    end_lat?:       number;
-    end_long?:      number;
-    start_address?: SchemaAddress;
-    start_lat?:     number;
-    start_long?:    number;
-    status?:        string;
+export interface SchemaBooking {
+    booking_id?:  string;
+    created_at?:  string;
+    customer?:    SchemaCustomer;
+    customer_id?: string;
+    distance?:    number;
+    driver?:      SchemaDriver;
+    driver_id?:   string;
+    end_lat?:     number;
+    end_long?:    number;
+    start_lat?:   number;
+    start_long?:  number;
+    status?:      string;
     [property: string]: any;
 }
 
