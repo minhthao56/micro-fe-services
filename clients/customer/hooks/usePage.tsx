@@ -10,7 +10,7 @@ export function usePage(total: number, rowsPerPage: number = 10) {
 
   const handleNextPage = () => {
     if (page === pages) return;
-    setPage((prev) => prev + 1);
+    setPage(prevPage => Math.min(prevPage + 1, pages));
   };
 
   return {

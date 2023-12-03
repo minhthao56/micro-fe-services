@@ -1,5 +1,6 @@
 export interface GetHistoryBookingResponse {
     booking: SchemaBookingWithAddress[] | null;
+    total:   number;
     [property: string]: any;
 }
 

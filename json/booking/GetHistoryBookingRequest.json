@@ -1,0 +1,15 @@
+{
+ "required": [
+  "limit",
+  "offset"
+ ],
+ "properties": {
+  "limit": {
+   "type": "integer"
+  },
+  "offset": {
+   "type": "integer"
+  }
+ },
+ "type": "object"
+}

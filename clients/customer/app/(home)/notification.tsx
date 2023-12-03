@@ -1,4 +1,13 @@
-import { H2, YStack, XGroup, Button, Separator, View } from "tamagui";
+import {
+  H2,
+  YStack,
+  XGroup,
+  Button,
+  Separator,
+  View,
+  Spinner,
+  Text,
+} from "tamagui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NotificationCard } from "../../components/NotificationCard";
 import { useCallback, useEffect, useState } from "react";
@@ -10,44 +19,56 @@ import {
 import { getNotifications } from "../../services/communicate/notification";
 import { useToast } from "react-native-toast-notifications";
 import { usePage } from "../../hooks/usePage";
+import { ListEmptyComponent } from "../../components/ListEmptyComponent";
+import { ModeFetch, Pagination } from "../../types/app";
+
+interface PaginationWithStatus extends Pagination {
+  status?: string;
+}
+
+const TABS = [
+  {
+    id: 1,
+    name: "All",
+  },
+  {
+    id: 2,
+    name: "Read",
+  },
+  {
+    id: 3,
+    name: "Unread",
+  },
+]
 
 export default function NotificationScreen() {
-  const [tabs, setTabs] = useState([
-    {
-      id: 1,
-      name: "All",
-      active: true,
-    },
-    {
-      id: 2,
-      name: "Read",
-      active: false,
-    },
-    {
-      id: 3,
-      name: "Unread",
-      active: false,
-    },
-  ]);
+  const [currentTab, setCurrentTab] = useState(TABS[0]);
 
   const [resp, setResp] = useState<NotificationsResponse>({
     notifications: [],
     total: 0,
   });
-  const [loading, setLoading] = useState(false);
+
+  const [mode, setMode] = useState<ModeFetch>("done");
+
   const toast = useToast();
 
   const { page, pages, setPage, handleNextPage } = usePage(resp.total);
 
   const handleGetNotifications = useCallback(
-    async (page: number, rowsPerPage: number = 10) => {
-      setLoading(true);
+    async ({ page, rowsPerPage = 10, mode, status }: PaginationWithStatus) => {
+      setMode(mode);
       try {
         const response = await getNotifications({
           limit: 10,
           offset: rowsPerPage * page - rowsPerPage,
-          status: tabs.find((tab) => tab.active)?.name?.toLowerCase() || "all",
+          status: status || "all",
         });
+
+        if (page === 1) {
+          setResp(response);
+          return;
+        }
         setResp((prev) => {
           return {
             ...prev,
@@ -59,25 +80,15 @@ export default function NotificationScreen() {
         console.log(error);
         toast.show(`Error: ${error?.message}`, { type: "danger" });
       } finally {
-        setLoading(false);
+        setMode("done");
       }
     },
-    [tabs]
+    []
   );
 
-  const handleRefresh = () => {
-    setResp(() => ({
-      notifications: [],
-      total: 0,
-    }));
-    setPage(1);
-  };
-
   useEffect(() => {
-    if (resp.notifications.length === 0) {
-      handleGetNotifications(1);
-    }
-  }, [handleGetNotifications]);
+    handleGetNotifications({ page: 1, mode: "loading" });
+  }, []);
 
   const renderItem = ({ item }: { item: Notification }) => {
     return (
@@ -108,19 +119,23 @@ export default function NotificationScreen() {
       <YStack flex={1} px="$4" pt="$4">
         <H2 mb="$4">Notifications</H2>
         <XGroup size="$3" $gtSm={{ size: "$5" }}>
-          {tabs.map((tab) => (
+          {TABS.map((tab) => (
             <XGroup.Item key={tab.id}>
               <Button
                 size="$3"
-                bg={tab.active ? "$green8" : "$background"}
-                onPress={() => {
-                  handleRefresh();
-                  setTabs((prev) =>
-                    prev.map((prevTab) => ({
-                      ...prevTab,
-                      active: prevTab.id === tab.id,
-                    }))
-                  );
+                bg={tab.id === currentTab.id ? "$green8" : "$background"}
+                onPress={async () => {
+                  setPage(1);
+                  setResp({
+                    notifications:[],
+                    total:0
+                  })
+                  setCurrentTab(tab);
+                  await handleGetNotifications({
+                    page: 1,
+                    mode: "loading",
+                    status: tab.name.toLowerCase(),
+                  });
                 }}
               >
                 {tab.name}
@@ -133,19 +148,32 @@ export default function NotificationScreen() {
           data={resp.notifications}
           renderItem={renderItem}
           keyExtractor={(item) => item.notification_id.toString()}
-          refreshing={loading}
+          refreshing={mode === "refreshing"}
           onRefresh={async () => {
-            handleRefresh();
-            await handleGetNotifications(1);
+            setPage(1);
+            await handleGetNotifications({ page: 1, mode: "refreshing" });
           }}
           ItemSeparatorComponent={() => <View mb="$3" />}
           onEndReached={async () => {
-            if (page < pages) {
-              await handleGetNotifications(page + 1);
+            if (page < pages && resp.notifications.length !== 0) {
+              await handleGetNotifications({
+                page: page + 1,
+                mode: "loadMore",
+              });
               handleNextPage();
             }
           }}
+          ListEmptyComponent={
+            <ListEmptyComponent
+              loading={mode === "loading"}
+              text="No notification found"
+            />
+          }
+          onEndReachedThreshold={0.5}
         />
+         {
+          mode === "loadMore" && <Spinner />
+        }
       </YStack>
     </SafeAreaView>
   );

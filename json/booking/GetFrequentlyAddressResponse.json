@@ -1,4 +1,7 @@
 {
+ "required": [
+  "total"
+ ],
  "definitions": {
   "SchemaAddress": {
    "properties": {
@@ -27,6 +30,9 @@
     "array",
     "null"
    ]
+  },
+  "total": {
+   "type": "integer"
   }
  },
  "type": "object"

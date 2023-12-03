@@ -1,5 +1,6 @@
 export interface GetFrequentlyAddressResponse {
     addresses?: SchemaAddress[] | null;
+    total:      number;
     [property: string]: any;
 }
 

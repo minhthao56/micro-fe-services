@@ -14,8 +14,10 @@ type BookingRepository interface {
 	UpdateBooking(ctx context.Context, booking schema.UpdateBookingRequest) error
 	GetManyBooking(ctx context.Context, booking schema.GetManyBookingRequest) ([]schema.BookingWithAddress, error)
 	CountBooking(ctx context.Context, booking schema.GetManyBookingRequest) (int, error)
-	GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error)
-	GetBookingByUserID(ctx context.Context, userID string) ([]schema.BookingWithAddress, error)
+	GetAddressesByUserID(ctx context.Context, userID string, req schema.GetFrequentlyAddressRequest) ([]schema.Address, error)
+	CountAddressesByUserID(ctx context.Context, userID string) (int, error)
+	GetHistoryBookingByUserID(ctx context.Context, userID string, req schema.GetHistoryBookingRequest) ([]schema.BookingWithAddress, error)
+	CountHistoryBookingByUserID(ctx context.Context, userID string) (int, error)
 	CountBookingPerTwoHours(ctx context.Context) (map[int]int, error)
 	GetManyBookingInDay(ctx context.Context) ([]schema.Booking, error)
 }
@@ -160,13 +162,16 @@ func (c *BookingRepositoryImpl) CountBooking(ctx context.Context, booking schema
 	return count, nil
 }
 
-func (c *BookingRepositoryImpl) GetAddressesByUserID(ctx context.Context, userID string) ([]schema.Address, error) {
+func (c *BookingRepositoryImpl) GetAddressesByUserID(ctx context.Context, userID string, req schema.GetFrequentlyAddressRequest) ([]schema.Address, error) {
 	rows, err := c.db.Query(
 		`SELECT DISTINCT b.end_lat, b.end_long, a.formatted_address, a.display_name FROM booking AS b
 		JOIN customers AS c ON  b.customer_id = c.customer_id
         LEFT JOIN addresses AS a ON b.end_lat = a.lat AND  b.end_long = a.long
-		WHERE c.user_id = $1;`,
-		userID,
+		WHERE c.user_id = $1
+		LIMIT $2
+		OFFSET $3;
+		`,
+		userID, req.Limit, req.Offset,
 	)
 
 	if err != nil {
@@ -197,7 +202,22 @@ func (c *BookingRepositoryImpl) GetAddressesByUserID(ctx context.Context, userID
 	return addresses, nil
 }
 
-func (c *BookingRepositoryImpl) GetBookingByUserID(ctx context.Context, userID string) ([]schema.BookingWithAddress, error) {
+func (c *BookingRepositoryImpl) CountAddressesByUserID(ctx context.Context, userID string) (int, error) {
+	row := c.db.QueryRow(
+		`SELECT COUNT(DISTINCT (b.end_lat::text || ',' || b.end_long::text)) FROM booking AS b
+		JOIN customers AS c ON  b.customer_id = c.customer_id
+		WHERE c.user_id = $1;`,
+		userID,
+	)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (c *BookingRepositoryImpl) GetHistoryBookingByUserID(ctx context.Context, userID string, req schema.GetHistoryBookingRequest) ([]schema.BookingWithAddress, error) {
 	rows, err := c.db.Query(
 		`SELECT b.booking_id, b.customer_id, b.driver_id, b.start_long, b.start_lat, 
 		b.end_long, b.end_lat, b.status, 
@@ -210,8 +230,10 @@ func (c *BookingRepositoryImpl) GetBookingByUserID(ctx context.Context, userID s
 				JOIN users AS u2 ON d.user_id = u2.user_id
 				LEFT JOIN addresses AS sa ON sa.lat = b.start_lat AND sa.long = b.start_long
 				LEFT JOIN addresses AS ea ON ea.lat = b.end_lat AND ea.long = b.end_long
-				WHERE c.user_id = $1 AND b.status = 'COMPLETED'`,
-		userID,
+				WHERE c.user_id = $1 AND b.status = 'COMPLETED'
+				LIMIT $2
+				OFFSET $3`,
+		userID, req.Limit, req.Offset,
 	)
 	if err != nil {
 		return nil, err
@@ -370,4 +392,19 @@ func (c *BookingRepositoryImpl) GetManyBookingInDay(ctx context.Context) ([]sche
 	}
 
 	return bookings, nil
+}
+
+func (c *BookingRepositoryImpl) CountHistoryBookingByUserID(ctx context.Context, userID string) (int, error) {
+	row := c.db.QueryRow(
+		`SELECT COUNT(*) FROM booking AS b 
+		JOIN customers AS c ON b.customer_id = c.customer_id
+		WHERE c.user_id = $1 AND b.status = 'COMPLETED'`,
+		userID,
+	)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

@@ -168,11 +168,34 @@ func (u *BookingControllerImpl) GetManyBooking(c *gin.Context) {
 }
 
 func (u *BookingControllerImpl) GetFrequentlyAddresses(c *gin.Context) {
-
 	stringUserID := c.GetString("user_id")
+	limitString := c.Query("limit")
+	limit, err := strconv.Atoi(limitString)
+	if err != nil {
+		limit = 10
+	}
+	offsetString := c.Query("offset")
 
-	addresses, err := u.repoBooking.GetAddressesByUserID(c, stringUserID)
+	offset, err := strconv.Atoi(offsetString)
+	if err != nil {
+		offset = 0
+	}
 
+	req := schema.GetFrequentlyAddressRequest{
+		Offset: offset,
+		Limit:  limit,
+	}
+	addresses, err := u.repoBooking.GetAddressesByUserID(c, stringUserID, req)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+		return
+	}
+
+	total, err := u.repoBooking.CountAddressesByUserID(c, stringUserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
 			Message: err.Error(),
@@ -183,15 +206,31 @@ func (u *BookingControllerImpl) GetFrequentlyAddresses(c *gin.Context) {
 
 	c.JSON(http.StatusOK, schema.GetFrequentlyAddressResponse{
 		Addresses: addresses,
+		Total:     total,
 	})
 }
 
 func (u *BookingControllerImpl) GetHistoryBookingByUserID(c *gin.Context) {
-
 	stringUserID := c.GetString("user_id")
+	limitString := c.Query("limit")
+	limit, err := strconv.Atoi(limitString)
+	if err != nil {
+		limit = 10
+	}
+	offsetString := c.Query("offset")
 
-	bookings, err := u.repoBooking.GetBookingByUserID(c, stringUserID)
+	offset, err := strconv.Atoi(offsetString)
 
+	if err != nil {
+		offset = 0
+	}
+
+	req := schema.GetHistoryBookingRequest{
+		Offset: offset,
+		Limit:  limit,
+	}
+
+	bookings, err := u.repoBooking.GetHistoryBookingByUserID(c, stringUserID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
 			Message: err.Error(),
@@ -200,8 +239,18 @@ func (u *BookingControllerImpl) GetHistoryBookingByUserID(c *gin.Context) {
 		return
 	}
 
+	total, err := u.repoBooking.CountHistoryBookingByUserID(c, stringUserID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
+	}
+
 	c.JSON(http.StatusOK, schema.GetHistoryBookingResponse{
 		BookingWithAddress: bookings,
+		Total:              total,
 	})
 }
 

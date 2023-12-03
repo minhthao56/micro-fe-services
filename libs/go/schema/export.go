@@ -42,5 +42,7 @@ func GetBookingSchema() map[string]interface{} {
 		"BookingPerTwoHours":           BookingPerTwoHours{},
 		"GetVPICustomersResponse":      GetVPICustomersResponse{},
 		"GetManyBookingInDayResponse":  GetManyBookingInDayResponse{},
+		"GetFrequentlyAddressRequest":  GetFrequentlyAddressRequest{},
+		"GetHistoryBookingRequest":     GetHistoryBookingRequest{},
 	}
 }

@@ -1,4 +1,4 @@
-import { Map, MapPin, ArrowRight } from "@tamagui/lucide-icons";
+import { Map } from "@tamagui/lucide-icons";
 import {
   Button,
   YStack,
@@ -6,9 +6,8 @@ import {
   XStack,
   Input,
   Separator,
-  ScrollView,
   H2,
-  Spinner
+  Spinner,
 } from "tamagui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -17,26 +16,34 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
-  RefreshControl,
   TouchableWithoutFeedback,
+  FlatList,
 } from "react-native";
 import { SchemaAddress } from "schema/booking/GetFrequentlyAddressResponse";
 
 import { LocationCard } from "../../components/LocationCard";
 import { searchAddress } from "../../services/googleapis/place";
 import { getFrequentlyAddresses } from "../../services/booking/booking";
+import { usePage } from "../../hooks/usePage";
+import { ListEmptyComponent } from "../../components/ListEmptyComponent";
+import { ModeFetch, Pagination } from "../../types/app";
 
 export default function HomeScreen() {
   const [address, setAddress] = useState<SchemaAddress[]>([]);
+  const [total, setTotal] = useState(0);
 
   const [frequentlyAddresses, setFrequentlyAddresses] = useState<
     SchemaAddress[]
   >([]);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [inModeSearch, setInModeSearch] = useState(false);
+
+  const [mode, setMode] = useState<ModeFetch>("done");
 
   const onChangeText = async (text: string) => {
+    setInModeSearch(true);
     if (text === "") {
+      setInModeSearch(false);
       setAddress(frequentlyAddresses);
       return;
     }
@@ -58,23 +65,45 @@ export default function HomeScreen() {
     onChangeText,
   ]);
 
-  const handleFrequentlyAddresses = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await getFrequentlyAddresses();
-      setAddress(data?.addresses || []);
-      setFrequentlyAddresses(data?.addresses || []);
-    } catch (e: any) {
-      console.log(e);
-      Alert.alert(JSON.stringify(e.message));
-    } finally {
-      setIsLoading(false);
+  const handleFrequentlyAddresses = useCallback(
+    async ({ page, rowsPerPage = 10, mode }: Pagination) => {
+      setMode(mode);
+      try {
+        const data = await getFrequentlyAddresses({
+          limit: 10,
+          offset: rowsPerPage * page - rowsPerPage,
+        });
+        setTotal(data?.total || 0);
+
+        if (page === 1) {
+          setAddress(data.addresses || []);
+          setFrequentlyAddresses(data?.addresses || []);
+        } else {
+          setAddress((prev) => {
+            return [...prev, ...(data?.addresses || [])];
+          });
+        }
+      } catch (e: any) {
+        console.log(e);
+        Alert.alert(JSON.stringify(e.message));
+      } finally {
+        setMode("done");
+      }
+    },
+    []
+  );
+
+  const { page, pages, setPage, handleNextPage } = usePage(total);
+
+  useEffect(() => {
+    if (address.length === 0) {
+      handleFrequentlyAddresses({ page: 1, mode: "loading" });
     }
   }, []);
 
-  useEffect(() => {
-    handleFrequentlyAddresses();
-  }, []);
+  const renderItem = ({ item }: { item: SchemaAddress }) => {
+    return <LocationCard address={item} />;
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -100,41 +129,37 @@ export default function HomeScreen() {
             onChangeText={debouncedChangeHandler}
           />
           <Separator marginVertical={20} />
-          {isLoading && <Spinner mb="$3" />}
-          <ScrollView
-          >
-            {address.map((item, index) => {
-              return (
-                <LocationCard
-                  key={index}
-                  p="$3"
-                  mb="$3"
-                  onPress={() => {
-                    router.push({
-                      pathname: "/(map)/pick-up",
-                      params: {
-                        lat: item.lat || 0,
-                        long: item.long || 0,
-                        formattedAddress: item.formatted_address || "",
-                        displayName: item.display_name || "",
-                      },
-                    });
-                  }}
-                >
-                  <XStack alignItems="center">
-                    <MapPin size="$1" color="$red10Light" />
-                    <YStack flex={1} ml="$2">
-                      <Text fontWeight="700" fontSize="$4" mb="$1">
-                        {item.display_name}
-                      </Text>
-                      <Text>{item.formatted_address}</Text>
-                    </YStack>
-                    <ArrowRight size="$1" />
-                  </XStack>
-                </LocationCard>
-              );
-            })}
-          </ScrollView>
+          <FlatList
+            data={address}
+            renderItem={renderItem}
+            keyExtractor={(item) => `${item.lat}-${item.long}`}
+            refreshing={mode === "refreshing"}
+            onRefresh={async () => {
+              setPage(1);
+              await handleFrequentlyAddresses({ page: 1, mode: "refreshing" });
+            }}
+            ListEmptyComponent={
+              <ListEmptyComponent
+                loading={mode === "loading"}
+                text="No address found"
+              />
+            }
+            onEndReached={async () => {
+              if (
+                page < pages &&
+                inModeSearch === false &&
+                address.length !== 0
+              ) {
+                await handleFrequentlyAddresses({
+                  page: page + 1,
+                  mode: "loadMore",
+                });
+                handleNextPage();
+              }
+            }}
+            onEndReachedThreshold={0.5}
+          />
+          {mode === "loadMore" && <Spinner />}
         </YStack>
       </TouchableWithoutFeedback>
     </SafeAreaView>

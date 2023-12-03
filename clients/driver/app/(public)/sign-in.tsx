@@ -10,9 +10,11 @@ import { Alert } from "react-native";
 import { useSession } from "../../providers/SessionProvider";
 import { createCustomToken } from "../../services/authmgmt/customToken";
 import { setToken } from "../../services/initClient";
+import { useToast } from "react-native-toast-notifications";
 
 export default function SignIn() {
   const session = useSession();
+  const toast = useToast()
   const onSubmit = useCallback(async (data: LoginFormData) => {
     try {
       const userCredential = await session?.signIn(data.email, data.password);
@@ -34,13 +36,13 @@ export default function SignIn() {
         setToken(customToken || "");
         router.replace("/");
       } else {
-        console.log("No user id");
+        toast.show(`Error: No user id`, { type: "danger" });
         await session?.signOut();
         throw new Error("No user id");
       }
     } catch (error: any) {
       console.log(error);
-      Alert.alert("Error", error.message);
+      toast.show(`Error: ${error?.message}`, { type: "danger" });
       await session?.signOut();
     }
   }, []);

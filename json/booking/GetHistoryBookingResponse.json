@@ -1,6 +1,7 @@
 {
  "required": [
-  "booking"
+  "booking",
+  "total"
  ],
  "definitions": {
   "SchemaAddress": {
@@ -167,6 +168,9 @@
     "array",
     "null"
    ]
+  },
+  "total": {
+   "type": "integer"
   }
  },
  "type": "object"
