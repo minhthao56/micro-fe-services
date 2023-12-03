@@ -75,7 +75,9 @@ func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking sche
 	rows, err := c.db.Query(
 		`SELECT b.booking_id, b.customer_id, b.driver_id, b.start_long, b.start_lat, 
 		b.end_long, b.end_lat, b.status, 
-		u.first_name, u.last_name,u.phone_number, u2.first_name, u2.last_name, u2.phone_number, b.created_at,
+		u.first_name, u.last_name,u.phone_number, u.email,
+		u2.first_name, u2.last_name, u2.phone_number,u2.email,
+		b.created_at,
 		sa.formatted_address, sa.display_name,
 		ea.formatted_address, ea.display_name, b.distance
 			FROM booking AS b 
@@ -119,9 +121,11 @@ func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking sche
 			&booking.Customer.FirstName,
 			&booking.Customer.LastName,
 			&booking.Customer.PhoneNumber,
+			&booking.Customer.Email,
 			&booking.Driver.FirstName,
 			&booking.Driver.LastName,
 			&booking.Driver.PhoneNumber,
+			&booking.Driver.Email,
 			&booking.CreatedAt,
 			&startFormattedAddress,
 			&startDisplayName,

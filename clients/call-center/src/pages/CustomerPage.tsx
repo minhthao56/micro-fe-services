@@ -11,17 +11,20 @@ import {
   Button,
   useDisclosure,
   Chip,
-  Pagination,
+  Spinner,
+  User,
 } from "@nextui-org/react";
-import Loading from "../components/Loading";
 import { useMemo, useState } from "react";
+import { BottomContent } from "../components/table/BottomContent";
+import { TopContent } from "../components/table/TopContent";
+import moment from "moment";
 
 const rowsPerPage = 10;
 
 export default function CustomerPage() {
   const [page, setPage] = useState(1);
 
-  const { isPending, error, data, refetch } = useQuery({
+  const { isPending, error, data, refetch, isFetching } = useQuery({
     queryKey: ["getCustomers", page],
     queryFn: async () =>
       await getCustomers({
@@ -29,15 +32,13 @@ export default function CustomerPage() {
         offset: page * rowsPerPage - rowsPerPage,
         search: "",
       }),
-      placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
   });
 
   const pages = useMemo(() => {
     return data?.total ? Math.ceil(data.total / rowsPerPage) : 0;
   }, [data?.total]);
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
-
-  if (isPending) return <Loading />;
 
   if (error) return <div>{JSON.stringify(error)}</div>;
 
@@ -50,51 +51,48 @@ export default function CustomerPage() {
       <Table
         aria-label="Example static collection table"
         bottomContent={
-          pages > 0 ? (
-            <div className="flex w-full justify-center">
-              <Pagination
-                isCompact
-                showControls
-                showShadow
-                color="primary"
-                page={page}
-                total={pages}
-                onChange={(page) => setPage(page)}
-              />
-            </div>
-          ) : null
+          <BottomContent page={page} pages={pages} setPage={setPage} />
         }
+        classNames={{
+          table: "min-h-[400px]",
+        }}
+        topContent={<TopContent total={data?.total || 0} />}
+        topContentPlacement="outside"
       >
         <TableHeader>
-          <TableColumn>STT</TableColumn>
           <TableColumn>NAME</TableColumn>
           <TableColumn>VIP</TableColumn>
           <TableColumn>PHONE NUMBER</TableColumn>
-          <TableColumn>EMAIL</TableColumn>
-          <TableColumn>Address</TableColumn>
+          <TableColumn>ADDRESS</TableColumn>
+          <TableColumn>CREATED AT</TableColumn>
         </TableHeader>
-        {data.customers && data.customers.length > 0 ? (
-          <TableBody>
-            {data.customers.map((customer, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  {customer.last_name + " " + customer.first_name}
-                </TableCell>
-                <TableCell>
-                  <Chip color={customer.is_vip ? "warning" : "default"}>
-                    {customer.is_vip ? "VIP" : "Normal"}
-                  </Chip>
-                </TableCell>
-                <TableCell>{customer.phone_number}</TableCell>
-                <TableCell>{customer.email}</TableCell>
-                <TableCell>{customer.address?.formatted_address}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
-        )}
+
+        <TableBody
+          emptyContent={!isPending && "No rows to display."}
+          loadingContent={<Spinner />}
+          loadingState={isFetching ? "loading" : "idle"}
+          items={data?.customers || []}
+        >
+          {(customer) => (
+            <TableRow key={customer.customer_id}>
+              <TableCell>
+                <User
+                  avatarProps={{ radius: "lg", src: "" }}
+                  description={customer.email}
+                  name={customer.last_name + " " + customer.first_name}
+                />
+              </TableCell>
+              <TableCell>
+                <Chip color={customer.is_vip ? "warning" : "default"}>
+                  {customer.is_vip ? "VIP" : "Normal"}
+                </Chip>
+              </TableCell>
+              <TableCell>{customer.phone_number}</TableCell>
+              <TableCell>{customer.address?.formatted_address}</TableCell>
+              <TableCell>{moment(customer.created_at).format("DD/MM/YYYY")}</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
       </Table>
       <CreateCustomer
         isOpen={isOpen}

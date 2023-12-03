@@ -9,6 +9,7 @@ export interface PhoneBooking {
     first_name: string,
     phone_number: string,
     created_at: string,
+    email: string,
 }
 
 

@@ -7,6 +7,7 @@ export interface GetDriversResponse {
 }
 
 export interface SchemaDriver {
+    created_at:      string;
     current_lat?:    number;
     current_long?:   number;
     driver_id:       string;

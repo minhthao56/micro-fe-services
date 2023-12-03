@@ -1,5 +1,6 @@
 export interface Customer {
     address?:     SchemaAddress;
+    created_at:   string;
     customer_id:  string;
     email?:       string;
     first_name:   string;

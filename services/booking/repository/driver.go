@@ -28,7 +28,9 @@ func (d *DriverRepositoryImpl) GetDrivers(ctx context.Context, req schema.GetDri
 	var driver schema.Driver
 	var drivers []schema.Driver
 	r, e := d.db.Query(`
-		SELECT d.driver_id, d.current_long, d.current_lat, d.status, u.first_name, u.last_name, u.email, u.phone_number, v.vehicle_name, v.vehicle_type_id
+		SELECT d.driver_id, d.current_long, d.current_lat, d.status, 
+		u.first_name, u.last_name, u.email, u.phone_number, 
+		v.vehicle_name, v.vehicle_type_id, u.created_at
 		FROM drivers AS d
 		JOIN users AS u ON d.user_id = u.user_id
 		JOIN vehicle_types AS v ON d.vehicle_type_id = v.vehicle_type_id
@@ -52,6 +54,7 @@ func (d *DriverRepositoryImpl) GetDrivers(ctx context.Context, req schema.GetDri
 			&driver.PhoneNumber,
 			&driver.VehicleName,
 			&driver.VehicleTypeID,
+			&driver.CreatedAt,
 		)
 		if e != nil {
 			return drivers, e

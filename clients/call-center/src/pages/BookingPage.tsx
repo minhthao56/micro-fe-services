@@ -7,19 +7,22 @@ import {
   TableRow,
   TableCell,
   Chip,
-  Pagination,
+  Spinner,
+  User,
 } from "@nextui-org/react";
 
 import { getManyBooking } from "../services/booking/booking";
-import Loading from "../components/Loading";
+// import Loading from "../components/Loading";
 import moment from "moment";
 import { useMemo, useState } from "react";
+import { TopContent } from "../components/table/TopContent";
+import { BottomContent } from "../components/table/BottomContent";
 
 const rowsPerPage = 10;
 
 export default function PhoneBookingPage() {
   const [page, setPage] = useState(1);
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, isFetching } = useQuery({
     queryKey: ["getManyBooking", page],
     queryFn: async () =>
       await getManyBooking({
@@ -27,14 +30,13 @@ export default function PhoneBookingPage() {
         offset: page * rowsPerPage - rowsPerPage,
         search: "",
       }),
-      placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
   });
 
   const pages = useMemo(() => {
     return data?.total ? Math.ceil(data.total / rowsPerPage) : 0;
   }, [data?.total]);
 
-  if (isPending) return <Loading />;
   if (error) return <div>{JSON.stringify(error)}</div>;
 
   return (
@@ -45,72 +47,70 @@ export default function PhoneBookingPage() {
       <Table
         aria-label="Example static collection table"
         bottomContent={
-          pages > 0 ? (
-            <div className="flex w-full justify-center">
-              <Pagination
-                isCompact
-                showControls
-                showShadow
-                color="primary"
-                page={page}
-                total={pages}
-                onChange={(page) => setPage(page)}
-              />
-            </div>
-          ) : null
+          <BottomContent page={page} pages={pages} setPage={setPage} />
         }
+        classNames={{
+          table: "min-h-[200px]",
+        }}
+        topContent={<TopContent total={data?.total || 0} />}
+        topContentPlacement="outside"
+
       >
         <TableHeader>
-          <TableColumn>STT</TableColumn>
-          <TableColumn>NAME CUSTOMER</TableColumn>
-          <TableColumn>PHONE CUSTOMER</TableColumn>
-          <TableColumn>NAME DRIVER</TableColumn>
-          <TableColumn>PHONE DRIVER</TableColumn>
-          <TableColumn>ADDRESS START</TableColumn>
-          <TableColumn>ADDRESS END</TableColumn>
-          <TableColumn>STATUS</TableColumn>
-          <TableColumn>CREATED AT</TableColumn>
+          <TableColumn key="nameCustomer">NAME CUSTOMER</TableColumn>
+          <TableColumn key="phoneCustomer">PHONE CUSTOMER</TableColumn>
+          <TableColumn key="nameDriver">NAME DRIVER</TableColumn>
+          <TableColumn key="phoneDriver">PHONE DRIVER</TableColumn>
+          <TableColumn key="addressStart">ADDRESS START</TableColumn>
+          <TableColumn key="addressEnd">ADDRESS END</TableColumn>
+          <TableColumn key="status">STATUS</TableColumn>
+          <TableColumn key="createdAt">CREATED AT</TableColumn>
         </TableHeader>
 
-        {data.booking ? (
-          <TableBody>
-            {data.booking.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  {item?.customer?.last_name + " " + item?.customer?.first_name}
-                </TableCell>
-                <TableCell>{item?.customer?.phone_number}</TableCell>
-                <TableCell>
-                  {item?.driver?.last_name + " " + item?.driver?.first_name}
-                </TableCell>
-                <TableCell>{item?.driver?.phone_number}</TableCell>
-                <TableCell>{item?.start_address?.formatted_address}</TableCell>
-                <TableCell>{item?.end_address?.formatted_address}</TableCell>
-                <TableCell>
-                  <Chip
-                    color={
-                      item.status === "STARTING"
-                        ? "warning"
-                        : item.status === "COMPLETED"
-                        ? "success"
-                        : "default"
-                    }
-                    size="sm"
-                    variant="flat"
-                  >
-                    {item.status}
-                  </Chip>
-                </TableCell>
-                <TableCell>
-                  {moment(item?.created_at).format("DD/MM/YYYY")}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
-        )}
+        <TableBody
+          items={data?.booking || []}
+          emptyContent={!isPending && "No rows to display."}
+          isLoading={isPending}
+          loadingState={isFetching ? "loading" : "idle"}
+          loadingContent={<Spinner />}
+        >
+          {(item) => (
+            <TableRow key={item.booking_id}>
+              <TableCell>
+              <User
+                  avatarProps={{ radius: "lg", src: "" }}
+                  description={item?.customer?.email}
+                  name={item?.customer?.last_name + " " + item?.customer?.first_name}
+                />
+              </TableCell>
+              <TableCell>{item?.customer?.phone_number}</TableCell>
+              <TableCell>
+                {item?.driver?.last_name + " " + item?.driver?.first_name}
+              </TableCell>
+              <TableCell>{item?.driver?.phone_number}</TableCell>
+              <TableCell>{item?.start_address?.formatted_address}</TableCell>
+              <TableCell>{item?.end_address?.formatted_address}</TableCell>
+              <TableCell>
+                <Chip
+                  color={
+                    item.status === "STARTING"
+                      ? "warning"
+                      : item.status === "COMPLETED"
+                      ? "success"
+                      : "default"
+                  }
+                  size="sm"
+                  variant="flat"
+                >
+                  {item.status}
+                </Chip>
+              </TableCell>
+              <TableCell>
+                {moment(item?.created_at).format("DD/MM/YYYY")}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
       </Table>
     </>
   );

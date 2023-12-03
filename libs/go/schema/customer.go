@@ -11,6 +11,7 @@ type Customer struct {
 	PhoneNumber string  `json:"phone_number" required:"true"`
 	UserID      string  `json:"user_id" required:"true"`
 	Address     Address `json:"address"`
+	CreatedAt   string  `json:"created_at" required:"true"`
 }
 
 type SetLocationRequest struct {

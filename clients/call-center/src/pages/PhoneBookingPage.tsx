@@ -13,7 +13,8 @@ import {
   useDisclosure,
   Chip,
   Tooltip,
-  Pagination,
+  Spinner,
+  User,
 } from "@nextui-org/react";
 import { PhoneBooking } from "schema/communicate/phone-booking";
 import moment from "moment";
@@ -23,24 +24,25 @@ import {
   updatePhoneBookingStatus,
 } from "../services/communicate/phone-booking";
 import TwilioAudio from "../components/TwilioAudio";
-import Loading from "../components/Loading";
 import CreateBooking from "./CreateBooking";
 import { YesNo } from "../components/modals/YesNo";
+import { BottomContent } from "../components/table/BottomContent";
+import { TopContent } from "../components/table/TopContent";
 
 const rowsPerPage = 10;
 
 export default function PhoneBookingPage() {
   const [page, setPage] = useState(1);
 
-  const { isPending, error, data, refetch } = useQuery({
-    queryKey: ["getPhoneBookingList"],
+  const { isPending, error, data, refetch, isFetching } = useQuery({
+    queryKey: ["getPhoneBookingList", page],
     queryFn: async () =>
       await getPhoneBookingList({
         limit: 10,
         offset: page * rowsPerPage - rowsPerPage,
         search: "",
       }),
-      placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
   });
 
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
@@ -57,7 +59,6 @@ export default function PhoneBookingPage() {
 
   const [phoneBooking, setPhoneBooking] = useState<PhoneBooking>();
 
-  if (isPending) return <Loading />;
   if (error) return <div>{JSON.stringify(error)}</div>;
 
   return (
@@ -68,23 +69,15 @@ export default function PhoneBookingPage() {
       <Table
         aria-label="Example static collection table"
         bottomContent={
-          pages > 0 ? (
-            <div className="flex w-full justify-center">
-              <Pagination
-                isCompact
-                showControls
-                showShadow
-                color="primary"
-                page={page}
-                total={pages}
-                onChange={(page) => setPage(page)}
-              />
-            </div>
-          ) : null
+          <BottomContent page={page} pages={pages} setPage={setPage} />
         }
+        classNames={{
+          table: "min-h-[400px]",
+        }}
+        topContent={<TopContent total={data?.total || 0} />}
+        topContentPlacement="outside"
       >
         <TableHeader>
-          <TableColumn>STT</TableColumn>
           <TableColumn>NAME</TableColumn>
           <TableColumn>PHONE NUMBER</TableColumn>
           <TableColumn>START ADDRESS</TableColumn>
@@ -93,12 +86,22 @@ export default function PhoneBookingPage() {
           <TableColumn>CREATED AT</TableColumn>
           <TableColumn>ACTION</TableColumn>
         </TableHeader>
-        {data.phone_booking.length > 0 ? (
-          <TableBody>
-            {data.phone_booking.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{item.last_name + " " + item.first_name}</TableCell>
+        <TableBody
+          items={data?.phone_booking || []}
+          loadingState={isFetching ? "loading" : "idle"}
+          loadingContent={<Spinner />}
+          emptyContent={!isPending && "No rows to display."}
+        >
+          {(item) => {
+            return (
+              <TableRow key={item.call_sid}>
+                <TableCell>
+                  <User
+                    avatarProps={{ radius: "lg", src: "" }}
+                    description={item.email}
+                    name={item.last_name + " " + item.first_name}
+                  />
+                </TableCell>
                 <TableCell>{item.phone_number}</TableCell>
                 <TableCell>
                   <TwilioAudio url={item.start_recording_url} />
@@ -129,7 +132,7 @@ export default function PhoneBookingPage() {
                     <Button
                       onPress={() => {
                         onOpen();
-                        const booking = data.phone_booking.find((booking) => {
+                        const booking = data?.phone_booking.find((booking) => {
                           return booking.call_sid === item.call_sid;
                         });
                         setPhoneBooking(booking);
@@ -148,7 +151,7 @@ export default function PhoneBookingPage() {
                       color="danger"
                       onClick={() => {
                         onOpenYesNo();
-                        const booking = data.phone_booking.find((booking) => {
+                        const booking = data?.phone_booking.find((booking) => {
                           return booking.call_sid === item.call_sid;
                         });
                         setPhoneBooking(booking);
@@ -159,11 +162,9 @@ export default function PhoneBookingPage() {
                   </Tooltip>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
-        )}
+            );
+          }}
+        </TableBody>
       </Table>
       {isOpen ? (
         <CreateBooking

@@ -74,11 +74,15 @@
     "first_name",
     "last_name",
     "phone_number",
-    "user_id"
+    "user_id",
+    "created_at"
    ],
    "properties": {
     "address": {
      "$ref": "#/definitions/SchemaAddress"
+    },
+    "created_at": {
+     "type": "string"
     },
     "customer_id": {
      "type": "string"
@@ -119,9 +123,13 @@
     "vehicle_name",
     "vehicle_type_id",
     "status",
-    "user_id"
+    "user_id",
+    "created_at"
    ],
    "properties": {
+    "created_at": {
+     "type": "string"
+    },
     "current_lat": {
      "type": "number"
     },

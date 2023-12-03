@@ -12,6 +12,7 @@ type Driver struct {
 	VehicleTypeID string  `json:"vehicle_type_id" required:"true"`
 	Status        string  `json:"status" required:"true"`
 	UserID        string  `json:"user_id" required:"true"`
+	CreatedAt     string  `json:"created_at" required:"true"`
 }
 type DriverWithDistance struct {
 	DriverID      string  `json:"driver_id" required:"true"`

@@ -11,17 +11,20 @@ import {
   Button,
   useDisclosure,
   Chip,
-  Pagination,
+  Spinner,
+  User,
 } from "@nextui-org/react";
-import Loading from "../components/Loading";
 import { useMemo, useState } from "react";
+import { TopContent } from "../components/table/TopContent";
+import { BottomContent } from "../components/table/BottomContent";
+import moment from "moment";
 
 const rowsPerPage = 10;
 
 export default function DriversPage() {
   const [page, setPage] = useState(1);
 
-  const { isPending, error, data, refetch } = useQuery({
+  const { isPending, error, data, refetch, isFetching } = useQuery({
     queryKey: ["getDrivers", page],
     queryFn: async () =>
       await getDrivers({
@@ -32,14 +35,11 @@ export default function DriversPage() {
     placeholderData: keepPreviousData,
   });
 
-
   const pages = useMemo(() => {
     return data?.total ? Math.ceil(data.total / rowsPerPage) : 0;
   }, [data?.total]);
 
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
-
-  if (isPending) return <Loading />;
 
   if (error) return <div>{JSON.stringify(error)}</div>;
 
@@ -47,66 +47,64 @@ export default function DriversPage() {
     <>
       <div className="flex justify-between mb-2">
         <p className="text-xl">Management Drivers</p>
-        <Button onPress={onOpen}>Add</Button>
+        <Button onPress={onOpen} variant="flat" color="primary">
+          Add
+        </Button>
       </div>
       <Table
         aria-label="Example static collection table"
         bottomContent={
-          pages > 0 ? (
-            <div className="flex w-full justify-center">
-              <Pagination
-                isCompact
-                showControls
-                showShadow
-                color="primary"
-                page={page}
-                total={pages}
-                onChange={(page) => setPage(page)}
-              />
-            </div>
-          ) : null
+          <BottomContent page={page} pages={pages} setPage={setPage} />
         }
+        classNames={{
+          table: "min-h-[200px]",
+        }}
+        topContent={<TopContent total={data?.total || 0} />}
+        topContentPlacement="outside"
       >
         <TableHeader>
-          <TableColumn>STT</TableColumn>
           <TableColumn>NAME</TableColumn>
           <TableColumn>PHONE NUMBER</TableColumn>
-          <TableColumn>EMAIL</TableColumn>
           <TableColumn>VEHICLE</TableColumn>
           <TableColumn>STATUS</TableColumn>
+          <TableColumn>CREATED AT</TableColumn>
         </TableHeader>
-        {data.drivers ? (
-          <TableBody>
-            {data.drivers.map((driver, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  {driver.last_name + " " + driver.first_name}
-                </TableCell>
-                <TableCell>{driver.phone_number}</TableCell>
-                <TableCell>{driver.email}</TableCell>
-                <TableCell>{driver.vehicle_name}</TableCell>
-                <TableCell>
-                  <Chip
-                    color={
-                      driver.status === "ONLINE"
-                        ? "success"
-                        : driver.status === "BUSY"
-                        ? "warning"
-                        : "danger"
-                    }
-                    size="sm"
-                    variant="flat"
-                  >
-                    {driver.status}
-                  </Chip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
-        )}
+        <TableBody
+          items={data?.drivers || []}
+          emptyContent={!isPending && "No rows to display."}
+          loadingState={isFetching ? "loading" : "idle"}
+          loadingContent={<Spinner />}
+        >
+          {(driver) => (
+            <TableRow key={driver.driver_id}>
+              <TableCell>
+                <User
+                  avatarProps={{ radius: "lg", src: "" }}
+                  description={driver.email}
+                  name={driver.last_name + " " + driver.first_name}
+                />
+              </TableCell>
+              <TableCell>{driver.phone_number}</TableCell>
+              <TableCell>{driver.vehicle_name}</TableCell>
+              <TableCell>
+                <Chip
+                  color={
+                    driver.status === "ONLINE"
+                      ? "success"
+                      : driver.status === "BUSY"
+                      ? "warning"
+                      : "danger"
+                  }
+                  size="sm"
+                  variant="flat"
+                >
+                  {driver.status}
+                </Chip>
+              </TableCell>
+              <TableCell>{moment(driver.created_at).format("DD/MM/YYYY")}</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
       </Table>
       <CreateDriver
         isOpen={isOpen}

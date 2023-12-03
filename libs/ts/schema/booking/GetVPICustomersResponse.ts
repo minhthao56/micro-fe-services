@@ -5,6 +5,7 @@ export interface GetVPICustomersResponse {
 
 export interface SchemaCustomer {
     address?:     SchemaAddress;
+    created_at:   string;
     customer_id:  string;
     email?:       string;
     first_name:   string;

@@ -7,9 +7,13 @@
   "vehicle_name",
   "vehicle_type_id",
   "status",
-  "user_id"
+  "user_id",
+  "created_at"
  ],
  "properties": {
+  "created_at": {
+   "type": "string"
+  },
   "current_lat": {
    "type": "number"
   },

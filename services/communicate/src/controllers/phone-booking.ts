@@ -12,12 +12,14 @@ export async function getManyPhoneBooking(req: Request, res: Response) {
     const db = req.app.get("db") as PoolClient
 
     const phoneBooking = await db.query<PhoneBooking>(`
-    SELECT pb.phone_booking_id, pb.start_recording_url, pb.end_recording_url, pb.call_sid, pb.status, pb.customer_id, u.last_name, u.first_name, u.phone_number, pb.created_at
-    FROM phone_booking AS pb
-    JOIN customers AS c ON pb.customer_id = c.customer_id
-    JOIN users AS u ON c.user_id = u.user_id
-    WHERE u.last_name LIKE $1 OR u.first_name LIKE $1
-    LIMIT $2 OFFSET $3
+    SELECT pb.phone_booking_id, pb.start_recording_url, pb.end_recording_url, 
+    pb.call_sid, pb.status, pb.customer_id, 
+    u.last_name, u.first_name, u.phone_number, pb.created_at, u.email
+        FROM phone_booking AS pb
+        JOIN customers AS c ON pb.customer_id = c.customer_id
+        JOIN users AS u ON c.user_id = u.user_id
+        WHERE u.last_name LIKE $1 OR u.first_name LIKE $1
+        LIMIT $2 OFFSET $3
   `, [`%${search}%`, limit, offset])
 
     if (phoneBooking.rowCount === 0) {

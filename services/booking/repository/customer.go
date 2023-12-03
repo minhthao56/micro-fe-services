@@ -43,7 +43,7 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 	r, e := c.db.Query(`
 		SELECT c.customer_id, c.is_vip,
 		c.long, c.lat, u.first_name, u.last_name, u.email, u.phone_number,
-		a.formatted_address, a.display_name
+		a.formatted_address, a.display_name, u.created_at
 		FROM customers  AS c
 		JOIN users AS u ON c.user_id = u.user_id
 		LEFT JOIN addresses AS a ON c.long = a.long AND c.lat = a.lat
@@ -69,6 +69,7 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 			&customer.PhoneNumber,
 			&formattedAddress,
 			&displayName,
+			&customer.CreatedAt,
 		)
 		if e != nil {
 			return customers, e
