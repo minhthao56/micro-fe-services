@@ -10,7 +10,6 @@ import {
 import { getNotifications } from "../../services/communicate/notification";
 import { useToast } from "react-native-toast-notifications";
 import { usePage } from "../../hooks/usePage";
-import { usePrevious } from "../../hooks/usePrevious";
 
 export default function NotificationScreen() {
   const [tabs, setTabs] = useState([
@@ -38,7 +37,7 @@ export default function NotificationScreen() {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  const { page, pages, setPage } = usePage(resp.total);
+  const { page, pages, setPage, handleNextPage } = usePage(resp.total);
 
   const handleGetNotifications = useCallback(
     async (page: number, rowsPerPage: number = 10) => {
@@ -76,9 +75,9 @@ export default function NotificationScreen() {
 
   useEffect(() => {
     if (resp.notifications.length === 0) {
-      handleGetNotifications(page);
+      handleGetNotifications(1);
     }
-  }, [handleGetNotifications, page]);
+  }, [handleGetNotifications]);
 
   const renderItem = ({ item }: { item: Notification }) => {
     return (
@@ -143,6 +142,7 @@ export default function NotificationScreen() {
           onEndReached={async () => {
             if (page < pages) {
               await handleGetNotifications(page + 1);
+              handleNextPage();
             }
           }}
         />
