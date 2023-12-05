@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   Avatar,
   Switch,
-  Button,
 } from "@nextui-org/react";
 import type { User } from "firebase/auth";
 import { SunIcon } from "../components/icons/SunIcon";
@@ -18,9 +17,9 @@ import { useThemeSwitcher } from "../hooks/useThemeSwitcher";
 import RouterNavLink from "../components/RouterNavLink";
 import { GoHomeFill } from "react-icons/go";
 import { FaPhoneVolume } from "react-icons/fa6";
-import { FaBell } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { commonColors } from "@nextui-org/theme";
+import { NotificationPanel } from "../components/NotificationPanel";
 
 
 export default function PrivateLayout() {
@@ -56,9 +55,7 @@ export default function PrivateLayout() {
           <RouterNavLink to="/booking">Bookings</RouterNavLink>
         </NavbarContent>
         <NavbarContent as="div" justify="end">
-          <Button isIconOnly>
-            <FaBell />
-          </Button>
+          <NotificationPanel/>
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
               <Avatar

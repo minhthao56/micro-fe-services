@@ -46,7 +46,7 @@ export default function CustomerPage() {
     <>
       <div className="flex justify-between mb-2">
         <p className="text-xl">Management Customers</p>
-        <Button onPress={onOpen}>Add</Button>
+        <Button onPress={onOpen} variant="flat" color="primary">Add</Button>
       </div>
       <Table
         aria-label="Example static collection table"
@@ -54,7 +54,7 @@ export default function CustomerPage() {
           <BottomContent page={page} pages={pages} setPage={setPage} />
         }
         classNames={{
-          table: "min-h-[400px]",
+          table: "min-h-[200px]",
         }}
         topContent={<TopContent total={data?.total || 0} />}
         topContentPlacement="outside"
@@ -88,7 +88,7 @@ export default function CustomerPage() {
                 </Chip>
               </TableCell>
               <TableCell>{customer.phone_number}</TableCell>
-              <TableCell>{customer.address?.formatted_address}</TableCell>
+              <TableCell>{customer.address?.formatted_address || "No Address"}</TableCell>
               <TableCell>{moment(customer.created_at).format("DD/MM/YYYY")}</TableCell>
             </TableRow>
           )}

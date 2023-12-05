@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { communicateClient } from "./client";
 import { GetManyPhoneBookingRequest , GetManyPhoneBookingResponse } from "schema/communicate/phone-booking"
 

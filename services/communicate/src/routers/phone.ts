@@ -76,16 +76,7 @@ router.post("/starting-address", async (req, res) => {
         recordingStatusCallback: BASE_PATH + "/ending-address",
     });
 
-    const io = req.app.get("io") as  Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
-    const admins = await db.query<{ socket_id: string }>(`
-    SELECT socket_id FROM users WHERE user_group = 'ADMIN_GROUP';
-    `);
-
-    if (admins.rowCount !== 0) {
-        admins.rows.forEach((admin) => {
-            io.to(admin.socket_id).emit("phone-booking:new", {caller, callSid});
-        });
-    }
+   
     
 
     res.type("text/xml");
@@ -128,9 +119,10 @@ router.post("/ending-address", async (req, res) => {
 router.post("/done", async (req, res) => {
     const endRecordingUrl = req.body.RecordingUrl;
     const twimlResponse = new twiml.VoiceResponse();
-    // Update end recording url to database
+
     const callSid = req.body.CallSid;
     const db = req.app.get("db") as PoolClient;
+    const caller = req.body.Caller;
 
     const resultUpdate = await db.query(
         `UPDATE phone_booking SET end_recording_url = $1 WHERE call_sid = $2`,
@@ -148,6 +140,30 @@ router.post("/done", async (req, res) => {
     twimlResponse.say("Thank you for using Taxi SM");
     twimlResponse.say("The operator will call you back to confirm your booking");
     twimlResponse.hangup();
+
+    const io = req.app.get("io") as  Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+    const admins = await db.query<{ socket_id: string, user_id: string }>(`
+    SELECT socket_id, user_id FROM users 
+    WHERE user_group = 'ADMIN_GROUP' AND socket_id IS NOT NULL;
+    `);
+
+    if (admins.rowCount !== 0) {
+        admins.rows.forEach((admin) => {
+            io.to(admin.socket_id).emit("phone-booking:new", {caller, callSid});
+        });
+        const userIDs = admins.rows.map((admin) => admin.user_id);
+
+        const template = []
+        for (let i = 0; i < userIDs.length; i++) {
+            template.push(`($${i + 1}, 'New Phone Booking!', 'You have new phone booking from ${caller}')`);
+        }
+
+        await db.query(`
+        INSERT INTO notifications (user_id, title, body)
+        VALUES ${template.join(",")};
+        `, [...userIDs]
+        );
+    }
 
     res.type("text/xml");
     res.send(twimlResponse.toString());

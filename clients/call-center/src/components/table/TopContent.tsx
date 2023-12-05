@@ -8,7 +8,7 @@ export function TopContent({ total }: TopContentProps) {
       <span className="text-default-400 text-small">Total {total}</span>
       <label className="flex items-center text-default-400 text-small">
         Rows per page:
-        <select className="bg-transparent outline-none text-default-400 text-small" value="10">
+        <select className="bg-transparent outline-none text-default-400 text-small" defaultValue="10">
           <option value="5">5</option>
           <option value="10">10</option>
           <option value="15">15</option>

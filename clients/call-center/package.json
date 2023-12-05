@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@goongmaps/goong-map-react": "^1.1.2",
     "@nextui-org/react": "^2.2.9",
     "@react-stately/data": "^3.11.0",
     "apexcharts": "^3.44.0",

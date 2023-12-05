@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Modal,
   ModalContent,
@@ -11,7 +12,6 @@ import {
 import { useForm } from "react-hook-form";
 
 import { useEffect, useState } from "react";
-import ReactMapGL from "@goongmaps/goong-map-react";
 
 import { findNearByDriver } from "../services/booking/customer";
 import { PhoneBooking } from "schema/communicate/phone-booking";
@@ -65,11 +65,7 @@ export default function CreateBooking({
       "email:d": "",
     },
   });
-  const [viewState, _] = useState({
-    longitude: 106.699793,
-    latitude: 10.764661,
-    zoom: 12,
-  });
+
   const onSubmit = (data: any) => {
     console.log({ data });
     setIsLoading(true);
@@ -244,9 +240,6 @@ export default function CreateBooking({
                     });
                   }}
                 />
-              </div>
-              <div className="mb-4">
-                <ReactMapGL width="100%" height="300px" {...viewState} />
               </div>
               <span className="text-base text-default-500">
                 Driver Information

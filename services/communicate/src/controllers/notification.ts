@@ -11,8 +11,8 @@ export async function createNotification(req: Request, res: Response) {
     const db = req.app.get("db") as PoolClient
 
     try {
-        await db.query(`INSERT INTO notifications (user_id, title, body, is_read) VALUES ($1, $2, $3, $4)`, [decodedToken?.db_user_id, body.title, body.body, false]);
-
+        await db.query(`INSERT INTO notifications (user_id, title, body, is_read) VALUES ($1, $2, $3, $4)`,
+            [decodedToken?.db_user_id, body.title, body.body,false]);
     } catch (e) {
         console.error(e);
         res.status(500).json({

@@ -1,7 +1,5 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { FaBook } from "react-icons/fa";
-import { ImCancelCircle } from "react-icons/im";
 import {
   Table,
   TableHeader,
@@ -9,15 +7,12 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Button,
   useDisclosure,
   Chip,
-  Tooltip,
   Spinner,
   User,
 } from "@nextui-org/react";
 import { PhoneBooking } from "schema/communicate/phone-booking";
-import moment from "moment";
 
 import {
   getPhoneBookingList,
@@ -28,6 +23,8 @@ import CreateBooking from "./CreateBooking";
 import { YesNo } from "../components/modals/YesNo";
 import { BottomContent } from "../components/table/BottomContent";
 import { TopContent } from "../components/table/TopContent";
+import { Actions } from "../components/table/Actions";
+import moment from "moment";
 
 const rowsPerPage = 10;
 
@@ -79,10 +76,9 @@ export default function PhoneBookingPage() {
       >
         <TableHeader>
           <TableColumn>NAME</TableColumn>
-          <TableColumn>PHONE NUMBER</TableColumn>
+          <TableColumn>STATUS</TableColumn>
           <TableColumn>START ADDRESS</TableColumn>
           <TableColumn>END ADDRESS</TableColumn>
-          <TableColumn>STATUS</TableColumn>
           <TableColumn>CREATED AT</TableColumn>
           <TableColumn>ACTION</TableColumn>
         </TableHeader>
@@ -98,16 +94,9 @@ export default function PhoneBookingPage() {
                 <TableCell>
                   <User
                     avatarProps={{ radius: "lg", src: "" }}
-                    description={item.email}
+                    description={item.phone_number}
                     name={item.last_name + " " + item.first_name}
                   />
-                </TableCell>
-                <TableCell>{item.phone_number}</TableCell>
-                <TableCell>
-                  <TwilioAudio url={item.start_recording_url} />
-                </TableCell>
-                <TableCell>
-                  <TwilioAudio url={item.end_recording_url} />
                 </TableCell>
                 <TableCell>
                   <Chip
@@ -122,44 +111,35 @@ export default function PhoneBookingPage() {
                     variant="flat"
                   >
                     {item.status}
-                  </Chip>{" "}
+                  </Chip>
                 </TableCell>
                 <TableCell>
-                  {moment(item.created_at).format("DD/MM/YYYY")}
+                  <TwilioAudio url={item.start_recording_url} />
                 </TableCell>
                 <TableCell>
-                  <Tooltip content="Booking for customer">
-                    <Button
-                      onPress={() => {
-                        onOpen();
-                        const booking = data?.phone_booking.find((booking) => {
-                          return booking.call_sid === item.call_sid;
-                        });
-                        setPhoneBooking(booking);
-                      }}
-                      isDisabled={item.status !== "PENDING"}
-                      isIconOnly
-                      color="primary"
-                    >
-                      <FaBook />
-                    </Button>
-                  </Tooltip>
-                  <Tooltip content="Cancel booking">
-                    <Button
-                      isDisabled={item.status !== "PENDING"}
-                      isIconOnly
-                      color="danger"
-                      onClick={() => {
-                        onOpenYesNo();
-                        const booking = data?.phone_booking.find((booking) => {
-                          return booking.call_sid === item.call_sid;
-                        });
-                        setPhoneBooking(booking);
-                      }}
-                    >
-                      <ImCancelCircle />
-                    </Button>
-                  </Tooltip>
+                  <TwilioAudio url={item.end_recording_url} />
+                </TableCell>
+               
+                <TableCell>
+                  {moment(item.created_at).format("hh:mm DD/MM/YYYY")}
+                </TableCell>
+                <TableCell>
+                  <Actions
+                    onBooking={() => {
+                      onOpen();
+                      const booking = data?.phone_booking.find((booking) => {
+                        return booking.call_sid === item.call_sid;
+                      });
+                      setPhoneBooking(booking);
+                    }}
+                    onCancel={() => {
+                      onOpenYesNo();
+                      const booking = data?.phone_booking.find((booking) => {
+                        return booking.call_sid === item.call_sid;
+                      });
+                      setPhoneBooking(booking);
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             );
