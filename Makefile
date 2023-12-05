@@ -55,10 +55,14 @@ gen-rust:
 start-frontend:
 	npx nx dev call-center
 
-build-frontend:
+build-callcenter:
 	npx nx build call-center
+
 preview:
 	npx nx preview call-center
+
+docker-callcenter:
+	docker build -f deployment/callcenter.Dockerfile -t taxi/callcenter .
 
 # App
 customer-start-ios:

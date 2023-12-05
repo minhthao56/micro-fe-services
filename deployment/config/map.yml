@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: map-config
+data:
+  google_token: "QUl6YVN5QTM3bGhEWktQNk04NjZuVGRvbDEzM3dPRzZsQmVsc0lB"
+  goong_token: "cTdKWnZCNktFbUhJdXZubk9NTmhOUVNTQ2RLMlZVYUxsOFpnMUJ3Sg=="
