@@ -94,29 +94,6 @@ export function SessionProvider(props: {
     checkAuthenticated();
   }, [checkAuthenticated]);
 
-
-  useEffect(() => {
-    const auth = authMobile.getAuth();
-    const unsubscribe = auth.onIdTokenChanged(async (user) => {
-      if (user?.uid) {
-        setIsAuthenticated(true);
-        setUser(user);
-        const getIdTokenResult = await user?.getIdTokenResult(true);
-        setToken(getIdTokenResult?.token || "");
-        const claims = getIdTokenResult?.claims as CustomClaims
-        setClaims(claims);
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-        setClaims(null);
-        authMobile.signOut();
-      }
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
   return (
     <AuthContext.Provider
       value={{

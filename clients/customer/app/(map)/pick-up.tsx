@@ -125,8 +125,11 @@ export default function PickUp() {
         request_lat: origin?.coords.latitude || 0,
         request_long: origin?.coords.longitude || 0,
       });
-      if (data.drivers?.length === 0) {
+
+      
+      if (!data?.drivers || data.drivers?.length === 0) {
         Alert.alert("No driver found");
+        setIsLookingForDriver(false);
         return;
       }
       const driver = data.drivers?.[0];

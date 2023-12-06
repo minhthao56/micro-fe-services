@@ -69,7 +69,7 @@ export default function PhoneBookingPage() {
           <BottomContent page={page} pages={pages} setPage={setPage} />
         }
         classNames={{
-          table: "min-h-[400px]",
+          table: "min-h-[200px]",
         }}
         topContent={<TopContent total={data?.total || 0} />}
         topContentPlacement="outside"
@@ -132,6 +132,7 @@ export default function PhoneBookingPage() {
                       });
                       setPhoneBooking(booking);
                     }}
+                    disabled={item.status !== "PENDING"}
                     onCancel={() => {
                       onOpenYesNo();
                       const booking = data?.phone_booking.find((booking) => {
