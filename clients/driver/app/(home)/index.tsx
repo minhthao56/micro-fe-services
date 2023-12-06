@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Marker } from "react-native-maps";
 import { XStack, Button, YStack, Spinner, Dialog } from "tamagui";
 // import { Power } from "@tamagui/lucide-icons";
@@ -21,13 +21,13 @@ import {
 import { StatusBar } from "expo-status-bar";
 
 import { socket } from "../../services/communicate/client";
-import { DialogInstance } from "../../components/DialogInstance";
 import { intervalUpdate } from "../../utils/time";
 import { createBooking } from "../../services/booking/booking";
 import { updateLocation, updateStatus } from "../../services/booking/driver";
 import { useSession } from "../../providers/SessionProvider";
 import RenderRight from "../../components/RenderRight";
 import RenderBottom from "../../components/RenderBottom";
+import DialogBooking from "../../components/DialogBooking";
 
 interface BookingStatusSocketResponseWithBookingId
   extends BookingStatusSocketResponse {
@@ -65,47 +65,48 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = intervalUpdate(async () => {
-      const location = await Location.getCurrentPositionAsync({});
-      const stringLocation = await AsyncStorage.getItem("currentLocation");
-      let currentLocation = JSON.parse(stringLocation || "{}");
+  const updateCurrentLocation = useCallback(async () => {
+    const location = await Location.getCurrentPositionAsync({});
+    const stringLocation = await AsyncStorage.getItem("currentLocation");
+    let currentLocation = JSON.parse(stringLocation || "{}");
 
-      if (
-        currentLocation.coords.latitude !== location.coords.latitude ||
-        currentLocation.coords.longitude !== location.coords.longitude
-      ) {
-        await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
-        await updateLocation({
-          driver_id: session?.claims?.driver_id || "",
-          current_lat: location.coords.latitude,
-          current_long: location.coords.longitude,
-        });
+    if (
+      currentLocation.coords.latitude !== location.coords.latitude ||
+      currentLocation.coords.longitude !== location.coords.longitude
+    ) {
+      await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
+      await updateLocation({
+        driver_id: session?.claims?.driver_id || "",
+        current_lat: location.coords.latitude,
+        current_long: location.coords.longitude,
+      });
 
-        setLocation(location);
-        if (reqBooking?.customer.socket_id) {
-          const dataDriverLocation: LocationDriverSocket = {
-            driver_id: reqBooking?.driver_id || "",
-            lat: location.coords.latitude,
-            long: location.coords.longitude,
-            customer_socket_id: reqBooking?.customer.socket_id,
-          };
-          socket.emit(
-            SocketEventBooking.BOOKING_DRIVER_LOCATION,
-            dataDriverLocation
-          );
-        }
-        await moveTo({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        });
+      setLocation(location);
+      if (reqBooking?.customer.socket_id) {
+        const dataDriverLocation: LocationDriverSocket = {
+          driver_id: reqBooking?.driver_id || "",
+          lat: location.coords.latitude,
+          long: location.coords.longitude,
+          customer_socket_id: reqBooking?.customer.socket_id,
+        };
+        socket.emit(
+          SocketEventBooking.BOOKING_DRIVER_LOCATION,
+          dataDriverLocation
+        );
       }
-    }, 5000);
+      await moveTo({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+    }
+  }, [reqBooking?.customer.socket_id]);
 
+  useEffect(() => {
+    const unsubscribe = intervalUpdate(updateCurrentLocation, 5000);
     return () => {
       unsubscribe();
     };
-  }, [reqBooking?.customer.socket_id]);
+  }, [updateCurrentLocation]);
 
   useEffect(() => {
     if (respBooking?.status === "COMPLETED") {
@@ -194,6 +195,7 @@ export default function HomeScreen() {
               setRespBooking={setRespBooking}
               setShowDialog={setShowDialog}
               driverId={session?.claims?.driver_id || ""}
+              updateCurrentLocation={updateCurrentLocation}
             />
           );
         }}
@@ -276,34 +278,13 @@ export default function HomeScreen() {
           </>
         ) : null}
       </MapContainer>
-      {/* Dialog */}
-      <DialogInstance
+      <DialogBooking
         open={showDialog}
         onOpenChange={(open) => setShowDialog(open)}
-        title="New Booking"
-      >
-        <Dialog.Description>
-          {`New booking at ${reqBooking?.start_address?.formatted_address} to ${
-            reqBooking?.end_address?.formatted_address
-          }.
-            Phone number is ${reqBooking?.customer.phone_number}. Distance is ${
-            reqBooking?.distance &&
-            Math.round((reqBooking?.distance / 1000) * 100) / 100
-          } km.`}
-        </Dialog.Description>
-        <Dialog.Description>
-          Do you want to accept this booking?
-        </Dialog.Description>
-        <XStack justifyContent="space-around">
-          <Button onPress={handleRejectBooking} bg="$red10Dark">
-            Reject
-          </Button>
-          <Button onPress={handleAcceptBooking} bg="$green10Dark">
-            Accept
-          </Button>
-        </XStack>
-      </DialogInstance>
-      {/* Dialog */}
+        reqBooking={reqBooking}
+        handleRejectBooking={handleRejectBooking}
+        handleAcceptBooking={handleAcceptBooking}
+      />
     </>
   );
 }

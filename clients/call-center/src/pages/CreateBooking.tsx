@@ -10,6 +10,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 
 import { useEffect, useState } from "react";
 
@@ -26,6 +27,7 @@ import {
 import { SchemaDriverWithDistance } from "schema/booking/GetNearbyDriversResponse";
 import { sendSMS } from "../services/communicate/sms";
 import { updatePhoneBookingStatus } from "../services/communicate/phone-booking";
+import { createToast } from "vercel-toast";
 
 export interface CreateBookingProps extends UseDisclosureProps {
   onOpenChange: () => void;
@@ -52,6 +54,14 @@ export default function CreateBooking({
 
   const [driver, setDriver] = useState<SchemaDriverWithDistance>();
   const [isLoading, setIsLoading] = useState(false);
+
+  const { mutateAsync, isPending, data } = useMutation({
+    mutationKey: ["findNearByDriver"],
+    mutationFn: findNearByDriver,
+    onError: (error) => {
+      createToast(error?.message || "Error", {type: "error", timeout: 5000});
+    }
+  });
 
   const { register, handleSubmit, reset, control } = useForm({
     defaultValues: {
@@ -84,18 +94,23 @@ export default function CreateBooking({
   };
 
   const handleFindDriver = async () => {
-    const data = await findNearByDriver({
+    if (!startAddress.address || !endAddress.address) {
+      createToast("Please fill start and end address", {type: "error", timeout: 5000});
+      return;
+    }
+
+   await mutateAsync ({
       vehicle_type_id: 1,
       request_lat: startAddress.lat,
       request_long: startAddress.long,
-    });
+    })
 
-    if (data.drivers?.length === 0) {
+    if (data?.drivers?.length === 0) {
       alert("No driver found");
       return;
     }
 
-    const driver = data.drivers?.[0];
+    const driver = data?.drivers?.[0];
 
     if (driver) {
       setDriver(driver);
@@ -285,8 +300,10 @@ export default function CreateBooking({
                   color="primary"
                   variant="light"
                   onPress={handleFindDriver}
+                  isDisabled={isPending}
+                  isLoading={isPending}
                 >
-                  Fill Driver
+                  Find Driver
                 </Button>
                 <Button
                   color="primary"

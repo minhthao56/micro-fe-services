@@ -30,6 +30,7 @@ interface RenderBottomProps {
     origin,
     destination,
   }: FitToCoordinatesProps) => Promise<void>;
+  updateCurrentLocation: () => Promise<void>;
 }
 
 export default function RenderBottom({
@@ -40,6 +41,7 @@ export default function RenderBottom({
   setReqBooking,
   setShowDialog,
   fitToCoordinates,
+  updateCurrentLocation
 }: RenderBottomProps) {
   const [connected, setConnected] = useState(socket.connected);
   const [waitingConnect, setWaitingConnect] = useState(false);
@@ -78,6 +80,7 @@ export default function RenderBottom({
       driver_id: driverId || "",
       status: "ONLINE",
     });
+    await updateCurrentLocation();
   };
 
   const onDisconnect = async () => {
@@ -91,7 +94,7 @@ export default function RenderBottom({
     });
   };
 
-  const handleConnection = async () => {
+  const handleConnection = () => {
     if (connected) {
       socket.disconnect();
       socket.removeAllListeners();

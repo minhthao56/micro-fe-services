@@ -3,7 +3,7 @@ import { PropsWithChildren } from "react";
 import { Button, Dialog, Unspaced, DialogProps } from "tamagui";
 
 export interface DialogInstanceProps extends DialogProps, PropsWithChildren {
-    title: string;
+    title?: string;
 }
 
 export function DialogInstance({title, children ,...props}: DialogInstanceProps) {
@@ -35,20 +35,8 @@ export function DialogInstance({title, children ,...props}: DialogInstanceProps)
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>{title}</Dialog.Title>
+          <Dialog.Title fontSize="$8">{title}</Dialog.Title>
           {children}
-          <Unspaced>
-            <Dialog.Close asChild>
-              <Button
-                position="absolute"
-                top="$3"
-                right="$3"
-                size="$2"
-                circular
-                icon={X}
-              />
-            </Dialog.Close>
-          </Unspaced>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
