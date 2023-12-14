@@ -9,7 +9,6 @@ export function LatestBookingCard() {
     queryFn: getLastBookingInDay,
   });
 
-  console.log({ data });
 
   return (
     <Card className="max-w-[300px] w-full p-3 gap-4">

@@ -1,3 +1,4 @@
+import "core-js/stable/atob";
 import { authClient } from "./authmgmt/client";
 import { userClient } from "./usermgmt/client";
 import { bookingClient } from "./booking/client"

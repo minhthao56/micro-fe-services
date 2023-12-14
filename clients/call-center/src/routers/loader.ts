@@ -4,8 +4,6 @@ import { SocketEventBooking } from "schema/constants/event";
 import type { NewPhoneBookingSocket } from "schema/socket/phone-booking";
 import { createToast } from 'vercel-toast'
 
-
-
 import { setToken } from "../services/initClient";
 import { whoami } from "../services/usermgmt/user";
 import { socket } from "../services/communicate/client";

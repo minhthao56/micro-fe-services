@@ -44,6 +44,8 @@ where
         }
 
         let kid =  header.kid.expect("No kid found in header");
+        println!("kid: {:?}", kid);
+        println!("public_keys: {:?}", public_keys);
         let public_key =  public_keys.keys.iter().find(|v| v.kid == kid).expect("No public key found");
 
         let decoding_key = DecodingKey::from_rsa_components(&public_key.n, &public_key.e).expect("Failed to create decoding key");

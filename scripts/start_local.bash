@@ -1,23 +1,31 @@
 #!/bin/bash
 set -e
+
+
+make build-communicate
+
+make build-usermgmt
+
+make build-authmgmt
+
+make build-booking
+
+make build-migration
+
 minikube start
+
 minikube addons enable ingress
 
 eval $(minikube -p minikube docker-env)
 
-make build-communicate
 make docker-communicate
 
-make build-usermgmtsk
 make docker-usermgmt
 
-make build-authmgmt
 make docker-authmgmt
 
-make build-booking
 make docker-booking
 
-make build-migration
 make docker-migration
 
 

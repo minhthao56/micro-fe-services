@@ -20,8 +20,8 @@ export function VIPCard() {
         </span>
       <AvatarGroup isBordered>
         {
-          data?.customers?.map(() => (
-            <Avatar/>
+          data?.customers?.map((_,index) => (
+            <Avatar key={index}/>
           ))
         }
       </AvatarGroup>
