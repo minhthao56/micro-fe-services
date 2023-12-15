@@ -9,7 +9,8 @@ import {
   BookingSocketRequest,
 } from "schema/socket/booking";
 import { DecodedIdTokenCustom } from "../types/app";
-import Expo, { ExpoPushMessage } from "expo-server-sdk";
+import Expo from "expo-server-sdk";
+import { NotificationFactory } from "../utils/notification";
 
 export function registerBookingHandlers(
   io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap>,
@@ -21,8 +22,6 @@ export function registerBookingHandlers(
   socket.on("booking:new", async (data: BookingSocketRequest) => {
     try {
       const { driver_id } = data;
-
-      console.log("--booking:new:data--", data);
 
       if (!driver_id) {
         console.log("Cannot find driver");
@@ -100,24 +99,54 @@ export function registerBookingHandlers(
       return;
     }
 
-    if (customer.socket_id && data.status === "ACCEPTED") {
+    if (customer.socket_id) {
       const expoPushToken = await db.query<{ expo_push_token: string }>(`
       SELECT expo_push_token FROM users AS u
       WHERE u.user_id = $1 AND u.user_group = $2 AND u.expo_push_token IS NOT NULL`,
         [customer.user_id, "CUSTOMER_GROUP"]);
 
-      if (expoPushToken.rowCount > 0) {
+      if (expoPushToken.rowCount <= 0) {
+        console.log("Cannot find customer - expoPushToken.rowCount: ", expoPushToken.rowCount);
+        return;
+      }
+
+      const notificationFactory = NotificationFactory.createNotification("expo", expo);
+      if (data.status === "ACCEPTED") {
         const title = "Your booking has been accepted!";
         const body = "Your booking has been accepted! Please wait your driver for a while";
-        const messages: ExpoPushMessage[] = [{
-          to: expoPushToken.rows[0].expo_push_token,
-          sound: "default",
-          body,
-          title,
-        }];
-
         try {
-          await expo.sendPushNotificationsAsync(messages);
+          notificationFactory.setTo(expoPushToken.rows?.[0]?.expo_push_token);
+          notificationFactory.setBody(body);
+          notificationFactory.setTile(title);
+          await notificationFactory.send();
+          await db.query(`INSERT INTO notifications (user_id, title, body, is_read) VALUES ($1, $2, $3, $4)`, [customer.user_id, title, body, false]);
+        } catch (error) {
+          console.log("Error sending push notification: ", error);
+        }
+      }
+
+      if (data.status === "REJECTED") {
+        const title = "Your booking has been rejected!";
+        const body = "Your booking has been rejected! Please try again later";
+        try {
+          notificationFactory.setTo(expoPushToken.rows?.[0]?.expo_push_token);
+          notificationFactory.setBody(body);
+          notificationFactory.setTile(title);
+          await notificationFactory.send();
+          await db.query(`INSERT INTO notifications (user_id, title, body, is_read) VALUES ($1, $2, $3, $4)`, [customer.user_id, title, body, false]);
+        } catch (error) {
+          console.log("Error sending push notification: ", error);
+        }
+      }
+
+      if (data.status === "COMPLETED") {
+        const title = "Your booking has been completed!";
+        const body = "Your booking has been completed! Thank you for using our service";
+        try {
+          notificationFactory.setTo(expoPushToken.rows?.[0]?.expo_push_token);
+          notificationFactory.setBody(body);
+          notificationFactory.setTile(title);
+          await notificationFactory.send();
           await db.query(`INSERT INTO notifications (user_id, title, body, is_read) VALUES ($1, $2, $3, $4)`, [customer.user_id, title, body, false]);
         } catch (error) {
           console.log("Error sending push notification: ", error);

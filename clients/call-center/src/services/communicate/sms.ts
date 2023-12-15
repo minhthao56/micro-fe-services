@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { communicateClient } from "./client";
 import { SendSMSRequest  } from "schema/communicate/sms"
 
