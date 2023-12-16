@@ -19,6 +19,7 @@ export async function getManyPhoneBooking(req: Request, res: Response) {
         JOIN customers AS c ON pb.customer_id = c.customer_id
         JOIN users AS u ON c.user_id = u.user_id
         WHERE u.last_name LIKE $1 OR u.first_name LIKE $1
+        ORDER BY pb.created_at DESC
         LIMIT $2 OFFSET $3
   `, [`%${search}%`, limit, offset])
 

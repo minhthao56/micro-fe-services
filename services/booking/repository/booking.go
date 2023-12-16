@@ -88,6 +88,7 @@ func (c *BookingRepositoryImpl) GetManyBooking(ctx context.Context, booking sche
 			LEFT JOIN addresses AS sa ON sa.lat = b.start_lat AND sa.long = b.start_long
 			LEFT JOIN addresses AS ea ON ea.lat = b.end_lat AND ea.long = b.end_long
 			WHERE u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%'
+			ORDER BY b.created_at DESC
 			LIMIT $2 
 			OFFSET $3`,
 		booking.Search,

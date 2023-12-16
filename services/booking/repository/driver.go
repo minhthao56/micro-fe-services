@@ -35,6 +35,7 @@ func (d *DriverRepositoryImpl) GetDrivers(ctx context.Context, req schema.GetDri
 		JOIN users AS u ON d.user_id = u.user_id
 		JOIN vehicle_types AS v ON d.vehicle_type_id = v.vehicle_type_id
 		WHERE u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%'
+		ORDER BY d.created_at DESC
 		LIMIT $2 OFFSET $3;
 	`, req.Search, req.Limit, req.Offset,
 	)

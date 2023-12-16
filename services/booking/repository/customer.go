@@ -48,6 +48,7 @@ func (c *CustomerRepositoryImpl) GetCustomers(ctx context.Context, req schema.Ge
 		JOIN users AS u ON c.user_id = u.user_id
 		LEFT JOIN addresses AS a ON c.long = a.long AND c.lat = a.lat
 		WHERE (u.first_name LIKE '%' || $1 || '%' OR u.last_name LIKE '%' || $1 || '%')
+		ORDER BY c.created_at DESC
 		LIMIT $2 OFFSET $3
 	`, req.Search, req.Limit, req.Offset,
 	)
