@@ -49,8 +49,10 @@ type GetDriverResponse struct {
 }
 
 type GetNearbyDriversRequest struct {
-	RequestLat  float64 `json:"request_lat" required:"true"`
-	RequestLong float64 `json:"request_long" required:"true"`
+	StartLat  float64 `json:"start_lat" required:"true"`
+	StartLong float64 `json:"start_long" required:"true"`
+	EndLat    float64 `json:"end_lat" required:"true"`
+	EndLong   float64 `json:"end_long" required:"true"`
 }
 
 type GetNearbyDriversResponse struct {

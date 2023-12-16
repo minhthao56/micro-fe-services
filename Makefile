@@ -22,10 +22,17 @@ docker-authmgmt:
 
 # communicate
 build-communicate:
-	scripts/build_communicate.bash
+	scripts/build_nodejs.bash communicate
 
 docker-communicate:
 	docker build -f deployment/communicate.Dockerfile -t taxi/communicate .
+
+# address
+build-address:
+	scripts/build_nodejs.bash address
+
+docker-address:
+	docker build -f deployment/address.Dockerfile -t taxi/address .
 
 # migration db
 build-migration:

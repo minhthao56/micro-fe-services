@@ -122,8 +122,10 @@ export default function PickUp() {
     try {
       setIsLookingForDriver(true);
       const data = await findNearByDriver({
-        request_lat: origin?.coords.latitude || 0,
-        request_long: origin?.coords.longitude || 0,
+        start_lat: origin?.coords.latitude || 0,
+        start_long: origin?.coords.longitude || 0,
+        end_lat: parseFloat(lat) || 0,
+        end_long: parseFloat(long) || 0,
       });
 
       

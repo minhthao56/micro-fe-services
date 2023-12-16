@@ -132,7 +132,7 @@ func (c *DriverRepositoryImpl) GetNearbyDrivers(ctx context.Context, req schema.
 			v.vehicle_type_id,
 			ST_Distance(
 				ST_MakePoint($1, $2)::geography,
-				ST_MakePoint(d.current_long, d.current_lat)::geography
+				ST_MakePoint($3, $4)::geography
 			) AS distance
 		FROM drivers AS d
 		JOIN users AS u ON d.user_id = u.user_id
@@ -142,7 +142,7 @@ func (c *DriverRepositoryImpl) GetNearbyDrivers(ctx context.Context, req schema.
 			ST_MakePoint(d.current_long, d.current_lat)::geography,
 			3000
 		) AND d.status = 'ONLINE';
-	`, req.RequestLong, req.RequestLat,
+	`, req.StartLong, req.StartLat, req.EndLong, req.EndLat,
 	)
 	if e != nil {
 		return drivers, e

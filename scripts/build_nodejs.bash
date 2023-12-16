@@ -1,8 +1,10 @@
 #!/bin/bash
 
-npx nx build communicate
+SERVICE=${1-'communicate'}
 
-SERVICE_PATH="tmp/services/communicate"
+npx nx build $SERVICE
+
+SERVICE_PATH="tmp/services/$SERVICE"
 DB_PATH="tmp/libs/ts/database"
 UTILS_PATH="tmp/libs/ts/utils"
 SCHEMA_PATH="tmp/libs/ts/schema"
@@ -26,7 +28,7 @@ fi
 
 cp package.json tmp/package.json
 
-for srcPaths in services/communicate/*; do
+for srcPaths in services/$SERVICE/*; do
     cp -R "$srcPaths" "$SERVICE_PATH"
 done
 
@@ -42,4 +44,4 @@ for srcPaths in libs/ts/schema/*; do
     cp -R "$srcPaths" "$SCHEMA_PATH"
 done
 
-cd tmp && yarn install --production=true && cd services/communicate && yarn build
+cd tmp && yarn install --production=true && cd services/$SERVICE && yarn build

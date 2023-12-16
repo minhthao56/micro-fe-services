@@ -31,8 +31,8 @@ func NewDriverController(db *sql.DB) DriverController {
 
 func (u *DriverControllerImpl) FindNearByDriver(c *gin.Context) {
 	query := c.Request.URL.Query()
-	stringLat := query.Get("lat")
-	lat, err := strconv.ParseFloat(stringLat, 64)
+	stringStartLat := query.Get("start_lat")
+	startLat, err := strconv.ParseFloat(stringStartLat, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schema.StatusResponse{
 			Message: err.Error(),
@@ -40,8 +40,27 @@ func (u *DriverControllerImpl) FindNearByDriver(c *gin.Context) {
 		})
 		return
 	}
-	stringLong := query.Get("long")
-	long, err := strconv.ParseFloat(stringLong, 64)
+	stringStartLong := query.Get("start_long")
+	startLong, err := strconv.ParseFloat(stringStartLong, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+	stringEndLat := query.Get("end_lat")
+	endLat, err := strconv.ParseFloat(stringEndLat, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, schema.StatusResponse{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
+		return
+	}
+
+	stringEndLong := query.Get("end_long")
+	endLong, err := strconv.ParseFloat(stringEndLong, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, schema.StatusResponse{
 			Message: err.Error(),
@@ -51,8 +70,10 @@ func (u *DriverControllerImpl) FindNearByDriver(c *gin.Context) {
 	}
 
 	request := schema.GetNearbyDriversRequest{
-		RequestLat:  lat,
-		RequestLong: long,
+		StartLat:  startLat,
+		StartLong: startLong,
+		EndLat:    endLat,
+		EndLong:   endLong,
 	}
 
 	drivers, err := u.repoDriver.GetNearbyDrivers(c, request)

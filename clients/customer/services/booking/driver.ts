@@ -7,8 +7,10 @@ export async function findNearByDriver(req: GetNearbyDriversRequest) {
     GetNearbyDriversResponse
   >("driver/nearby",{
     params:{
-        lat: `${req.request_lat}`,
-        long: `${req.request_long}`,
+        start_lat: `${req.start_lat}`,
+        start_long: `${req.start_long}`,
+        end_lat: `${req.end_lat}`,
+        end_long: `${req.end_long}`,
     },
   });
 }

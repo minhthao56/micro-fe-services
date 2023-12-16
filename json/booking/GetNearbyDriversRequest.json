@@ -1,13 +1,21 @@
 {
  "required": [
-  "request_lat",
-  "request_long"
+  "start_lat",
+  "start_long",
+  "end_lat",
+  "end_long"
  ],
  "properties": {
-  "request_lat": {
+  "end_lat": {
    "type": "number"
   },
-  "request_long": {
+  "end_long": {
+   "type": "number"
+  },
+  "start_lat": {
+   "type": "number"
+  },
+  "start_long": {
    "type": "number"
   }
  },

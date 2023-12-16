@@ -1,5 +1,7 @@
 export interface GetNearbyDriversRequest {
-    request_lat:  number;
-    request_long: number;
+    end_lat:    number;
+    end_long:   number;
+    start_lat:  number;
+    start_long: number;
     [property: string]: any;
 }

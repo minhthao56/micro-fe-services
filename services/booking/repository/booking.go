@@ -236,6 +236,7 @@ func (c *BookingRepositoryImpl) GetHistoryBookingByUserID(ctx context.Context, u
 				LEFT JOIN addresses AS sa ON sa.lat = b.start_lat AND sa.long = b.start_long
 				LEFT JOIN addresses AS ea ON ea.lat = b.end_lat AND ea.long = b.end_long
 				WHERE c.user_id = $1 AND b.status = 'COMPLETED'
+				ORDER BY b.created_at DESC
 				LIMIT $2
 				OFFSET $3`,
 		userID, req.Limit, req.Offset,
