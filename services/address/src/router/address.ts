@@ -1,8 +1,6 @@
 import express, { Router } from "express";
+import { getAddress } from "../controller/address";
 
 const router: Router = express.Router();
-router.get("/", (req, res) => {
-    res.json({ message: "Hello from address service" })
-})
-
+router.get("/", getAddress)
 export default router;

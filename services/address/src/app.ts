@@ -4,14 +4,18 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 
 import addressRouter from "./router/address";
+import { connectRedis } from './app/redis';
 
 const app = express()
 const port = 5050
 
 async function startServer() {
     try {
+        const connRedis = await connectRedis();
         const conn = await Database.getConnection();
+
         app.set("db", conn);
+        app.set("redis", connRedis);
 
         app.use(morgan("combined"));
         app.use(express.json());

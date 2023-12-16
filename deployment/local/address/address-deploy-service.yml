@@ -41,6 +41,16 @@ spec:
             secretKeyRef:
               name: postgresql-secret
               key: pg_db
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: redis-configmap
+              key: redis_host
+        - name: GOONG_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: map-config
+              key: goong_api_key
 ---
 apiVersion: v1
 kind: Service
