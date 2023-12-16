@@ -40,3 +40,10 @@ spec:
             name: booking-service
             port:
               number: 6060
+      - path: /address
+        pathType: Prefix
+        backend:
+          service:
+            name: address-service
+            port:
+              number: 5050
