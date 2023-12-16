@@ -9,7 +9,8 @@ import { NewBookingSocketRequest } from "schema/socket/booking";
 import { updateStatus } from "../services/booking/driver";
 import { Power } from "@tamagui/lucide-icons";
 import { useToast } from "react-native-toast-notifications";
-import { getAddressByLatLng } from "../services/goong/geocoding";
+import { getAddress } from "../services/address/address";
+
 import { FitToCoordinatesProps } from "tamagui-shared-ui";
 import CustomerCard from "./CustomerCard";
 
@@ -48,22 +49,28 @@ export default function RenderBottom({
   const toast = useToast();
 
   const onBookingWaitingDriver = async (data: NewBookingSocketRequest) => {
-    const startAddr = await getAddressByLatLng(data.start_lat, data.start_long);
-    const endAddr = await getAddressByLatLng(data.end_lat, data.end_long);
+    const startAddr = await getAddress({
+      lat: data.start_lat,
+      long: data.start_long,
+    });
+    const endAddr = await getAddress({
+      lat: data.end_lat,
+      long: data.end_long,
+    });
 
     const req: NewBookingSocketRequest = {
       ...data,
       start_address: {
-        formatted_address: startAddr.results?.[0]?.formatted_address || "",
+        formatted_address: startAddr?.formatted_address || "",
         lat: data.start_lat,
         long: data.start_long,
-        display_name: startAddr.results?.[0]?.name || "",
+        display_name: startAddr?.display_name || "",
       },
       end_address: {
-        formatted_address: endAddr.results?.[0]?.formatted_address || "",
+        formatted_address: endAddr?.formatted_address || "",
         lat: data.end_lat,
         long: data.end_long,
-        display_name: endAddr.results?.[0]?.name || "",
+        display_name: endAddr?.display_name || "",
       },
     };
     setReqBooking(req);
@@ -190,7 +197,7 @@ export default function RenderBottom({
     >
       {respBooking?.status === "ACCEPTED" ||
       respBooking?.status === "STARTING" ? (
-        <CustomerCard />
+        <CustomerCard reqBooking = {reqBooking}/>
       ) : null}
       {renderButtonStatus()}
     </YStack>

@@ -13,7 +13,7 @@ import { StatusBar } from "expo-status-bar";
 
 import { SchemaAddress } from "schema/booking/GetFrequentlyAddressResponse";
 
-import { getAddressByLatLng } from "../../services/goong/geocoding";
+import { getAddress } from "../../services/address/address";
 import { updateCurrentLocation } from "../../services/booking/customer";
 
 export default function CurrentPage() {
@@ -44,13 +44,14 @@ export default function CurrentPage() {
       await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
     }
 
-    const address = await getAddressByLatLng(
-      location.coords.latitude,
-      location.coords.longitude
-    );
+    const addr = await getAddress({
+      lat: location.coords.latitude,
+      long: location.coords.longitude,
+    })
+    
     setAddress({
-      display_name: address.results?.[0]?.name || "",
-      formatted_address: address.results?.[0]?.formatted_address || "",
+      display_name: addr.display_name || "",
+      formatted_address: addr.formatted_address || "",
       lat: location.coords.latitude,
       long: location.coords.longitude,
     });
@@ -75,11 +76,14 @@ export default function CurrentPage() {
       timestamp: Date.now(),
     });
 
-    const address = await getAddressByLatLng(region.latitude, region.longitude);
+    const addr = await getAddress({
+      lat: region.latitude,
+      long: region.longitude,
+    });
 
     setAddress({
-      display_name: address.results?.[0]?.name || "",
-      formatted_address: address.results?.[0]?.formatted_address || "",
+      display_name: addr.display_name || "",
+      formatted_address: addr.formatted_address || "",
       lat: region.latitude,
       long: region.longitude,
     });

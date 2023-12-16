@@ -27,7 +27,8 @@ import {
   BookingSocketRequest,
 } from "schema/socket/booking";
 
-import { getAddressByLatLng } from "../../services/goong/geocoding";
+import { getAddress } from "../../services/address/address";
+
 import { ParamsAddress } from "../../types/app";
 import { findNearByDriver } from "../../services/booking/driver";
 import { getVehicleTypes } from "../../services/booking/vehicle-type";
@@ -69,11 +70,12 @@ export default function PickUp() {
         currentLocation = await Location.getCurrentPositionAsync({});
         await AsyncStorage.setItem("currentLocation", JSON.stringify(location));
       }
-      const address = await getAddressByLatLng(
-        currentLocation.coords.latitude,
-        currentLocation.coords.longitude
-      );
-      setAddress(address.results?.[0]?.formatted_address || "");
+
+      const addr = await getAddress({
+        lat: currentLocation.coords.latitude,
+        long: currentLocation.coords.longitude,
+      });
+      setAddress(addr?.formatted_address || "");
       setLocationPickUp(currentLocation);
 
       const vehicleTypes = await getVehicleTypes();
@@ -110,8 +112,11 @@ export default function PickUp() {
       timestamp: Date.now(),
     });
 
-    const address = await getAddressByLatLng(region.latitude, region.longitude);
-    setAddress(address.results?.[0]?.formatted_address || "");
+    const addr = await getAddress({
+      lat: region.latitude,
+      long: region.longitude,
+    });
+    setAddress(addr?.formatted_address || "");
   };
 
   const handleBooking = async () => {
