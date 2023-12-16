@@ -2,13 +2,13 @@ import { Text, Card, Separator, XStack, Avatar, YStack, Button } from 'tamagui'
 import React from 'react'
 import * as Linking from 'expo-linking';
 import { PhoneOutgoing } from '@tamagui/lucide-icons';
+import { NewBookingSocketRequest } from "schema/socket/booking";
 
+export interface CustomerCardProps {
+  reqBooking?: NewBookingSocketRequest;
+}
 
-// export interface CustomerCardProps {
-//     customer: Customer;
-// }
-
-export default function CustomerCard() {
+export default function CustomerCard({ reqBooking }: CustomerCardProps) {
   return (
     <Card
     elevate
@@ -34,13 +34,16 @@ export default function CustomerCard() {
         <Avatar.Fallback bc="red" />
       </Avatar>
       <YStack ml="$2" flex={1}>
-        <Text >{`Nguyen Minh Thao`}</Text>
-        <Text theme="alt1">{`1 KM`}</Text>
+        <Text >{`${reqBooking?.customer?.first_name} ${reqBooking?.customer?.last_name}`}</Text>
+        <Text theme="alt1">{`Distance is ${
+        reqBooking?.distance &&
+        Math.round((reqBooking?.distance / 1000) * 100) / 100
+      } km.`}</Text>
       </YStack>
       <Button
         icon={PhoneOutgoing}
         onPress={() => {
-          Linking.openURL(`tel: 0123456789`);
+          Linking.openURL(`tel: ${reqBooking?.customer?.phone_number}`);
         }}
         bg="$green8"
       >
