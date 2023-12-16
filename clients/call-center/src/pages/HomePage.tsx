@@ -20,7 +20,7 @@ export default function HomePage() {
       <div className="flex gap-4 mb-8">
         <div className="flex-auto">
           <div className="mb-9">
-            <p className="text-2xl font-bold mb-3">{`General ( ${moment().subtract(1, "month").startOf("month").format('MMMM')} )`}</p>
+            <p className="text-2xl font-bold mb-3">{`General ( ${moment().startOf("month").format('MMMM')} )`}</p>
             <div className="flex justify-evenly items-center gap-3">
               <NumberCard
                 title="Customers"
