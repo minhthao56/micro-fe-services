@@ -20,8 +20,7 @@ export async function findNearByDriver(req: GetNearbyDriversRequest) {
     GetNearbyDriversResponse
   >("driver/nearby",{
     params:{
-        lat: `${req.request_lat}`,
-        long: `${req.request_long}`,
+      ...req  
     },
   });
 }

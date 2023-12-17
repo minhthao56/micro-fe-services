@@ -379,7 +379,7 @@ export default function PickUp() {
               }}
               apikey={process.env.EXPO_PUBLIC_GOONG_KEY || ""}
               directionsServiceBaseUrl="https://rsapi.goong.io/Direction"
-              strokeWidth={5}
+              strokeWidth={7}
               strokeColor="#00b0ff"
             />
           </>

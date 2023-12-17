@@ -151,6 +151,7 @@ export default function NotificationScreen() {
           refreshing={mode === "refreshing"}
           onRefresh={async () => {
             setPage(1);
+            setCurrentTab(TABS[0]);
             await handleGetNotifications({ page: 1, mode: "refreshing" });
           }}
           ItemSeparatorComponent={() => <View mb="$3" />}
@@ -171,7 +172,7 @@ export default function NotificationScreen() {
           }
           onEndReachedThreshold={0.5}
         />
-         {
+        {
           mode === "loadMore" && <Spinner />
         }
       </YStack>

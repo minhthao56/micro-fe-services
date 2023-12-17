@@ -101,8 +101,10 @@ export default function CreateBooking({
 
    await mutateAsync ({
       vehicle_type_id: 1,
-      request_lat: startAddress.lat,
-      request_long: startAddress.long,
+      start_lat: startAddress.lat,
+      start_long: startAddress.long,
+      end_lat: endAddress.lat,
+      end_long: endAddress.long,
     })
 
     if (data?.drivers?.length === 0) {
