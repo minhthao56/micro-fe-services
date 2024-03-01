@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, AutocompleteItem, AutocompleteProps } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { searchAddress } from "../../services/googleapis/place";

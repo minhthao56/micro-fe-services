@@ -102,7 +102,7 @@ export default function HomeScreen() {
   }, [reqBooking?.customer.socket_id]);
 
   useEffect(() => {
-    const unsubscribe = intervalUpdate(updateCurrentLocation, 5000);
+    const unsubscribe = intervalUpdate(updateCurrentLocation, 3000);
     return () => {
       unsubscribe();
     };
