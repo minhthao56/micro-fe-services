@@ -1,4 +1,7 @@
 # System Booking
+This is a system booking for taxi service. It includes 3 main parts: customer app, driver app and call center web app.
+## Demo
+![Alt Text](docs/demo.gif)
 ## Install dependencies (Only support for Linux and MacOS)
 ### Backend
 - Node.js: https://nodejs.org/en/
